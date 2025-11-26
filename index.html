@@ -1,72 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Register for our cricket team - Join the best cricket club and showcase your talent">
+    <meta name="description"
+        content="Register for our cricket team - Join the best cricket club and showcase your talent">
     <title>Cricket Team Registration | Join Our Squad</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="hero">
         <div class="hero-content">
             <h1>Join Our Cricket Team</h1>
-            <p class="hero-subtitle">Register now and become part of our championship squad. Show your skills, passion, and dedication on the field!</p>
+            <p class="hero-subtitle">Register now and become part of our championship squad. Show your skills, passion,
+                and dedication on the field!</p>
         </div>
 
         <div class="form-card card">
             <h2 class="text-center mb-2">Player Registration</h2>
             <p class="text-center mb-3" style="color: var(--text-muted);">Fill in your details to join the team</p>
-            
+
             <form id="registrationForm">
                 <div class="form-group">
                     <label for="playerName">Full Name *</label>
-                    <input 
-                        type="text" 
-                        id="playerName" 
-                        name="playerName" 
-                        placeholder="Enter your full name" 
-                        required
-                    >
+                    <input type="text" id="playerName" name="playerName" placeholder="Enter your full name" required>
                     <div id="nameError" class="error-message hidden">Please enter your full name</div>
                 </div>
 
                 <div class="form-group">
                     <label for="age">Age *</label>
-                    <input 
-                        type="number" 
-                        id="age" 
-                        name="age" 
-                        placeholder="Enter your age" 
-                        min="10" 
-                        max="100" 
-                        required
-                    >
+                    <input type="number" id="age" name="age" placeholder="Enter your age" min="10" max="100" required>
                     <div id="ageError" class="error-message hidden">Please enter a valid age (10-100)</div>
                 </div>
 
                 <div class="form-group">
                     <label for="contact">Contact Number *</label>
-                    <input 
-                        type="tel" 
-                        id="contact" 
-                        name="contact" 
-                        placeholder="Enter your contact number" 
-                        pattern="[0-9]{10}" 
-                        required
-                    >
-                    <div id="contactError" class="error-message hidden">Please enter a valid 10-digit contact number</div>
+                    <input type="tel" id="contact" name="contact" placeholder="Enter your contact number"
+                        pattern="[0-9]{10}" required>
+                    <div id="contactError" class="error-message hidden">Please enter a valid 10-digit contact number
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email Address *</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        placeholder="Enter your email address" 
-                        required
-                    >
+                    <input type="email" id="email" name="email" placeholder="Enter your email address" required>
                     <div id="emailError" class="error-message hidden">Please enter a valid email address</div>
                 </div>
 
@@ -130,11 +109,16 @@
             </form>
 
             <p class="text-center mt-3" style="font-size: 0.9rem; color: var(--text-muted);">
-                Admin? <a href="admin.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">Login here</a>
+                <a href="profiles.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">👥 View
+                    Player Profiles</a>
+                &nbsp;|&nbsp;
+                Admin? <a href="admin.html"
+                    style="color: var(--primary); text-decoration: none; font-weight: 600;">Login here</a>
             </p>
         </div>
     </div>
 
     <script src="app.js"></script>
 </body>
+
 </html>

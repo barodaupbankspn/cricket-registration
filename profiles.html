@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View player profiles - Cricket Team Registration">
+    <title>Player Profiles | Cricket Team</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container" style="padding-top: var(--spacing-xl); padding-bottom: var(--spacing-xl);">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div>
+                <h1 style="margin-bottom: 0.5rem;">Player Profiles</h1>
+                <p style="color: var(--text-muted);">Browse our talented cricket team members</p>
+            </div>
+            <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                <a href="index.html" class="btn btn-primary">➕ Register</a>
+                <a href="admin.html" class="btn btn-secondary">🔐 Admin</a>
+            </div>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="card mb-3">
+            <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; align-items: center;">
+                <div style="flex: 1; min-width: 250px;">
+                    <input type="text" id="searchInput" placeholder="🔍 Search players by name..." style="margin: 0;">
+                </div>
+                <div>
+                    <select id="roleFilter" style="margin: 0;">
+                        <option value="">All Roles</option>
+                        <option value="Batsman">Batsman</option>
+                        <option value="Bowler">Bowler</option>
+                        <option value="All-Rounder">All-Rounder</option>
+                        <option value="Wicket-Keeper">Wicket-Keeper</option>
+                        <option value="Wicket-Keeper Batsman">Wicket-Keeper Batsman</option>
+                    </select>
+                </div>
+                <div>
+                    <select id="experienceFilter" style="margin: 0;">
+                        <option value="">All Experience</option>
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                        <option value="Professional">Professional</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalPlayers">0</div>
+                <div class="stat-label">Total Players</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalBatsmen">0</div>
+                <div class="stat-label">Batsmen</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalBowlers">0</div>
+                <div class="stat-label">Bowlers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalAllRounders">0</div>
+                <div class="stat-label">All-Rounders</div>
+            </div>
+        </div>
+
+        <!-- Players Grid -->
+        <div id="noPlayers" class="text-center" style="padding: var(--spacing-xl); color: var(--text-muted);">
+            <p style="font-size: 1.5rem;">🏏 No players registered yet</p>
+            <p>Be the first to join our team!</p>
+            <a href="index.html" class="btn btn-primary mt-2">Register Now</a>
+        </div>
+
+        <div id="playersGrid" class="hidden"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: var(--spacing-lg); margin-top: var(--spacing-xl);">
+            <!-- Player cards will be inserted here -->
+        </div>
+    </div>
+
+    <script src="profiles.js"></script>
+</body>
+
+</html>
