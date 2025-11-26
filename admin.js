@@ -1,33 +1,30 @@
-// Cricket Team Registration - Admin Dashboard
-
+// Admin Dashboard Logic
 document.addEventListener('DOMContentLoaded', function () {
-    const ADMIN_PASSWORD = 'admin123'; // Change this for production
+    // Admin Credentials (Hardcoded for demo)
+    const ADMIN_ID = '109058';
+    const ADMIN_PASSWORD = 'admin12345';
 
-    // Screen elements
+    // DOM Elements
     const loginScreen = document.getElementById('loginScreen');
     const dashboardScreen = document.getElementById('dashboardScreen');
-
-    // Login form
     const loginForm = document.getElementById('loginForm');
+    const adminIdInput = document.getElementById('adminId');
     const passwordInput = document.getElementById('password');
     const loginError = document.getElementById('loginError');
-
-    // Dashboard elements
     const logoutBtn = document.getElementById('logoutBtn');
-    const exportCSVBtn = document.getElementById('exportCSV');
-    const syncSheetsBtn = document.getElementById('syncSheets');
 
-    // Table elements
-    const playersTableBody = document.getElementById('playersTableBody');
     const playersTableContainer = document.getElementById('playersTableContainer');
+    const playersTableBody = document.getElementById('playersTableBody');
     const noPlayers = document.getElementById('noPlayers');
 
-    // Filter elements
     const searchInput = document.getElementById('searchInput');
     const roleFilter = document.getElementById('roleFilter');
     const experienceFilter = document.getElementById('experienceFilter');
 
-    // Stats elements
+    const exportCSVBtn = document.getElementById('exportCSV');
+    const syncSheetsBtn = document.getElementById('syncSheets');
+
+    // Stats Elements
     const totalPlayersEl = document.getElementById('totalPlayers');
     const totalBatsmenEl = document.getElementById('totalBatsmen');
     const totalBowlersEl = document.getElementById('totalBowlers');
@@ -42,14 +39,19 @@ document.addEventListener('DOMContentLoaded', function () {
     loginForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        if (passwordInput.value === ADMIN_PASSWORD) {
+        const adminId = adminIdInput.value.trim();
+        const password = passwordInput.value;
+
+        if (adminId === ADMIN_ID && password === ADMIN_PASSWORD) {
             sessionStorage.setItem('adminLoggedIn', 'true');
             loginError.classList.add('hidden');
             showDashboard();
         } else {
             loginError.classList.remove('hidden');
+            loginError.textContent = 'Incorrect ID or password';
+            adminIdInput.value = '';
             passwordInput.value = '';
-            passwordInput.focus();
+            adminIdInput.focus();
         }
     });
 
@@ -58,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
         sessionStorage.removeItem('adminLoggedIn');
         dashboardScreen.classList.add('hidden');
         loginScreen.classList.remove('hidden');
+        adminIdInput.value = '';
         passwordInput.value = '';
     });
 
@@ -117,6 +120,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 year: 'numeric'
             });
 
+            // Status Color Logic
+            let statusColor = '#ffaa00'; // Default Pending/Under Observation
+            if (player.status === 'Approved') statusColor = '#00cc70';
+            if (player.status === 'Rejected') statusColor = '#cc0044';
+
             row.innerHTML = `
                 <td>${index + 1}</td>
                 <td style="font-weight: 600; color: var(--text-primary);">${player.name}</td>
@@ -127,12 +135,60 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${player.battingStyle}</td>
                 <td>${player.bowlingStyle}</td>
                 <td>${player.experience}</td>
+                <td>
+                    <select onchange="updatePlayerStatus(${player.id}, this.value)" 
+                            style="padding: 4px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); 
+                                   background: rgba(0,0,0,0.2); color: ${statusColor}; font-weight: bold;">
+                        <option value="Under Observation" ${player.status === 'Under Observation' ? 'selected' : ''}>Under Observation</option>
+                        <option value="Approved" ${player.status === 'Approved' ? 'selected' : ''}>Approved</option>
+                        <option value="Rejected" ${player.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                    </select>
+                </td>
                 <td>${formattedDate}</td>
+                <td>
+                    <button class="delete-btn" onclick="deletePlayer(${player.id})" style="background: linear-gradient(135deg, var(--danger), #cc0044); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.3s ease;">
+                        🗑️ Delete
+                    </button>
+                </td>
             `;
 
             playersTableBody.appendChild(row);
         });
     }
+
+    // Make functions available globally
+    window.deletePlayer = function (id) {
+        if (confirm('Are you sure you want to delete this player?')) {
+            let players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
+            players = players.filter(p => p.id !== id);
+            localStorage.setItem('cricketPlayers', JSON.stringify(players));
+
+            // Reload the display
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput.value) {
+                filterPlayers();
+            } else {
+                loadPlayers();
+            }
+        }
+    };
+
+    window.updatePlayerStatus = function (id, newStatus) {
+        let players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
+        const playerIndex = players.findIndex(p => p.id === id);
+        if (playerIndex !== -1) {
+            players[playerIndex].status = newStatus;
+            localStorage.setItem('cricketPlayers', JSON.stringify(players));
+
+            // Reload to update colors
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput.value) {
+                filterPlayers();
+            } else {
+                loadPlayers();
+            }
+        }
+    };
 
     // Search functionality
     searchInput.addEventListener('input', filterPlayers);
@@ -172,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Create CSV content
-        const headers = ['Name', 'Age', 'Contact', 'Email', 'Role', 'Batting Style', 'Bowling Style', 'Experience', 'Registered Date'];
+        const headers = ['Name', 'Age', 'Contact', 'Email', 'Role', 'Batting Style', 'Bowling Style', 'Experience', 'Status', 'Registered Date'];
         const csvContent = [
             headers.join(','),
             ...players.map(player => {
@@ -186,6 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     `"${player.battingStyle}"`,
                     `"${player.bowlingStyle}"`,
                     `"${player.experience}"`,
+                    `"${player.status || 'Under Observation'}"`,
                     registeredDate
                 ].join(',');
             })
@@ -227,19 +284,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Placeholder for Google Sheets integration
         alert('Google Sheets integration coming soon!\n\nTo set up:\n1. Create a Google Apps Script\n2. Deploy as Web App\n3. Add the URL to this function\n\nFor now, use CSV export to manually import to Google Sheets.');
-
-        // Example implementation:
-        // const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
-        // fetch(scriptURL, {
-        //     method: 'POST',
-        //     body: JSON.stringify(players)
-        // })
-        // .then(response => response.json())
-        // .then(data => {
-        //     alert('Successfully synced to Google Sheets!');
-        // })
-        // .catch(error => {
-        //     alert('Error syncing to Google Sheets: ' + error.message);
-        // });
     });
 });

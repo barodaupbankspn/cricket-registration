@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Register for the Shahjahanpur Spartans - Join the squad now!">
+    <title>Player Registration | Shahjahanpur Spartans</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="registration-theme.css">
+    <style>
+        /* Compact Layout Overrides */
+        .hero {
+            padding: 1rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-card {
+            max-width: 800px;
+            /* Wider to fit 2 columns */
+            padding: 1.5rem;
+            margin: 0 auto;
+        }
+
+        .form-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-card p {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* 2-Column Grid for Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            margin-bottom: 0.2rem;
+        }
+
+        input,
+        select {
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            height: 38px;
+            /* Fixed height for consistency */
+        }
+
+        .btn {
+            padding: 0.6rem;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        .footer-links {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .home-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .home-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Full width for button on mobile, span 2 cols on desktop */
+        .submit-btn-container {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body class="registration-page">
+    <div class="hero">
+        <div class="form-card card">
+            <h2 class="text-center">🏏 Shahjahanpur Spartans Registration</h2>
+            <p class="text-center" style="color: var(--text-muted);">Fill in your details to join the Spartans team!</p>
+
+            <form id="registrationForm">
+                <div class="form-grid">
+                    <!-- Left Column -->
+                    <div class="form-group">
+                        <label for="playerName">Full Name *</label>
+                        <input type="text" id="playerName" name="playerName" placeholder="Enter full name" required>
+                        <div id="nameError" class="error-message hidden">Required</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age">Age *</label>
+                        <input type="number" id="age" name="age" placeholder="Age" min="10" max="100" required>
+                        <div id="ageError" class="error-message hidden">Invalid age</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact">Contact Number *</label>
+                        <input type="tel" id="contact" name="contact" placeholder="10-digit number" pattern="[0-9]{10}"
+                            required>
+                        <div id="contactError" class="error-message hidden">Invalid number</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" placeholder="Email address" required>
+                        <div id="emailError" class="error-message hidden">Invalid email</div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="form-group">
+                        <label for="role">Playing Role *</label>
+                        <select id="role" name="role" required>
+                            <option value="">Select role</option>
+                            <option value="Batsman">Batsman</option>
+                            <option value="Bowler">Bowler</option>
+                            <option value="All-Rounder">All-Rounder</option>
+                            <option value="Wicket-Keeper">Wicket-Keeper</option>
+                            <option value="Wicket-Keeper Batsman">WK Batsman</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="battingStyle">Batting Style *</label>
+                        <select id="battingStyle" name="battingStyle" required>
+                            <option value="">Select style</option>
+                            <option value="Right-Hand">Right-Hand</option>
+                            <option value="Left-Hand">Left-Hand</option>
+                            <option value="N/A">N/A</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bowlingStyle">Bowling Style</label>
+                        <select id="bowlingStyle" name="bowlingStyle">
+                            <option value="">Select style</option>
+                            <option value="Right-Arm Fast">Right-Arm Fast</option>
+                            <option value="Left-Arm Fast">Left-Arm Fast</option>
+                            <option value="Right-Arm Medium">Right-Arm Medium</option>
+                            <option value="Left-Arm Medium">Left-Arm Medium</option>
+                            <option value="Right-Arm Spin">Right-Arm Spin</option>
+                            <option value="Left-Arm Spin">Left-Arm Spin</option>
+                            <option value="N/A">N/A</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="experience">Experience Level *</label>
+                        <select id="experience" name="experience" required>
+                            <option value="">Select level</option>
+                            <option value="Beginner">Beginner (0-2 yrs)</option>
+                            <option value="Intermediate">Intermediate (2-5 yrs)</option>
+                            <option value="Advanced">Advanced (5-10 yrs)</option>
+                            <option value="Professional">Professional (10+ yrs)</option>
+                        </select>
+                    </div>
+
+                    <!-- Full Width Button -->
+                    <div class="submit-btn-container">
+                        <button type="submit" class="btn btn-primary btn-full" style="margin-top: 0.5rem;">
+                            Register Now
+                        </button>
+                    </div>
+                </div>
+
+                <div id="successMessage" class="success-message hidden">
+                    🎉 Registration Successful! Welcome to the Spartans!
+                </div>
+            </form>
+
+            <div class="footer-links">
+                <a href="index.html" class="home-btn">
+                    🏠 Home
+                </a>
+                <span style="color: rgba(255,255,255,0.3);">|</span>
+                <a href="profiles.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">
+                    👥 View Profiles
+                </a>
+                <span style="color: rgba(255,255,255,0.3);">|</span>
+                <a href="admin.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                    Admin Login
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

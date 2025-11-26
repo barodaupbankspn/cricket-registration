@@ -1,10 +1,10 @@
 // Cricket Team Registration - Main Application Logic
 
 // Form validation and submission
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('registrationForm');
     const successMessage = document.getElementById('successMessage');
-    
+
     // Form field elements
     const fields = {
         playerName: document.getElementById('playerName'),
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         bowlingStyle: document.getElementById('bowlingStyle'),
         experience: document.getElementById('experience')
     };
-    
+
     // Error message elements
     const errors = {
         name: document.getElementById('nameError'),
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
         batting: document.getElementById('battingError'),
         experience: document.getElementById('experienceError')
     };
-    
+
     // Real-time validation
     fields.playerName.addEventListener('blur', () => validateName());
     fields.age.addEventListener('blur', () => validateAge());
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     fields.role.addEventListener('change', () => validateRole());
     fields.battingStyle.addEventListener('change', () => validateBattingStyle());
     fields.experience.addEventListener('change', () => validateExperience());
-    
+
     // Validation functions
     function validateName() {
         const value = fields.playerName.value.trim();
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hideError(errors.name);
         return true;
     }
-    
+
     function validateAge() {
         const value = parseInt(fields.age.value);
         if (isNaN(value) || value < 10 || value > 100) {
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hideError(errors.age);
         return true;
     }
-    
+
     function validateContact() {
         const value = fields.contact.value.trim();
         const phoneRegex = /^[0-9]{10}$/;
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hideError(errors.contact);
         return true;
     }
-    
+
     function validateEmail() {
         const value = fields.email.value.trim();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hideError(errors.email);
         return true;
     }
-    
+
     function validateRole() {
         if (!fields.role.value) {
             showError(errors.role);
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hideError(errors.role);
         return true;
     }
-    
+
     function validateBattingStyle() {
         if (!fields.battingStyle.value) {
             showError(errors.batting);
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hideError(errors.batting);
         return true;
     }
-    
+
     function validateExperience() {
         if (!fields.experience.value) {
             showError(errors.experience);
@@ -106,19 +106,19 @@ document.addEventListener('DOMContentLoaded', function() {
         hideError(errors.experience);
         return true;
     }
-    
+
     function showError(errorElement) {
         errorElement.classList.remove('hidden');
     }
-    
+
     function hideError(errorElement) {
         errorElement.classList.add('hidden');
     }
-    
+
     // Form submission
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function (e) {
         e.preventDefault();
-        
+
         // Validate all fields
         const isNameValid = validateName();
         const isAgeValid = validateAge();
@@ -127,10 +127,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const isRoleValid = validateRole();
         const isBattingValid = validateBattingStyle();
         const isExperienceValid = validateExperience();
-        
-        if (isNameValid && isAgeValid && isContactValid && isEmailValid && 
+
+        if (isNameValid && isAgeValid && isContactValid && isEmailValid &&
             isRoleValid && isBattingValid && isExperienceValid) {
-            
+
             // Create player object
             const player = {
                 id: Date.now(),
@@ -142,46 +142,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 battingStyle: fields.battingStyle.value,
                 bowlingStyle: fields.bowlingStyle.value || 'N/A',
                 experience: fields.experience.value,
+                status: 'Under Observation',
                 registeredAt: new Date().toISOString()
             };
-            
+
             // Save to localStorage
             savePlayer(player);
-            
+
             // Show success message
             successMessage.classList.remove('hidden');
-            
+
             // Reset form
             form.reset();
-            
+
             // Hide success message after 5 seconds
             setTimeout(() => {
                 successMessage.classList.add('hidden');
             }, 5000);
-            
+
             // Optional: Send to Google Sheets (implement later)
             // sendToGoogleSheets(player);
         }
     });
-    
+
     // Save player to localStorage
     function savePlayer(player) {
         let players = getPlayers();
         players.push(player);
         localStorage.setItem('cricketPlayers', JSON.stringify(players));
     }
-    
+
     // Get all players from localStorage
     function getPlayers() {
         const playersData = localStorage.getItem('cricketPlayers');
         return playersData ? JSON.parse(playersData) : [];
     }
-    
+
     // Google Sheets integration (placeholder)
     function sendToGoogleSheets(player) {
         // This will be implemented with Google Apps Script or API
         console.log('Sending to Google Sheets:', player);
-        
+
         // Example: Using Google Apps Script Web App
         // const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
         // fetch(scriptURL, {
