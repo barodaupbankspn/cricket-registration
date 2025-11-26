@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Register for our cricket team - Join the best cricket club and showcase your talent">
+    <title>Cricket Team Registration | Join Our Squad</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Join Our Cricket Team</h1>
+            <p class="hero-subtitle">Register now and become part of our championship squad. Show your skills, passion, and dedication on the field!</p>
+        </div>
+
+        <div class="form-card card">
+            <h2 class="text-center mb-2">Player Registration</h2>
+            <p class="text-center mb-3" style="color: var(--text-muted);">Fill in your details to join the team</p>
+            
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="playerName">Full Name *</label>
+                    <input 
+                        type="text" 
+                        id="playerName" 
+                        name="playerName" 
+                        placeholder="Enter your full name" 
+                        required
+                    >
+                    <div id="nameError" class="error-message hidden">Please enter your full name</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="age">Age *</label>
+                    <input 
+                        type="number" 
+                        id="age" 
+                        name="age" 
+                        placeholder="Enter your age" 
+                        min="10" 
+                        max="100" 
+                        required
+                    >
+                    <div id="ageError" class="error-message hidden">Please enter a valid age (10-100)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contact">Contact Number *</label>
+                    <input 
+                        type="tel" 
+                        id="contact" 
+                        name="contact" 
+                        placeholder="Enter your contact number" 
+                        pattern="[0-9]{10}" 
+                        required
+                    >
+                    <div id="contactError" class="error-message hidden">Please enter a valid 10-digit contact number</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="Enter your email address" 
+                        required
+                    >
+                    <div id="emailError" class="error-message hidden">Please enter a valid email address</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Playing Role *</label>
+                    <select id="role" name="role" required>
+                        <option value="">Select your role</option>
+                        <option value="Batsman">Batsman</option>
+                        <option value="Bowler">Bowler</option>
+                        <option value="All-Rounder">All-Rounder</option>
+                        <option value="Wicket-Keeper">Wicket-Keeper</option>
+                        <option value="Wicket-Keeper Batsman">Wicket-Keeper Batsman</option>
+                    </select>
+                    <div id="roleError" class="error-message hidden">Please select your playing role</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="battingStyle">Batting Style *</label>
+                    <select id="battingStyle" name="battingStyle" required>
+                        <option value="">Select batting style</option>
+                        <option value="Right-Hand">Right-Hand</option>
+                        <option value="Left-Hand">Left-Hand</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                    <div id="battingError" class="error-message hidden">Please select your batting style</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bowlingStyle">Bowling Style</label>
+                    <select id="bowlingStyle" name="bowlingStyle">
+                        <option value="">Select bowling style</option>
+                        <option value="Right-Arm Fast">Right-Arm Fast</option>
+                        <option value="Left-Arm Fast">Left-Arm Fast</option>
+                        <option value="Right-Arm Medium">Right-Arm Medium</option>
+                        <option value="Left-Arm Medium">Left-Arm Medium</option>
+                        <option value="Right-Arm Spin">Right-Arm Spin</option>
+                        <option value="Left-Arm Spin">Left-Arm Spin</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="experience">Experience Level *</label>
+                    <select id="experience" name="experience" required>
+                        <option value="">Select experience level</option>
+                        <option value="Beginner">Beginner (0-2 years)</option>
+                        <option value="Intermediate">Intermediate (2-5 years)</option>
+                        <option value="Advanced">Advanced (5-10 years)</option>
+                        <option value="Professional">Professional (10+ years)</option>
+                    </select>
+                    <div id="experienceError" class="error-message hidden">Please select your experience level</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    Register Now
+                </button>
+
+                <div id="successMessage" class="success-message hidden">
+                    🎉 Registration Successful! Welcome to the team!
+                </div>
+            </form>
+
+            <p class="text-center mt-3" style="font-size: 0.9rem; color: var(--text-muted);">
+                Admin? <a href="admin.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
