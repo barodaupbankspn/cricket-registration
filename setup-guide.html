@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheets Setup Guide - Shahjahanpur Spartans</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .setup-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .step-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .code-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        .warning-box {
+            background: rgba(255, 170, 0, 0.1);
+            border-left: 4px solid #ffaa00;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: rgba(0, 204, 112, 0.1);
+            border-left: 4px solid #00cc70;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .btn-copy {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .btn-copy:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="setup-container">
+        <h1 style="text-align: center; margin-bottom: 2rem;">🔧 Google Sheets Setup Guide</h1>
+
+        <div class="success-box">
+            <strong>✅ Why Google Sheets?</strong><br>
+            Google Sheets provides a free, centralized database that works from any device. All player registrations
+            will be stored in one place, accessible to admins from anywhere!
+        </div>
+
+        <!-- Step 1 -->
+        <div class="step-card">
+            <h2><span class="step-number">1</span>Create Google Sheet</h2>
+            <ol>
+                <li>Go to <a href="https://sheets.google.com" target="_blank" style="color: var(--accent);">Google
+                        Sheets</a></li>
+                <li>Click <strong>"+ Blank"</strong> to create a new spreadsheet</li>
+                <li>Name it: <strong>"Cricket Registration Database"</strong></li>
+                <li>In the first row, add these column headers:</li>
+            </ol>
+            <div class="code-box">
+                A1: ID | B1: Name | C1: Age | D1: Contact | E1: Email | F1: Place of Posting | G1: Address<br>
+                H1: Role | I1: Batting Style | J1: Bowling Style | K1: Experience | L1: Jersey Size | M1: Status | N1:
+                Registered At
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card">
+            <h2><span class="step-number">2</span>Create Apps Script</h2>
+            <ol>
+                <li>In your Google Sheet, click <strong>Extensions → Apps Script</strong></li>
+                <li>Delete any existing code in the editor</li>
+                <li>Copy the code from <code>google-apps-script.js</code> file</li>
+                <li>Paste it into the Apps Script editor</li>
+                <li>Click <strong>File → Save</strong> (or Ctrl+S)</li>
+                <li>Name the project: <strong>"Cricket Registration API"</strong></li>
+            </ol>
+            <div class="warning-box">
+                <strong>⚠️ Important:</strong> Make sure to copy the ENTIRE code from the google-apps-script.js file!
+            </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-card">
+            <h2><span class="step-number">3</span>Deploy as Web App</h2>
+            <ol>
+                <li>Click <strong>Deploy → New deployment</strong></li>
+                <li>Click the gear icon ⚙️ next to "Select type"</li>
+                <li>Choose <strong>"Web app"</strong></li>
+                <li>Configure settings:
+                    <ul>
+                        <li><strong>Description:</strong> Cricket Registration API</li>
+                        <li><strong>Execute as:</strong> Me (your email)</li>
+                        <li><strong>Who has access:</strong> Anyone</li>
+                    </ul>
+                </li>
+                <li>Click <strong>Deploy</strong></li>
+                <li>Click <strong>Authorize access</strong></li>
+                <li>Choose your Google account</li>
+                <li>Click <strong>Advanced → Go to Cricket Registration API (unsafe)</strong></li>
+                <li>Click <strong>Allow</strong></li>
+                <li><strong>📋 COPY THE WEB APP URL</strong> - You'll need this!</li>
+            </ol>
+            <div class="success-box">
+                <strong>✅ Success!</strong> Your Web App URL should look like:<br>
+                <code>https://script.google.com/macros/s/AKfycby.../exec</code>
+            </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step-card">
+            <h2><span class="step-number">4</span>Update Your Website Code</h2>
+            <ol>
+                <li>Open <code>sheets-api.js</code> in your project folder</li>
+                <li>Find this line (near the top):</li>
+            </ol>
+            <div class="code-box">
+                const GOOGLE_SHEETS_URL = 'YOUR_GOOGLE_SCRIPT_URL_HERE';
+            </div>
+            <ol start="3">
+                <li>Replace <code>'YOUR_GOOGLE_SCRIPT_URL_HERE'</code> with your Web App URL</li>
+                <li>Save the file</li>
+            </ol>
+            <div class="code-box">
+                // Example:<br>
+                const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycby.../exec';
+            </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="step-card">
+            <h2><span class="step-number">5</span>Test the Integration</h2>
+            <ol>
+                <li>Open <code>register.html</code> in your browser</li>
+                <li>Fill out and submit a test registration</li>
+                <li>Check your Google Sheet - the registration should appear!</li>
+                <li>Open <code>admin.html</code> and login</li>
+                <li>Click <strong>"Sync from Google Sheets"</strong></li>
+                <li>You should see the test registration in the admin dashboard</li>
+            </ol>
+            <div class="success-box">
+                <strong>🎉 Congratulations!</strong> Your registration system is now connected to Google Sheets!
+            </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="step-card">
+            <h2><span class="step-number">6</span>Deploy Online</h2>
+            <p>Now that everything is set up, you can deploy your website:</p>
+            <ol>
+                <li>Upload all files to your hosting service (GitHub Pages, Netlify, etc.)</li>
+                <li>Test registration from different devices</li>
+                <li>Verify admin can see all registrations</li>
+                <li>Use "Download GitHub Backup" to save player data</li>
+            </ol>
+        </div>
+
+        <div class="warning-box">
+            <h3>🔒 Security Notes</h3>
+            <ul>
+                <li>The Web App URL is public but only accepts data in the expected format</li>
+                <li>Regularly backup your Google Sheet data</li>
+                <li>Use the "Download GitHub Backup" feature to save player data</li>
+                <li>Keep your admin credentials secure</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="index.html" class="btn btn-primary">🏠 Back to Home</a>
+            <a href="admin.html" class="btn btn-accent" style="margin-left: 1rem;">🔐 Admin Dashboard</a>
+        </div>
+    </div>
+</body>
+
+</html>

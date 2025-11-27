@@ -1,22 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Player Status Check - Cricket Team Registration">
-    <title>Player Status | Cricket Team</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
+<div class="hero-content">
+    <h1>🏏 Check Your Status</h1>
+    <p class="hero-subtitle">Enter your mobile number to check your registration status</p>
+</div>
 
-<body>
-    <div class="hero">
-        <!-- Back Button -->
-        <div style="position: absolute; top: 20px; left: 20px;">
-            <a href="index.html" class="btn btn-secondary" style="text-decoration: none; padding: 0.5rem 1rem;">
-                ← Back to Home
-            </a>
+<div class="form-card card" style="max-width: 500px;">
+    <h2 class="text-center mb-2">Player Login</h2>
+    <p class="text-center mb-3" style="color: var(--text-muted);">Check if you've been approved</p>
+
+    <form id="playerLoginForm">
+        <div class="form-group">
+            <label for="mobileNumber">Mobile Number</label>
+            <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="Enter your 10-digit mobile number"
+                pattern="[0-9]{10}" required>
+            <div id="loginError" class="error-message hidden">Mobile number not found!</div>
         </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+            Check Status
+        </button>
+    </form>
+
+    <!-- Status Display (hidden initially) -->
+    <div id="statusDisplay" class="hidden" <!DOCTYPE html>
+        <html lang="en">
 
         <div class="hero-content">
             <h1>🏏 Check Your Status</h1>
@@ -29,26 +38,8 @@
 
             <form id="playerLoginForm">
                 <div class="form-group">
-                    <label for="mobileNumber">Mobile Number</label>
-                    <input type="tel" id="mobileNumber" name="mobileNumber"
-                        placeholder="Enter your 10-digit mobile number" pattern="[0-9]{10}" required>
-                    <div id="loginError" class="error-message hidden">Mobile number not found!</div>
-                </div>
+                    <script src="sheets-api.js"></script>
+                    <script src="player-login.js"></script>
+                    </body>
 
-                <button type="submit" class="btn btn-primary btn-full">
-                    Check Status
-                </button>
-            </form>
-
-            <!-- Status Display (hidden initially) -->
-            <div id="statusDisplay" class="hidden"
-                style="margin-top: var(--spacing-lg); padding: var(--spacing-md); border-radius: var(--radius-md); text-align: center;">
-                <!-- Status will be shown here -->
-            </div>
-        </div>
-    </div>
-
-    <script src="player-login.js"></script>
-</body>
-
-</html>
+        </html>

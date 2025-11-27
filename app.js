@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Form submission
-    form.addEventListener('submit', function (e) {
+    form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         // Validate all fields
@@ -174,6 +174,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isNameValid && isAgeValid && isContactValid && isEmailValid &&
             isRoleValid && isBattingValid && isExperienceValid && isJerseySizeValid &&
             isPostingValid && isAddressValid) {
+
+            // Disable submit button and show loading
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Submitting...';
 
             // Create player object
             const player = {
@@ -193,8 +199,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 registeredAt: new Date().toISOString()
             };
 
-            // Save to localStorage
+            // Try to save to Google Sheets first
+            if (typeof savePlayerToSheets === 'function') {
+                const sheetsResult = await savePlayerToSheets(player);
+                if (sheetsResult.success) {
+                    console.log('✅ Saved to Google Sheets');
+                } else {
+                    console.warn('⚠️ Google Sheets save failed, using localStorage only');
+                }
+            }
+
+            // Always save to localStorage as backup
             savePlayer(player);
+
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
 
             // Show success message
             successMessage.classList.remove('hidden');

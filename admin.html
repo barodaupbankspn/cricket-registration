@@ -54,7 +54,10 @@
                         📥 Export CSV
                     </button>
                     <button id="syncSheets" class="btn btn-secondary">
-                        🔄 Sync to Sheets
+                        🔄 Sync from Google Sheets
+                    </button>
+                    <button id="downloadBackup" class="btn btn-accent" onclick="downloadGitHubBackup()">
+                        💾 Download GitHub Backup
                     </button>
                     <button id="logoutBtn" class="btn btn-primary">
                         🚪 Logout
@@ -111,6 +114,14 @@
                 </div>
             </div>
 
+            <!-- Sync Status -->
+            <div class="card mb-2"
+                style="padding: 0.75rem; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3);">
+                <p id="lastSyncTime" style="margin: 0; font-size: 0.9rem; color: var(--accent);">
+                    Last sync: Never
+                </p>
+            </div>
+
             <!-- Players Table -->
             <div class="table-container">
                 <h3 class="mb-2">Registered Players</h3>
@@ -146,6 +157,8 @@
         </div>
     </div>
 
+    <script src="sheets-api.js"></script>
+    <script src="github-backup.js"></script>
     <script src="admin.js"></script>
 </body>
 

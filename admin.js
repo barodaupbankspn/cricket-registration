@@ -68,14 +68,70 @@ document.addEventListener('DOMContentLoaded', function () {
     function showDashboard() {
         loginScreen.classList.add('hidden');
         dashboardScreen.classList.remove('hidden');
-        loadPlayers();
+
+        // Check configuration
+        if (typeof isSheetsConfigured === 'function' && !isSheetsConfigured()) {
+            alert('⚠️ CRITICAL: Google Sheets NOT Configured!\n\nYou will NOT see registrations from other devices until you set up the Google Sheets URL.\n\nPlease open "setup-guide.html" and follow the instructions.');
+
+            // Add visual warning
+            const warningDiv = document.createElement('div');
+            warningDiv.style.background = '#ff1744';
+            warningDiv.style.color = 'white';
+            warningDiv.style.padding = '1rem';
+            warningDiv.style.textAlign = 'center';
+            warningDiv.style.marginBottom = '1rem';
+            warningDiv.style.borderRadius = '8px';
+            warningDiv.style.fontWeight = 'bold';
+            warningDiv.innerHTML = '⚠️ CROSS-DEVICE SYNC DISABLED: Google Sheets URL not set. <a href="setup-guide.html" target="_blank" style="color: white; text-decoration: underline;">Click here to setup</a>';
+
+            const container = document.querySelector('.dashboard-container');
+            container.insertBefore(warningDiv, container.firstChild);
+        }
+
+        // Auto-sync on load to ensure cross-device visibility
+        loadPlayers(true);
     }
 
     // Load and display players
-    function loadPlayers() {
+    async function loadPlayers(forceSync = false) {
+        // Try to sync with Google Sheets if configured
+        if (forceSync && typeof syncWithGoogleSheets === 'function') {
+            const syncBtn = document.getElementById('syncSheets');
+            if (syncBtn) {
+                syncBtn.disabled = true;
+                syncBtn.textContent = '⏳ Syncing...';
+            }
+
+            const syncResult = await syncWithGoogleSheets();
+
+            if (syncBtn) {
+                syncBtn.disabled = false;
+                if (syncResult.success) {
+                    syncBtn.textContent = '✅ Synced!';
+                    setTimeout(() => {
+                        syncBtn.textContent = '🔄 Sync from Google Sheets';
+                    }, 2000);
+                } else {
+                    syncBtn.textContent = '❌ Sync Failed';
+                    setTimeout(() => {
+                        syncBtn.textContent = '🔄 Sync from Google Sheets';
+                    }, 2000);
+                }
+            }
+        }
+
         const players = getPlayers();
         updateStats(players);
         displayPlayers(players);
+        updateLastSyncDisplay();
+    }
+
+    // Update last sync time display
+    function updateLastSyncDisplay() {
+        const syncTimeEl = document.getElementById('lastSyncTime');
+        if (syncTimeEl && typeof getLastSyncTime === 'function') {
+            syncTimeEl.textContent = 'Last sync: ' + getLastSyncTime();
+        }
     }
 
     // Get players from localStorage
@@ -181,8 +237,14 @@ document.addEventListener('DOMContentLoaded', function () {
         `);
     };
 
-    window.deletePlayer = function (id) {
+    window.deletePlayer = async function (id) {
         if (confirm('Are you sure you want to delete this player?')) {
+            // Delete from Google Sheets if configured
+            if (typeof deletePlayerFromSheets === 'function') {
+                await deletePlayerFromSheets(id);
+            }
+
+            // Delete from localStorage
             let players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
             players = players.filter(p => p.id !== id);
             localStorage.setItem('cricketPlayers', JSON.stringify(players));
@@ -197,7 +259,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    window.updatePlayerStatus = function (id, newStatus) {
+    window.updatePlayerStatus = async function (id, newStatus) {
+        // Update in Google Sheets if configured
+        if (typeof updatePlayerStatusInSheets === 'function') {
+            await updatePlayerStatusInSheets(id, newStatus);
+        }
+
+        // Update in localStorage
         let players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
         const playerIndex = players.findIndex(p => p.id === id);
         if (playerIndex !== -1) {
@@ -302,14 +370,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Sync to Google Sheets
     syncSheetsBtn.addEventListener('click', function () {
-        const players = getPlayers();
-
-        if (players.length === 0) {
-            alert('No players to sync!');
-            return;
-        }
-
-        // Placeholder for Google Sheets integration
-        alert('Google Sheets integration coming soon!\n\nTo set up:\n1. Create a Google Apps Script\n2. Deploy as Web App\n3. Add the URL to this function\n\nFor now, use CSV export to manually import to Google Sheets.');
+        loadPlayers(true); // Force sync with Google Sheets
     });
 });
