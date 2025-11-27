@@ -14,7 +14,10 @@ document.addEventListener('DOMContentLoaded', function () {
         role: document.getElementById('role'),
         battingStyle: document.getElementById('battingStyle'),
         bowlingStyle: document.getElementById('bowlingStyle'),
-        experience: document.getElementById('experience')
+        experience: document.getElementById('experience'),
+        jerseySize: document.getElementById('jerseySize'),
+        placeOfPosting: document.getElementById('placeOfPosting'),
+        address: document.getElementById('address')
     };
 
     // Error message elements
@@ -25,7 +28,10 @@ document.addEventListener('DOMContentLoaded', function () {
         email: document.getElementById('emailError'),
         role: document.getElementById('roleError'),
         batting: document.getElementById('battingError'),
-        experience: document.getElementById('experienceError')
+        experience: document.getElementById('experienceError'),
+        jerseySize: document.getElementById('jerseySizeError'),
+        posting: document.getElementById('postingError'),
+        address: document.getElementById('addressError')
     };
 
     // Real-time validation
@@ -36,6 +42,9 @@ document.addEventListener('DOMContentLoaded', function () {
     fields.role.addEventListener('change', () => validateRole());
     fields.battingStyle.addEventListener('change', () => validateBattingStyle());
     fields.experience.addEventListener('change', () => validateExperience());
+    fields.jerseySize.addEventListener('change', () => validateJerseySize());
+    fields.placeOfPosting.addEventListener('blur', () => validatePosting());
+    fields.address.addEventListener('blur', () => validateAddress());
 
     // Validation functions
     function validateName() {
@@ -107,12 +116,43 @@ document.addEventListener('DOMContentLoaded', function () {
         return true;
     }
 
+    function validateJerseySize() {
+        if (!fields.jerseySize.value) {
+            showError(errors.jerseySize);
+            return false;
+        }
+        hideError(errors.jerseySize);
+        return true;
+    }
+
+    function validatePosting() {
+        if (!fields.placeOfPosting.value.trim()) {
+            showError(errors.posting);
+            return false;
+        }
+        hideError(errors.posting);
+        return true;
+    }
+
+    function validateAddress() {
+        if (!fields.address.value.trim()) {
+            showError(errors.address);
+            return false;
+        }
+        hideError(errors.address);
+        return true;
+    }
+
     function showError(errorElement) {
-        errorElement.classList.remove('hidden');
+        if (errorElement) {
+            errorElement.classList.remove('hidden');
+        }
     }
 
     function hideError(errorElement) {
-        errorElement.classList.add('hidden');
+        if (errorElement) {
+            errorElement.classList.add('hidden');
+        }
     }
 
     // Form submission
@@ -127,9 +167,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const isRoleValid = validateRole();
         const isBattingValid = validateBattingStyle();
         const isExperienceValid = validateExperience();
+        const isJerseySizeValid = validateJerseySize();
+        const isPostingValid = validatePosting();
+        const isAddressValid = validateAddress();
 
         if (isNameValid && isAgeValid && isContactValid && isEmailValid &&
-            isRoleValid && isBattingValid && isExperienceValid) {
+            isRoleValid && isBattingValid && isExperienceValid && isJerseySizeValid &&
+            isPostingValid && isAddressValid) {
 
             // Create player object
             const player = {
@@ -138,10 +182,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 age: parseInt(fields.age.value),
                 contact: fields.contact.value.trim(),
                 email: fields.email.value.trim(),
+                placeOfPosting: fields.placeOfPosting.value.trim(),
+                address: fields.address.value.trim(),
                 role: fields.role.value,
                 battingStyle: fields.battingStyle.value,
                 bowlingStyle: fields.bowlingStyle.value || 'N/A',
                 experience: fields.experience.value,
+                jerseySize: fields.jerseySize.value,
                 status: 'Under Observation',
                 registeredAt: new Date().toISOString()
             };
@@ -159,9 +206,6 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 successMessage.classList.add('hidden');
             }, 5000);
-
-            // Optional: Send to Google Sheets (implement later)
-            // sendToGoogleSheets(player);
         }
     });
 
@@ -176,21 +220,5 @@ document.addEventListener('DOMContentLoaded', function () {
     function getPlayers() {
         const playersData = localStorage.getItem('cricketPlayers');
         return playersData ? JSON.parse(playersData) : [];
-    }
-
-    // Google Sheets integration (placeholder)
-    function sendToGoogleSheets(player) {
-        // This will be implemented with Google Apps Script or API
-        console.log('Sending to Google Sheets:', player);
-
-        // Example: Using Google Apps Script Web App
-        // const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
-        // fetch(scriptURL, {
-        //     method: 'POST',
-        //     body: JSON.stringify(player)
-        // })
-        // .then(response => response.json())
-        // .then(data => console.log('Success:', data))
-        // .catch(error => console.error('Error:', error));
     }
 });

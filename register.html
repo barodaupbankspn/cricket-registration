@@ -52,11 +52,16 @@
         }
 
         input,
-        select {
+        select,
+        textarea {
             padding: 0.5rem;
             font-size: 0.9rem;
+            /* Fixed height for consistency, except textarea */
+        }
+
+        input,
+        select {
             height: 38px;
-            /* Fixed height for consistency */
         }
 
         .btn {
@@ -140,6 +145,34 @@
                         <div id="emailError" class="error-message hidden">Invalid email</div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="placeOfPosting">Place of Posting *</label>
+                        <input type="text" id="placeOfPosting" name="placeOfPosting"
+                            placeholder="Current posting location" required>
+                        <div id="postingError" class="error-message hidden">Required</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Address *</label>
+                        <textarea id="address" name="address" placeholder="Enter full address" rows="2"
+                            style="width: 100%; resize: vertical;" required></textarea>
+                        <div id="addressError" class="error-message hidden">Required</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="jerseySize">Jersey Size *</label>
+                        <select id="jerseySize" name="jerseySize" required>
+                            <option value="">Select size</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                            <option value="XXXL">XXXL</option>
+                        </select>
+                        <div id="jerseySizeError" class="error-message hidden">Select size</div>
+                    </div>
+
                     <!-- Right Column -->
                     <div class="form-group">
                         <label for="role">Playing Role *</label>
@@ -151,6 +184,7 @@
                             <option value="Wicket-Keeper">Wicket-Keeper</option>
                             <option value="Wicket-Keeper Batsman">WK Batsman</option>
                         </select>
+                        <div id="roleError" class="error-message hidden">Select role</div>
                     </div>
 
                     <div class="form-group">
@@ -161,6 +195,7 @@
                             <option value="Left-Hand">Left-Hand</option>
                             <option value="N/A">N/A</option>
                         </select>
+                        <div id="battingError" class="error-message hidden">Select style</div>
                     </div>
 
                     <div class="form-group">
@@ -186,6 +221,7 @@
                             <option value="Advanced">Advanced (5-10 yrs)</option>
                             <option value="Professional">Professional (10+ yrs)</option>
                         </select>
+                        <div id="experienceError" class="error-message hidden">Select level</div>
                     </div>
 
                     <!-- Full Width Button -->

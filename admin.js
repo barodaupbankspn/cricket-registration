@@ -135,6 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${player.battingStyle}</td>
                 <td>${player.bowlingStyle}</td>
                 <td>${player.experience}</td>
+                <td>${player.jerseySize || '-'}</td>
                 <td>
                     <select onchange="updatePlayerStatus(${player.id}, this.value)" 
                             style="padding: 4px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); 
@@ -146,6 +147,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 </td>
                 <td>${formattedDate}</td>
                 <td>
+                    <button class="view-btn" onclick="viewPlayer(${index})" style="background: linear-gradient(135deg, var(--primary), #00d4ff); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-right: 5px; transition: all 0.3s ease;">
+                        👁️ View
+                    </button>
                     <button class="delete-btn" onclick="deletePlayer(${player.id})" style="background: linear-gradient(135deg, var(--danger), #cc0044); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.3s ease;">
                         🗑️ Delete
                     </button>
@@ -157,6 +161,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Make functions available globally
+    window.viewPlayer = function (index) {
+        const players = getPlayers();
+        const player = players[index];
+        alert(`
+            Name: ${player.name}
+            Age: ${player.age}
+            Contact: ${player.contact}
+            Email: ${player.email}
+            Place of Posting: ${player.placeOfPosting || 'N/A'}
+            Address: ${player.address || 'N/A'}
+            Role: ${player.role}
+            Batting Style: ${player.battingStyle}
+            Bowling Style: ${player.bowlingStyle}
+            Experience: ${player.experience}
+            Jersey Size: ${player.jerseySize || '-'}
+            Status: ${player.status}
+            Registered: ${new Date(player.registeredAt).toLocaleString()}
+        `);
+    };
+
     window.deletePlayer = function (id) {
         if (confirm('Are you sure you want to delete this player?')) {
             let players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
@@ -228,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Create CSV content
-        const headers = ['Name', 'Age', 'Contact', 'Email', 'Role', 'Batting Style', 'Bowling Style', 'Experience', 'Status', 'Registered Date'];
+        const headers = ['Name', 'Age', 'Contact', 'Email', 'Place of Posting', 'Address', 'Role', 'Batting Style', 'Bowling Style', 'Experience', 'Jersey Size', 'Status', 'Registered Date'];
         const csvContent = [
             headers.join(','),
             ...players.map(player => {
@@ -238,10 +262,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     player.age,
                     player.contact,
                     player.email,
+                    `"${player.placeOfPosting || ''}"`,
+                    `"${player.address || ''}"`,
                     `"${player.role}"`,
                     `"${player.battingStyle}"`,
                     `"${player.bowlingStyle}"`,
                     `"${player.experience}"`,
+                    `"${player.jerseySize || ''}"`,
                     `"${player.status || 'Under Observation'}"`,
                     registeredDate
                 ].join(',');

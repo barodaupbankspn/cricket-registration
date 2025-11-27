@@ -2,7 +2,7 @@
    CRICKET REGISTRATION - DESIGN SYSTEM
    ========================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@ 600;700;800&display=swap');
 
 :root {
   /* Colors - Vibrant Cricket Theme */
@@ -81,7 +81,6 @@ body::before {
   background-position: center;
   background-repeat: no-repeat;
   opacity: 0.6;
-  /* Vibrant and colorful */
   z-index: -2;
 }
 
@@ -595,4 +594,36 @@ tr:hover {
   td {
     padding: var(--spacing-sm);
   }
+}
+
+/* ==========================================
+   DONATION NOTICE
+   ========================================== */
+.donation-notice {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  text-align: center;
+  animation: fadeInUp 0.8s ease;
+}
+
+.donation-title {
+  color: var(--accent);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.donation-details {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.donation-details strong {
+  color: var(--accent);
 }
