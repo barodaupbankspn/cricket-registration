@@ -202,15 +202,27 @@ document.addEventListener('DOMContentLoaded', function () {
             // Try to save to Google Sheets first
             if (typeof savePlayerToSheets === 'function') {
                 const sheetsResult = await savePlayerToSheets(player);
+
                 if (sheetsResult.success) {
                     console.log('✅ Saved to Google Sheets');
+                    // Only save to local storage if successful on server (or if offline/not configured)
+                    savePlayer(player);
                 } else {
-                    console.warn('⚠️ Google Sheets save failed, using localStorage only');
-                }
-            }
+                    if (sheetsResult.error === 'Mobile number already registered') {
+                        alert('⚠️ REGISTRATION FAILED:\n\nThis mobile number is already registered!');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                        return; // Stop execution
+                    }
 
-            // Always save to localStorage as backup
-            savePlayer(player);
+                    console.warn('⚠️ Google Sheets save failed, using localStorage only');
+                    // If it's another error (like network), we still save locally
+                    savePlayer(player);
+                }
+            } else {
+                // No sheets API, save locally
+                savePlayer(player);
+            }
 
             // Re-enable button
             submitBtn.disabled = false;

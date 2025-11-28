@@ -50,6 +50,18 @@ function addPlayer(player) {
     try {
         const sheet = getSheet();
 
+        // Check for duplicate mobile number (Column D, index 3)
+        const data = sheet.getDataRange().getValues();
+        // Skip header row
+        for (let i = 1; i < data.length; i++) {
+            if (String(data[i][3]) === String(player.contact)) {
+                return ContentService.createTextOutput(JSON.stringify({
+                    success: false,
+                    error: 'Mobile number already registered'
+                })).setMimeType(ContentService.MimeType.JSON);
+            }
+        }
+
         // Append new row with player data
         sheet.appendRow([
             player.id,
