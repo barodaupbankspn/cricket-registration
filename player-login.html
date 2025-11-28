@@ -10,33 +10,35 @@
 </head>
 
 <body>
-    <div class="hero-content">
-        <h1>🏏 Check Your Status</h1>
-        <p class="hero-subtitle">Enter your mobile number to check your registration status</p>
-    </div>
+    <div class="hero">
+        <div class="hero-content">
+            <h1>🏏 Check Your Status</h1>
+            <p class="hero-subtitle">Enter your mobile number to check your registration status</p>
+        </div>
 
-    <div class="form-card card" style="max-width: 500px;">
-        <h2 class="text-center mb-2">Player Login</h2>
-        <p class="text-center mb-3" style="color: var(--text-muted);">Check if you've been approved</p>
+        <div class="form-card card" style="max-width: 500px;">
+            <h2 class="text-center mb-2">Player Login</h2>
+            <p class="text-center mb-3" style="color: var(--text-muted);">Check if you've been approved</p>
 
-        <form id="playerLoginForm">
-            <div class="form-group">
-                <label for="mobileNumber">Mobile Number</label>
-                <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="Enter your 10-digit mobile number"
-                    pattern="[0-9]{10}" required>
-                <div id="loginError" class="error-message hidden">Mobile number not found!</div>
+            <form id="playerLoginForm">
+                <div class="form-group">
+                    <label for="mobileNumber">Mobile Number</label>
+                    <input type="tel" id="mobileNumber" name="mobileNumber"
+                        placeholder="Enter your 10-digit mobile number" pattern="[0-9]{10}" required>
+                    <div id="loginError" class="error-message hidden">Mobile number not found!</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    Check Status
+                </button>
+            </form>
+
+            <!-- Status Display (hidden initially) -->
+            <div id="statusDisplay" class="hidden"></div>
+
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="index.html" style="color: var(--primary); text-decoration: none;">← Back to Home</a>
             </div>
-
-            <button type="submit" class="btn btn-primary btn-full">
-                Check Status
-            </button>
-        </form>
-
-        <!-- Status Display (hidden initially) -->
-        <div id="statusDisplay" class="hidden"></div>
-
-        <div style="margin-top: 20px; text-align: center;">
-            <a href="index.html" style="color: var(--primary); text-decoration: none;">← Back to Home</a>
         </div>
     </div>
 
