@@ -31,8 +31,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const totalAllRoundersEl = document.getElementById('totalAllRounders');
 
     // Check if already logged in
-    if (sessionStorage.getItem('adminLoggedIn') === 'true') {
-        showDashboard();
+    try {
+        if (localStorage.getItem('adminLoggedIn') === 'true') {
+            showDashboard();
+        }
+    } catch (e) {
+        console.warn('LocalStorage not available:', e);
     }
 
     // Login form submission
@@ -43,7 +47,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const password = passwordInput.value;
 
         if (adminId === ADMIN_ID && password === ADMIN_PASSWORD) {
-            sessionStorage.setItem('adminLoggedIn', 'true');
+            try {
+                localStorage.setItem('adminLoggedIn', 'true');
+            } catch (e) {
+                console.warn('Could not save login state:', e);
+            }
             loginError.classList.add('hidden');
             showDashboard();
         } else {
@@ -57,7 +65,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Logout
     logoutBtn.addEventListener('click', function () {
-        sessionStorage.removeItem('adminLoggedIn');
+        try {
+            localStorage.removeItem('adminLoggedIn');
+        } catch (e) {
+            console.warn('LocalStorage error:', e);
+        }
         dashboardScreen.classList.add('hidden');
         loginScreen.classList.remove('hidden');
         adminIdInput.value = '';
@@ -169,6 +181,9 @@ document.addEventListener('DOMContentLoaded', function () {
         playersTableBody.innerHTML = '';
 
         players.forEach((player, index) => {
+            // Debug logging to help identify data issues
+            console.log('Rendering player:', player);
+
             const row = document.createElement('tr');
 
             const registeredDate = new Date(player.registeredAt);
@@ -183,20 +198,23 @@ document.addEventListener('DOMContentLoaded', function () {
             if (player.status === 'Approved') statusColor = '#00cc70';
             if (player.status === 'Rejected') statusColor = '#cc0044';
 
+            // Fallback for missing name
+            const playerName = player.name || 'Unknown Name';
+
             row.innerHTML = `
                 <td><input type="checkbox" class="player-checkbox" value="${player.id}"></td>
                 <td>${index + 1}</td>
-                <td style="font-weight: 600; color: var(--text-primary);">${player.name}</td>
-                <td>${player.age}</td>
-                <td>${player.contact}</td>
-                <td>${player.email}</td>
-                <td><span style="background: rgba(0, 212, 255, 0.2); padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">${player.role}</span></td>
-                <td>${player.battingStyle}</td>
-                <td>${player.bowlingStyle}</td>
-                <td>${player.experience}</td>
+                <td style="font-weight: 600; color: var(--text-primary);">${playerName}</td>
+                <td>${player.age || 'N/A'}</td>
+                <td>${player.contact || 'N/A'}</td>
+                <td>${player.email || 'N/A'}</td>
+                <td><span style="background: rgba(0, 212, 255, 0.2); padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">${player.role || 'N/A'}</span></td>
+                <td>${player.battingStyle || 'N/A'}</td>
+                <td>${player.bowlingStyle || 'N/A'}</td>
+                <td>${player.experience || 'N/A'}</td>
                 <td>${player.jerseySize || '-'}</td>
                 <td>
-                    <select onchange="updatePlayerStatus(${player.id}, this.value)" 
+                    <select onchange="updatePlayerStatus(${player.id}, this.value, this)" 
                             style="padding: 4px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); 
                                    background: rgba(0,0,0,0.2); color: ${statusColor}; font-weight: bold;">
                         <option value="Under Observation" ${player.status === 'Under Observation' ? 'selected' : ''}>Under Observation</option>
@@ -348,7 +366,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    window.updatePlayerStatus = async function (id, newStatus) {
+    window.updatePlayerStatus = async function (id, newStatus, selectElement) {
+        // Visual feedback
+        if (selectElement) {
+            selectElement.style.opacity = '0.5';
+            selectElement.disabled = true;
+        }
+
         // Update in Google Sheets if configured
         if (typeof updatePlayerStatusInSheets === 'function') {
             await updatePlayerStatusInSheets(id, newStatus);
@@ -356,7 +380,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Update in localStorage
         let players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
-        const playerIndex = players.findIndex(p => p.id === id);
+        // Use loose equality to handle string/number ID mismatches
+        const playerIndex = players.findIndex(p => p.id == id);
         if (playerIndex !== -1) {
             players[playerIndex].status = newStatus;
             localStorage.setItem('cricketPlayers', JSON.stringify(players));

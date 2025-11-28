@@ -94,6 +94,9 @@ function addPlayer(player) {
 }
 
 // Get all players
+// Column mapping: A=0(ID), B=1(Name), C=2(Age), D=3(Contact), E=4(Email), 
+// F=5(PlaceOfPosting), G=6(Address), H=7(Role), I=8(BattingStyle), 
+// J=9(BowlingStyle), K=10(Experience), L=11(JerseySize), M=12(Status), N=13(RegisteredAt)
 function getPlayers() {
     try {
         const sheet = getSheet();
@@ -103,21 +106,27 @@ function getPlayers() {
         const players = [];
         for (let i = 1; i < data.length; i++) {
             const row = data[i];
+
+            // Skip completely empty rows
+            if (!row[0] && !row[1] && !row[3]) {
+                continue;
+            }
+
             players.push({
-                id: row[0],
-                name: row[1],
-                age: row[2],
-                contact: row[3],
-                email: row[4],
-                placeOfPosting: row[5],
-                address: row[6],
-                role: row[7],
-                battingStyle: row[8],
-                bowlingStyle: row[9],
-                experience: row[10],
-                jerseySize: row[11],
+                id: row[0] || i, // Use row index as fallback ID
+                name: row[1] || 'Unknown', // Fallback for missing name
+                age: row[2] || 'N/A',
+                contact: row[3] || 'N/A',
+                email: row[4] || 'N/A',
+                placeOfPosting: row[5] || '',
+                address: row[6] || '',
+                role: row[7] || 'N/A',
+                battingStyle: row[8] || 'N/A',
+                bowlingStyle: row[9] || 'N/A',
+                experience: row[10] || 'N/A',
+                jerseySize: row[11] || '',
                 status: row[12] || 'Under Observation',
-                registeredAt: row[13]
+                registeredAt: row[13] || new Date().toISOString()
             });
         }
 
