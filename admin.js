@@ -113,6 +113,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     }, 2000);
                 } else {
                     syncBtn.textContent = '❌ Sync Failed';
+                    console.error('Sync failed:', syncResult.error);
+                    alert('Sync Failed: ' + (syncResult.error || 'Unknown error'));
                     setTimeout(() => {
                         syncBtn.textContent = '🔄 Sync from Google Sheets';
                     }, 2000);

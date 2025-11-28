@@ -121,14 +121,14 @@ async function deletePlayerFromSheets(playerId) {
 async function syncWithGoogleSheets() {
     const result = await getAllPlayersFromSheets();
 
-    if (result.success && result.players.length > 0) {
-        // Update localStorage with Google Sheets data
+    if (result.success) {
+        // Update localStorage with Google Sheets data (even if empty)
         localStorage.setItem('cricketPlayers', JSON.stringify(result.players));
         localStorage.setItem('lastSyncTime', new Date().toISOString());
         return { success: true, count: result.players.length };
     }
 
-    return { success: false, error: result.error };
+    return { success: false, error: result.error || 'Unknown error during sync' };
 }
 
 // Get last sync time

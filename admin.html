@@ -116,6 +116,124 @@
 
             <!-- Sync Status -->
             <div class="card mb-2"
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Admin Dashboard - Manage Shahjahanpur Spartans registrations">
+    <title>Admin Dashboard | Shahjahanpur Spartans</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="hero">
+        <div class="form-card card" style="max-width: 400px;">
+            <h2 class="text-center mb-2">🔐 Admin Login</h2>
+            <p class="text-center mb-3" style="color: var(--text-muted);">Shahjahanpur Spartans Admin Portal</p>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="adminId">Admin User ID</label>
+                    <input type="text" id="adminId" name="adminId" placeholder="Enter admin user ID" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter admin password" required>
+                </div>
+
+                <div id="loginError" class="error-message hidden">Incorrect ID or password</div>
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    🔓 Login
+                </button>
+
+                <a href="index.html" class="btn btn-secondary btn-full"
+                    style="margin-top: var(--spacing-sm); text-decoration: none; display: block; text-align: center;">
+                    🏠 Home
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboardScreen" class="hidden">
+        <div class="container" style="padding-top: var(--spacing-xl); padding-bottom: var(--spacing-xl);">
+            <div class="dashboard-header">
+                <div>
+                    <h1 style="margin-bottom: 0.5rem;">Shahjahanpur Spartans Admin</h1>
+                    <p style="color: var(--text-muted);">Manage Spartans player registrations</p>
+                </div>
+                <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                    <button id="exportCSV" class="btn btn-success">
+                        📥 Export CSV
+                    </button>
+                    <button id="syncSheets" class="btn btn-secondary">
+                        🔄 Sync from Google Sheets
+                    </button>
+                    <button id="downloadBackup" class="btn btn-accent" onclick="downloadGitHubBackup()">
+                        💾 Download GitHub Backup
+                    </button>
+                    <button id="logoutBtn" class="btn btn-primary">
+                        🚪 Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPlayers">0</div>
+                    <div class="stat-label">Total Players</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalBatsmen">0</div>
+                    <div class="stat-label">Batsmen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalBowlers">0</div>
+                    <div class="stat-label">Bowlers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalAllRounders">0</div>
+                    <div class="stat-label">All-Rounders</div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="card mb-3">
+                <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; align-items: center;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <input type="text" id="searchInput" placeholder="🔍 Search by name, email, or contact..."
+                            style="margin: 0;">
+                    </div>
+                    <div>
+                        <select id="roleFilter" style="margin: 0;">
+                            <option value="">All Roles</option>
+                            <option value="Batsman">Batsman</option>
+                            <option value="Bowler">Bowler</option>
+                            <option value="All-Rounder">All-Rounder</option>
+                            <option value="Wicket-Keeper">Wicket-Keeper</option>
+                            <option value="Wicket-Keeper Batsman">Wicket-Keeper Batsman</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="experienceFilter" style="margin: 0;">
+                            <option value="">All Experience</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                            <option value="Professional">Professional</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sync Status -->
+            <div class="card mb-2"
                 style="padding: 0.75rem; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3);">
                 <p id="lastSyncTime" style="margin: 0; font-size: 0.9rem; color: var(--accent);">
                     Last sync: Never
@@ -123,7 +241,8 @@
             </div>
 
             <!-- Players Table -->
-            <script src="admin.js"></script>
+            <script src="sheets-api.js?v=2"></script>
+            <script src="admin.js?v=2"></script>
 </body>
 
 </html>
