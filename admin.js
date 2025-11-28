@@ -307,21 +307,228 @@ document.addEventListener('DOMContentLoaded', function () {
     window.viewPlayer = function (index) {
         const players = getPlayers();
         const player = players[index];
-        alert(`
-            Name: ${player.name}
-            Age: ${player.age}
-            Contact: ${player.contact}
-            Email: ${player.email}
-            Place of Posting: ${player.placeOfPosting || 'N/A'}
-            Address: ${player.address || 'N/A'}
-            Role: ${player.role}
-            Batting Style: ${player.battingStyle}
-            Bowling Style: ${player.bowlingStyle}
-            Experience: ${player.experience}
-            Jersey Size: ${player.jerseySize || '-'}
-            Status: ${player.status}
-            Registered: ${new Date(player.registeredAt).toLocaleString()}
-        `);
+
+        // Create modal overlay
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        `;
+
+        // Status color
+        let statusColor = '#ffaa00';
+        if (player.status === 'Approved') statusColor = '#00ff88';
+        if (player.status === 'Rejected') statusColor = '#ff3366';
+
+        // Create modal content
+        modal.innerHTML = `
+            <div style="
+                background: linear-gradient(135deg, rgba(10, 14, 39, 0.95), rgba(5, 8, 20, 0.95));
+                border: 2px solid rgba(0, 212, 255, 0.3);
+                border-radius: 20px;
+                padding: 2rem;
+                max-width: 600px;
+                width: 90%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                animation: slideUp 0.3s ease;
+            ">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="
+                        font-family: 'Poppins', sans-serif;
+                        font-size: 1.8rem;
+                        background: linear-gradient(135deg, #00d4ff, #ffd700);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        margin: 0;
+                    ">🏏 Player Details</h2>
+                    <button onclick="this.closest('div').parentElement.remove()" style="
+                        background: rgba(255, 51, 102, 0.2);
+                        border: 1px solid #ff3366;
+                        color: #ff3366;
+                        width: 35px;
+                        height: 35px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 1.2rem;
+                        font-weight: bold;
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.background='#ff3366'; this.style.color='white';" 
+                       onmouseout="this.style.background='rgba(255, 51, 102, 0.2)'; this.style.color='#ff3366';">✕</button>
+                </div>
+                
+                <div style="
+                    background: rgba(0, 212, 255, 0.05);
+                    border: 1px solid rgba(0, 212, 255, 0.2);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    margin-bottom: 1rem;
+                ">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Full Name</div>
+                            <div style="color: #ffffff; font-size: 1.1rem; font-weight: 600;">${player.name}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem;">Age</div>
+                            <div style="color: #ffffff; font-size: 1.1rem; font-weight: 600;">${player.age} years</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="
+                    background: rgba(255, 215, 0, 0.05);
+                    border: 1px solid rgba(255, 215, 0, 0.2);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    margin-bottom: 1rem;
+                ">
+                    <h3 style="color: #ffd700; font-size: 1rem; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 1px;">Contact Information</h3>
+                    <div style="display: grid; gap: 0.8rem;">
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; margin-bottom: 0.3rem;">📱 Mobile</div>
+                            <div style="color: #ffffff; font-size: 1rem;">${player.contact}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; margin-bottom: 0.3rem;">📧 Email</div>
+                            <div style="color: #ffffff; font-size: 1rem; word-break: break-all;">${player.email}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; margin-bottom: 0.3rem;">🏢 Place of Posting</div>
+                            <div style="color: #ffffff; font-size: 1rem;">${player.placeOfPosting || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; margin-bottom: 0.3rem;">🏠 Address</div>
+                            <div style="color: #ffffff; font-size: 1rem;">${player.address || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="
+                    background: rgba(0, 255, 136, 0.05);
+                    border: 1px solid rgba(0, 255, 136, 0.2);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    margin-bottom: 1rem;
+                ">
+                    <h3 style="color: #00ff88; font-size: 1rem; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 1px;">Cricket Profile</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; margin-bottom: 0.3rem;">Role</div>
+                            <div style="
+                                color: #00ff88;
+                                font-size: 1rem;
+                                font-weight: 600;
+                                background: rgba(0, 255, 136, 0.1);
+                                padding: 0.3rem 0.8rem;
+                                border-radius: 6px;
+                                display: inline-block;
+                            ">${player.role}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; margin-bottom: 0.3rem;">Experience</div>
+                            <div style="color: #ffffff; font-size: 1rem; font-weight: 600;">${player.experience}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; margin-bottom: 0.3rem;">Batting Style</div>
+                            <div style="color: #ffffff; font-size: 1rem;">${player.battingStyle}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; margin-bottom: 0.3rem;">Bowling Style</div>
+                            <div style="color: #ffffff; font-size: 1rem;">${player.bowlingStyle || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; margin-bottom: 0.3rem;">Jersey Size</div>
+                            <div style="color: #ffffff; font-size: 1rem;">${player.jerseySize || 'Not specified'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                ">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; margin-bottom: 0.3rem;">Status</div>
+                            <div style="
+                                color: ${statusColor};
+                                font-size: 1.1rem;
+                                font-weight: 700;
+                                background: rgba(${statusColor === '#00ff88' ? '0, 255, 136' : statusColor === '#ff3366' ? '255, 51, 102' : '255, 170, 0'}, 0.15);
+                                padding: 0.5rem 1rem;
+                                border-radius: 8px;
+                                display: inline-block;
+                                border: 2px solid ${statusColor};
+                            ">${player.status}</div>
+                        </div>
+                        <div>
+                            <div style="color: #6b7a8f; font-size: 0.85rem; margin-bottom: 0.3rem;">Registered On</div>
+                            <div style="color: #ffffff; font-size: 1rem;">${new Date(player.registeredAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="this.closest('div').parentElement.remove()" style="
+                    width: 100%;
+                    margin-top: 1.5rem;
+                    padding: 0.8rem;
+                    background: linear-gradient(135deg, #00d4ff, #0099cc);
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 212, 255, 0.4)';" 
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">Close</button>
+            </div>
+        `;
+
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { 
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to { 
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Close on background click
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+
+        document.body.appendChild(modal);
     };
 
     window.deletePlayer = async function (id, btnElement) {
