@@ -182,6 +182,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (player.status === 'Rejected') statusColor = '#cc0044';
 
             row.innerHTML = `
+                <td><input type="checkbox" class="player-checkbox" value="${player.id}"></td>
                 <td>${index + 1}</td>
                 <td style="font-weight: 600; color: var(--text-primary);">${player.name}</td>
                 <td>${player.age}</td>
@@ -206,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <button class="view-btn" onclick="viewPlayer(${index})" style="background: linear-gradient(135deg, var(--primary), #00d4ff); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-right: 5px; transition: all 0.3s ease;">
                         👁️ View
                     </button>
-                    <button class="delete-btn" onclick="deletePlayer(${player.id})" style="background: linear-gradient(135deg, var(--danger), #cc0044); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.3s ease;">
+                    <button class="delete-btn" onclick="deletePlayer(${player.id}, this)" style="background: linear-gradient(135deg, var(--danger), #cc0044); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.3s ease;">
                         🗑️ Delete
                     </button>
                 </td>
@@ -215,6 +216,72 @@ document.addEventListener('DOMContentLoaded', function () {
             playersTableBody.appendChild(row);
         });
     }
+
+    // Bulk Actions
+    window.toggleSelectAll = function (source) {
+        const checkboxes = document.querySelectorAll('.player-checkbox');
+        checkboxes.forEach(cb => cb.checked = source.checked);
+    };
+
+    window.bulkAction = async function (action) {
+        const selectedCheckboxes = document.querySelectorAll('.player-checkbox:checked');
+        const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+
+        if (selectedIds.length === 0) {
+            alert('Please select at least one player.');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to ${action} ${selectedIds.length} players?`)) {
+            return;
+        }
+
+        // Show loading
+        const btn = document.activeElement;
+        const originalText = btn.innerText;
+        btn.innerText = 'Processing...';
+        btn.disabled = true;
+
+        try {
+            if (action === 'delete') {
+                for (const id of selectedIds) {
+                    await deletePlayerFromSheets(id); // Helper handles config check
+                }
+
+                // Update LocalStorage
+                let players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
+                players = players.filter(p => !selectedIds.includes(p.id));
+                localStorage.setItem('cricketPlayers', JSON.stringify(players));
+
+            } else {
+                // Approve/Reject
+                for (const id of selectedIds) {
+                    await updatePlayerStatusInSheets(id, action); // Helper handles config check
+                }
+
+                // Update LocalStorage
+                let players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
+                players.forEach(p => {
+                    if (selectedIds.includes(p.id)) {
+                        p.status = action;
+                    }
+                });
+                localStorage.setItem('cricketPlayers', JSON.stringify(players));
+            }
+
+            // Refresh UI
+            loadPlayers();
+            document.getElementById('selectAll').checked = false;
+            alert('Bulk action completed successfully!');
+
+        } catch (error) {
+            console.error('Bulk action error:', error);
+            alert('An error occurred during bulk action.');
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    };
 
     // Make functions available globally
     window.viewPlayer = function (index) {
@@ -237,24 +304,44 @@ document.addEventListener('DOMContentLoaded', function () {
         `);
     };
 
-    window.deletePlayer = async function (id) {
+    window.deletePlayer = async function (id, btnElement) {
         if (confirm('Are you sure you want to delete this player?')) {
-            // Delete from Google Sheets if configured
-            if (typeof deletePlayerFromSheets === 'function') {
-                await deletePlayerFromSheets(id);
+            // Show loading state
+            if (btnElement) {
+                const originalText = btnElement.innerHTML;
+                btnElement.innerHTML = '⏳...';
+                btnElement.disabled = true;
             }
 
-            // Delete from localStorage
-            let players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
-            players = players.filter(p => p.id !== id);
-            localStorage.setItem('cricketPlayers', JSON.stringify(players));
+            try {
+                // Delete from Google Sheets if configured
+                if (typeof deletePlayerFromSheets === 'function') {
+                    const result = await deletePlayerFromSheets(id);
+                    if (!result.success) {
+                        console.error('Sheet delete failed:', result.error);
+                        alert('Warning: Could not delete from Google Sheet. Deleting locally only.');
+                    }
+                }
 
-            // Reload the display
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput.value) {
-                filterPlayers();
-            } else {
-                loadPlayers();
+                // Delete from localStorage
+                let players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
+                players = players.filter(p => p.id !== id);
+                localStorage.setItem('cricketPlayers', JSON.stringify(players));
+
+                // Reload the display
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput.value) {
+                    filterPlayers();
+                } else {
+                    loadPlayers();
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('An error occurred while deleting.');
+                if (btnElement) {
+                    btnElement.innerHTML = '🗑️ Delete';
+                    btnElement.disabled = false;
+                }
             }
         }
     };
