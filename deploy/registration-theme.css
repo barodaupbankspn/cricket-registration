@@ -1,0 +1,239 @@
+/* ==========================================
+   COOL REGISTRATION PAGE THEME
+   ========================================== */
+
+.registration-page {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Animated Gradient Background */
+.registration-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 215, 0, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(255, 51, 102, 0.1) 0%, transparent 50%),
+        linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+    animation: gradient-shift 15s ease infinite;
+    z-index: -2;
+}
+
+/* Floating Cricket Elements Animation */
+.registration-page::after {
+    content: '🏏 🏟️ 🏆 ⚡ 🌟 🎯';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    font-size: 3rem;
+    opacity: 0.05;
+    line-height: 8rem;
+    word-spacing: 5rem;
+    animation: float-elements 60s linear infinite;
+    z-index: -1;
+    pointer-events: none;
+}
+
+@keyframes gradient-shift {
+
+    0%,
+    100% {
+        filter: hue-rotate(0deg);
+    }
+
+    50% {
+        filter: hue-rotate(30deg);
+    }
+}
+
+@keyframes float-elements {
+    0% {
+        transform: translateX(0) translateY(0);
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(-20%);
+    }
+}
+
+/* Enhanced Form Card for Registration */
+.registration-page .form-card {
+    position: relative;
+    background: rgba(10, 14, 39, 0.75);
+    backdrop-filter: blur(30px);
+    border: 2px solid rgba(0, 212, 255, 0.2);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 0 80px rgba(0, 212, 255, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.registration-page .form-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg,
+            rgba(0, 212, 255, 0.3) 0%,
+            rgba(255, 215, 0, 0.3) 25%,
+            rgba(255, 51, 102, 0.3) 50%,
+            rgba(0, 255, 136, 0.3) 75%,
+            rgba(0, 212, 255, 0.3) 100%);
+    border-radius: var(--radius-lg);
+    z-index: -1;
+    animation: border-glow 4s linear infinite;
+    opacity: 0.6;
+}
+
+@keyframes border-glow {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Enhanced Title Styling */
+.registration-page .form-card h2 {
+    background: linear-gradient(135deg, #00d4ff 0%, #ffd700 50%, #ff3366 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 2.5rem;
+    text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+    animation: title-pulse 3s ease-in-out infinite;
+}
+
+@keyframes title-pulse {
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.2);
+    }
+}
+
+/* Glowing Input Focus Effect */
+.registration-page input:focus,
+.registration-page select:focus {
+    box-shadow:
+        0 0 0 3px rgba(0, 212, 255, 0.2),
+        0 0 20px rgba(0, 212, 255, 0.3),
+        inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Enhanced Button Styling */
+.registration-page .btn-primary {
+    background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+    box-shadow:
+        0 4px 15px rgba(0, 212, 255, 0.4),
+        0 0 30px rgba(0, 212, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.registration-page .btn-primary::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.3) 50%,
+            transparent 70%);
+    animation: button-shine 3s linear infinite;
+}
+
+@keyframes button-shine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+.registration-page .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 6px 25px rgba(0, 212, 255, 0.6),
+        0 0 50px rgba(0, 212, 255, 0.4);
+}
+
+/* Particle Background Effect */
+.registration-page .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(circle, rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255, 215, 0, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px, 80px 80px;
+    background-position: 0 0, 40px 40px;
+    animation: particle-drift 20s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes particle-drift {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(50px, 50px);
+    }
+}
+
+/* Form Labels Enhancement */
+.registration-page label {
+    color: var(--primary);
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+/* Success Message Enhancement */
+.registration-page .success-message {
+    background: linear-gradient(135deg, #00ff88 0%, #00cc70 100%);
+    box-shadow:
+        0 4px 15px rgba(0, 255, 136, 0.4),
+        0 0 30px rgba(0, 255, 136, 0.3);
+    animation: success-pop 0.5s ease, pulse 2s ease infinite;
+}
+
+@keyframes success-pop {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

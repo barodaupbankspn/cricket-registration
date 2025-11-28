@@ -1,0 +1,53 @@
+/* Sparkling Notice Styles */
+.sparkling-notice {
+    margin-top: 2rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
+    border: 2px solid #ffd700;
+    border-radius: 50px;
+    color: #ffd700;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+    animation: pulse-glow 2s infinite;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+        transform: scale(1.02);
+    }
+
+    100% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        transform: scale(1);
+    }
+}
+
+.sparkle {
+    display: inline-block;
+    animation: spin-sparkle 3s linear infinite;
+}
+
+@keyframes spin-sparkle {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(180deg) scale(1.2);
+    }
+
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
+}
