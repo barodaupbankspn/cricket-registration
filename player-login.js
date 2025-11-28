@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
         form.querySelector('button').innerText = originalBtnText;
 
         // Find player by mobile number
-        const player = players.find(p => p.contact === mobile);
+        const player = players.find(p => String(p.contact).trim() === mobile);
 
         if (!player) {
             // Player not found

@@ -1,40 +1,37 @@
-# Shahjahanpur Spartans Registration Portal
+# Shahjahanpur Spartans - Cricket Team Registration Portal
 
-## 🏏 Overview
-This is the official registration portal for the **Uttar Pradesh Gramin Bank - Shahjahanpur Spartans** cricket team.
+A modern, responsive web application for managing cricket team registrations for the Shahjahanpur Spartans (Uttar Pradesh Gramin Bank).
 
-## 🚀 Features
-- **Player Registration**: New players can register with their details.
-- **Admin Dashboard**: Admins can manage players and update their status.
-- **Status Check**: Players can check if they are Approved, Rejected, or Under Observation.
-- **Google Sheets Integration**: Centralized database for all registrations.
-- **GitHub Backup**: Download player data as JSON for backup.
+## Features
 
-## 📂 Key Files
-- `index.html` - Home Page
-- `register.html` - Registration Form
-- `admin.html` - Admin Dashboard
-- `player-login.html` - Player Status Check
-- `sheets-api.js` - Google Sheets Integration
-- `github-backup.js` - Backup Functionality
+- **Player Registration**: Easy-to-use form for new players to sign up.
+- **Status Check**: Players can check their application status (Approved, Rejected, or Under Observation) using their mobile number.
+- **Admin Dashboard**: Secure area for administrators to manage players, approve/reject applications, and export data.
+- **Google Sheets Integration**: All data is stored and synced with Google Sheets for easy management and backup.
+- **Responsive Design**: Works seamlessly on mobile and desktop devices.
 
-## 🔐 Admin Credentials
-- **User ID**: `109058`
-- **Password**: `admin12345`
+## Setup Instructions
 
-## ⚙️ Setup Instructions
+1.  **Google Sheets Setup**:
+    - Create a new Google Sheet.
+    - Open `Extensions` > `Apps Script`.
+    - Copy the code from `google-apps-script.js` into the script editor.
+    - Deploy as a Web App (Execute as: Me, Who has access: Anyone).
+    - Copy the Web App URL.
+    - Paste the URL into `sheets-api.js` (replace the `GOOGLE_SHEETS_URL` variable).
 
-### Google Sheets Setup
-1. Follow the instructions in `google-sheets-setup.md`
-2. Create a Google Sheet with the required columns
-3. Deploy the Apps Script from `google-apps-script.js`
-4. Update the Web App URL in `sheets-api.js`
+2.  **Hosting**:
+    - Upload all files in this folder to GitHub.
+    - Enable GitHub Pages (Settings > Pages > Source: main branch / root).
+    - Your website will be live!
 
-### GitHub Backup
-- Click "Download GitHub Backup" in admin dashboard
-- Upload the JSON file to your GitHub repository
-- This creates a backup of all player registrations
+## Technologies Used
 
-## 📞 Contact
-Email: barodaupbankspn@gmail.com
+- HTML5, CSS3 (Vanilla + Custom Animations)
+- JavaScript (ES6+)
+- Google Apps Script (Backend)
+- Google Sheets (Database)
 
+## Credits
+
+Developed for the BUPGB STAFF SPORTS CLUB.
