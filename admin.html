@@ -82,15 +82,14 @@
                 </div>
             </div>
 
-            <!-- Search and Filter -->
+            <!-- Bulk Actions & Filter -->
             <div class="card mb-3">
-                <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; align-items: center;">
-                    <div style="flex: 1; min-width: 250px;">
+                <div
+                    style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; gap: var(--spacing-sm); flex: 1; min-width: 300px;">
                         <input type="text" id="searchInput" placeholder="🔍 Search by name, email, or contact..."
-                            style="margin: 0;">
-                    </div>
-                    <div>
-                        <select id="roleFilter" style="margin: 0;">
+                            style="margin: 0; flex: 1;">
+                        <select id="roleFilter" style="margin: 0; width: auto;">
                             <option value="">All Roles</option>
                             <option value="Batsman">Batsman</option>
                             <option value="Bowler">Bowler</option>
@@ -98,16 +97,47 @@
                             <option value="Wicket-Keeper">Wicket-Keeper</option>
                             <option value="Wicket-Keeper Batsman">Wicket-Keeper Batsman</option>
                         </select>
-                    </div>
-                    <div>
-                        <select id="experienceFilter" style="margin: 0;">
+                        <select id="experienceFilter" style="margin: 0; width: auto;">
                             <option value="">All Experience</option>
                             <option value="Beginner">Beginner</option>
                             <option value="Intermediate">Intermediate</option>
                             <option value="Advanced">Advanced</option>
-                            <option value="Professional">Professional</option>
                         </select>
                     </div>
+
+                    <div style="display: flex; gap: var(--spacing-sm);">
+                        <button onclick="emailSelected()" class="btn btn-secondary"
+                            style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
+                            ✉️ Email Selected
+                        </button>
+                        <button onclick="bulkAction('Approved')" class="btn btn-success"
+                            style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            ✅ Approve Selected
+                        </button>
+                        <button onclick="bulkAction('delete')" class="btn btn-danger"
+                            style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            🗑️ Delete Selected
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Broadcast Section -->
+            <div id="broadcastSection" class="card mb-3" style="border-left: 4px solid var(--primary);">
+                <h3 style="margin-top: 0; color: var(--primary);">📢 Send Bulk / Broadcast Email</h3>
+                <div style="display: grid; gap: var(--spacing-sm);">
+                    <div>
+                        <label for="broadcastSubject">Subject</label>
+                        <input type="text" id="broadcastSubject" placeholder="Email Subject" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label for="broadcastMessage">Message</label>
+                        <textarea id="broadcastMessage" rows="4" placeholder="Enter your message here..."
+                            style="width: 100%; resize: vertical;"></textarea>
+                    </div>
+                    <button id="sendBroadcastBtn" class="btn btn-primary" style="justify-self: start;">
+                        🚀 Send Broadcast (All Players)
+                    </button>
                 </div>
             </div>
 
@@ -117,6 +147,12 @@
                 <p id="lastSyncTime" style="margin: 0; font-size: 0.9rem; color: var(--accent);">
                     Last sync: Never
                 </p>
+            </div>
+
+            <!-- No Players Message -->
+            <div id="noPlayers" class="card hidden">
+                <h3>No Players Found</h3>
+                <p style="color: var(--text-muted);">No registrations match your criteria.</p>
             </div>
 
             <!-- Players List -->
@@ -146,20 +182,6 @@
                         </tbody>
                     </table>
                 </div>
-                
-                <!-- Bulk Actions -->
-                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
-                    <span style="margin-right: 1rem; font-weight: bold;">Bulk Actions:</span>
-                    <button onclick="bulkAction('Approved')" class="btn btn-sm" style="background: var(--success); color: white; margin-right: 0.5rem;">Approve Selected</button>
-                    <button onclick="bulkAction('Rejected')" class="btn btn-sm" style="background: var(--danger); color: white; margin-right: 0.5rem;">Reject Selected</button>
-                    <button onclick="bulkAction('delete')" class="btn btn-sm" style="background: #555; color: white;">Delete Selected</button>
-                </div>
-            </div>
-
-            <div id="noPlayers" class="card text-center hidden" style="padding: 3rem;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🏏</div>
-                <h3>No Players Found</h3>
-                <p style="color: var(--text-muted);">No registrations match your criteria.</p>
             </div>
         </div>
     </div>

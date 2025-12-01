@@ -25,6 +25,8 @@ function doPost(e) {
             return updatePlayerStatus(data.playerId, data.status);
         } else if (action === 'deletePlayer') {
             return deletePlayer(data.playerId);
+        } else if (action === 'broadcast') {
+            return broadcastEmail(data.subject, data.message, data.recipients);
         }
 
         return ContentService.createTextOutput(JSON.stringify({
@@ -43,6 +45,40 @@ function doPost(e) {
 // Get the active spreadsheet
 function getSheet() {
     return SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+}
+
+// Helper: Send Email Notification
+function sendEmailNotification(to, subject, body) {
+    if (!to || !to.includes('@')) {
+        return { success: false, error: 'Invalid email address: ' + to };
+    }
+    try {
+        GmailApp.sendEmail(to, subject, "", {
+            htmlBody: body
+        });
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: e.toString() };
+    }
+}
+
+// MANUAL TEST FUNCTION
+// Run this directly in the editor to test email sending
+function testEmail() {
+    const email = Session.getActiveUser().getEmail();
+    console.log('Attempting to send email to:', email);
+
+    const result = sendEmailNotification(
+        email,
+        'Test Email from Script',
+        '<h1>It Works!</h1><p>This is a test email from your Google Apps Script.</p>'
+    );
+
+    if (result.success) {
+        console.log('✅ Email sent successfully!');
+    } else {
+        console.error('❌ Email failed:', result.error);
+    }
 }
 
 // Add a new player
@@ -80,9 +116,24 @@ function addPlayer(player) {
             player.registeredAt
         ]);
 
+        // Send Confirmation Email
+        const subject = 'Registration Successful - Shahjahanpur Spartans';
+        const body = `
+            <h2>Welcome to Shahjahanpur Spartans!</h2>
+            <p>Dear ${player.name},</p>
+            <p>Your registration has been successfully received.</p>
+            <p><strong>Status:</strong> Under Observation</p>
+            <p>We will review your details and update you shortly.</p>
+            <br>
+            <p>Best Regards,<br>Shahjahanpur Spartans Team</p>
+        `;
+
+        const emailResult = sendEmailNotification(player.email, subject, body);
+
         return ContentService.createTextOutput(JSON.stringify({
             success: true,
-            message: 'Player added successfully'
+            message: 'Player added successfully',
+            emailStatus: emailResult
         })).setMimeType(ContentService.MimeType.JSON);
 
     } catch (error) {
@@ -156,6 +207,22 @@ function updatePlayerStatus(playerId, status) {
                 // Update status (column M, index 12)
                 sheet.getRange(i + 1, 13).setValue(status);
 
+                // Get player details for email
+                const name = data[i][1];
+                const email = data[i][4];
+
+                // Send Status Update Email
+                const subject = 'Status Update - Shahjahanpur Spartans';
+                const body = `
+                    <h2>Status Update</h2>
+                    <p>Dear ${name},</p>
+                    <p>Your registration status has been updated.</p>
+                    <p><strong>New Status:</strong> <span style="color: ${status === 'Approved' ? 'green' : status === 'Rejected' ? 'red' : 'orange'}">${status}</span></p>
+                    <br>
+                    <p>Best Regards,<br>Shahjahanpur Spartans Team</p>
+                `;
+                sendEmailNotification(email, subject, body);
+
                 return ContentService.createTextOutput(JSON.stringify({
                     success: true,
                     message: 'Status updated'
@@ -203,6 +270,53 @@ function deletePlayer(playerId) {
         return ContentService.createTextOutput(JSON.stringify({
             success: false,
             error: error.toString()
+        })).setMimeType(ContentService.MimeType.JSON);
+    }
+}
+
+// Broadcast Email to All Players
+function broadcastEmail(subject, message, recipients) {
+    try {
+        const sheet = getSheet();
+        const data = sheet.getDataRange().getValues();
+        let count = 0;
+
+        // If recipients provided, convert to Set for O(1) lookup
+        const targetEmails = recipients ? new Set(recipients) : null;
+
+        for (let i = 1; i < data.length; i++) {
+            const email = data[i][4];
+            const name = data[i][1];
+
+            if (email && email.includes('@')) {
+                // Skip if we have a target list and this email isn't in it
+                if (targetEmails && !targetEmails.has(email)) {
+                    continue;
+                }
+
+                const body = `
+                    <h2>Announcement from Shahjahanpur Spartans</h2>
+                    <p>Dear ${name},</p>
+                    <p>${message.replace(/\n/g, '<br>')}</p>
+                    <br>
+                    <p>Best Regards,<br>Shahjahanpur Spartans Admin</p>
+                `;
+                try {
+                    GmailApp.sendEmail(email, subject, "", {
+                        htmlBody: body
+                    });
+                    count++;
+                } catch (e) {
+                    console.error('Failed to send to ' + email, e);
+                }
+            }
+        }
+        return ContentService.createTextOutput(JSON.stringify({
+            success: true, message: `Broadcast sent to ${count} players`
+        })).setMimeType(ContentService.MimeType.JSON);
+    } catch (error) {
+        return ContentService.createTextOutput(JSON.stringify({
+            success: false, error: error.toString()
         })).setMimeType(ContentService.MimeType.JSON);
     }
 }

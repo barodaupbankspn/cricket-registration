@@ -140,3 +140,31 @@ function getLastSyncTime() {
     }
     return 'Never';
 }
+
+// Send Broadcast Email
+async function sendBroadcastToSheets(subject, message, recipients) {
+    if (!isSheetsConfigured()) {
+        return { success: false, error: 'Not configured' };
+    }
+
+    try {
+        const response = await fetch(GOOGLE_SHEETS_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'broadcast',
+                subject: subject,
+                message: message,
+                recipients: recipients // Optional array of emails
+            })
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error sending broadcast:', error);
+        return { success: false, error: error.message };
+    }
+}

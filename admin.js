@@ -690,7 +690,141 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Sync to Google Sheets
-    syncSheetsBtn.addEventListener('click', function () {
-        loadPlayers(true); // Force sync with Google Sheets
-    });
+    if (syncSheetsBtn) {
+        syncSheetsBtn.addEventListener('click', async function () {
+            const originalText = syncSheetsBtn.innerText;
+            syncSheetsBtn.innerText = '🔄 Syncing...';
+            syncSheetsBtn.disabled = true;
+
+            if (typeof syncWithGoogleSheets === 'function') {
+                const result = await syncWithGoogleSheets();
+                if (result.success) {
+                    alert(`✅ Synced ${result.count} players from Google Sheets!`);
+                    loadPlayers();
+                } else {
+                    alert('❌ Sync failed: ' + result.error);
+                }
+            } else {
+                alert('❌ Sync function not available.');
+            }
+
+            syncSheetsBtn.innerText = originalText;
+            syncSheetsBtn.disabled = false;
+        });
+    }
+
+    // Broadcast Email Logic
+    const sendBroadcastBtn = document.getElementById('sendBroadcastBtn');
+    const broadcastSubject = document.getElementById('broadcastSubject');
+    const broadcastMessage = document.getElementById('broadcastMessage');
+
+    if (sendBroadcastBtn) {
+        sendBroadcastBtn.addEventListener('click', async function () {
+            const subject = broadcastSubject.value.trim();
+            const message = broadcastMessage.value.trim();
+
+            if (!subject || !message) {
+                alert('Please enter both subject and message.');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to send this email?')) {
+                return;
+            }
+
+            const originalText = sendBroadcastBtn.innerText;
+            sendBroadcastBtn.innerText = '⏳ Sending...';
+            sendBroadcastBtn.disabled = true;
+
+            try {
+                // Use sheets-api.js to send broadcast
+                if (typeof sendBroadcastToSheets === 'function') {
+                    const result = await sendBroadcastToSheets(subject, message, selectedRecipients);
+
+                    if (result.success) {
+                        alert('✅ Email sent successfully!');
+                        broadcastSubject.value = '';
+                        broadcastMessage.value = '';
+
+                        // Reset selection
+                        if (selectedRecipients) {
+                            document.getElementById('cancelSelectionBtn')?.click();
+                        }
+                    } else {
+                        alert('❌ Failed to send email: ' + (result.error || 'Unknown error'));
+                    }
+                } else {
+                    alert('❌ Broadcast function not available.');
+                }
+            } catch (error) {
+                console.error('Broadcast error:', error);
+                alert('❌ An error occurred while sending email.');
+            } finally {
+                sendBroadcastBtn.innerText = originalText;
+                sendBroadcastBtn.disabled = false;
+            }
+        });
+    }
 });
+
+// Email Selected Players
+let selectedRecipients = null;
+
+function emailSelected() {
+    const checkboxes = document.querySelectorAll('.player-checkbox:checked');
+    if (checkboxes.length === 0) {
+        alert('Please select at least one player to email.');
+        return;
+    }
+
+    const recipients = [];
+    checkboxes.forEach(cb => {
+        const row = cb.closest('tr');
+        // Email is in 6th column (index 5) - verify with table structure
+        // Table: Checkbox, #, Name, Age, Contact, Email
+        const email = row.cells[5].innerText;
+        if (email && email !== 'N/A') {
+            recipients.push(email);
+        }
+    });
+
+    if (recipients.length === 0) {
+        alert('Selected players do not have valid email addresses.');
+        return;
+    }
+
+    selectedRecipients = recipients;
+
+    // Scroll to broadcast section
+    const broadcastSection = document.getElementById('broadcastSection');
+    if (broadcastSection) {
+        broadcastSection.scrollIntoView({ behavior: 'smooth' });
+        broadcastSection.style.border = '2px solid var(--primary)';
+        setTimeout(() => broadcastSection.style.border = 'none', 2000);
+    }
+
+    // Update button text
+    const btn = document.getElementById('sendBroadcastBtn');
+    if (btn) {
+        btn.innerHTML = `🚀 Send to ${recipients.length} Selected Players`;
+        btn.classList.add('btn-success');
+        btn.classList.remove('btn-primary');
+
+        // Add cancel button if not exists
+        if (!document.getElementById('cancelSelectionBtn')) {
+            const cancelBtn = document.createElement('button');
+            cancelBtn.id = 'cancelSelectionBtn';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.innerText = '❌ Cancel Selection (Send to All)';
+            cancelBtn.style.marginLeft = '10px';
+            cancelBtn.onclick = function () {
+                selectedRecipients = null;
+                btn.innerHTML = '🚀 Send Broadcast (All Players)';
+                btn.classList.add('btn-primary');
+                btn.classList.remove('btn-success');
+                this.remove();
+            };
+            btn.parentNode.appendChild(cancelBtn);
+        }
+    }
+}
