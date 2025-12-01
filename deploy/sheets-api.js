@@ -121,14 +121,14 @@ async function deletePlayerFromSheets(playerId) {
 async function syncWithGoogleSheets() {
     const result = await getAllPlayersFromSheets();
 
-    if (result.success && result.players.length > 0) {
-        // Update localStorage with Google Sheets data
+    if (result.success) {
+        // Update localStorage with Google Sheets data (even if empty)
         localStorage.setItem('cricketPlayers', JSON.stringify(result.players));
         localStorage.setItem('lastSyncTime', new Date().toISOString());
         return { success: true, count: result.players.length };
     }
 
-    return { success: false, error: result.error };
+    return { success: false, error: result.error || 'Unknown error during sync' };
 }
 
 // Get last sync time
@@ -139,4 +139,31 @@ function getLastSyncTime() {
         return date.toLocaleString('en-IN');
     }
     return 'Never';
+}
+
+// Send Broadcast Email
+async function sendBroadcastToSheets(subject, message) {
+    if (!isSheetsConfigured()) {
+        return { success: false, error: 'Not configured' };
+    }
+
+    try {
+        const response = await fetch(GOOGLE_SHEETS_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'broadcast',
+                subject: subject,
+                message: message
+            })
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error sending broadcast:', error);
+        return { success: false, error: error.message };
+    }
 }
