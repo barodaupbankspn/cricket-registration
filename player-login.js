@@ -168,6 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         msg.textContent = '❌ API not available.';
                         msg.style.color = '#ff1744';
                     }
+                } catch (e) {
                     console.error(e);
                     msg.textContent = '❌ Error saving.';
                     msg.style.color = '#ff1744';

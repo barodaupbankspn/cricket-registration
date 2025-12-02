@@ -178,9 +178,9 @@ async function updateJerseyNumberInSheets(playerId, jerseyNumber) {
     try {
         const response = await fetch(GOOGLE_SHEETS_URL, {
             method: 'POST',
-            mode: 'no-cors',
+            // mode: 'no-cors', // Removed to allow reading response
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'text/plain;charset=utf-8', // Changed to text/plain to avoid CORS preflight issues with GAS
             },
             body: JSON.stringify({
                 action: 'updateJerseyNumber',
@@ -189,7 +189,8 @@ async function updateJerseyNumberInSheets(playerId, jerseyNumber) {
             })
         });
 
-        return { success: true };
+        const data = await response.json();
+        return data; // Return the full response from server (success/error/ownerName)
     } catch (error) {
         console.error('Error updating jersey number in Google Sheets:', error);
         return { success: false, error: error.message };
