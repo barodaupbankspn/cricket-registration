@@ -27,6 +27,8 @@ function doPost(e) {
             return deletePlayer(data.playerId);
         } else if (action === 'broadcast') {
             return broadcastEmail(data.subject, data.message, data.recipients);
+        } else if (action === 'updateJerseyNumber') {
+            return updateJerseyNumber(data.playerId, data.jerseyNumber);
         }
 
         return ContentService.createTextOutput(JSON.stringify({
@@ -317,6 +319,50 @@ function broadcastEmail(subject, message, recipients) {
     } catch (error) {
         return ContentService.createTextOutput(JSON.stringify({
             success: false, error: error.toString()
+        })).setMimeType(ContentService.MimeType.JSON);
+    }
+}
+
+
+// Update Jersey Number
+function updateJerseyNumber(playerId, jerseyNumber) {
+    try {
+        const sheet = getSheet();
+        const data = sheet.getDataRange().getValues();
+
+        // First, check for duplicates
+        for (let i = 1; i < data.length; i++) {
+            // Column L (index 11) is Jersey Size
+            // Check if jersey number matches AND it's NOT the current player (allow re-saving own number)
+            if (String(data[i][11]) === String(jerseyNumber) && String(data[i][0]) !== String(playerId)) {
+                return ContentService.createTextOutput(JSON.stringify({
+                    success: false,
+                    error: 'Duplicate',
+                    ownerName: data[i][1] // Return the name of the player who has this number
+                })).setMimeType(ContentService.MimeType.JSON);
+            }
+        }
+
+        // If no duplicate, find player and update
+        for (let i = 1; i < data.length; i++) {
+            if (String(data[i][0]) === String(playerId)) {
+                sheet.getRange(i + 1, 12).setValue(jerseyNumber);
+                return ContentService.createTextOutput(JSON.stringify({
+                    success: true,
+                    message: 'Jersey number updated'
+                })).setMimeType(ContentService.MimeType.JSON);
+            }
+        }
+
+        return ContentService.createTextOutput(JSON.stringify({
+            success: false,
+            error: 'Player not found'
+        })).setMimeType(ContentService.MimeType.JSON);
+
+    } catch (error) {
+        return ContentService.createTextOutput(JSON.stringify({
+            success: false,
+            error: error.toString()
         })).setMimeType(ContentService.MimeType.JSON);
     }
 }

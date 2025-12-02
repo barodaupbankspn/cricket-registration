@@ -765,6 +765,15 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+
+    // Debug: Check if broadcast section is visible
+    const broadcastSection = document.getElementById('broadcastSection');
+    if (broadcastSection) {
+        console.log('Broadcast section found:', broadcastSection);
+    } else {
+        console.error('Broadcast section NOT found!');
+    }
 });
 
 // Email Selected Players

@@ -168,3 +168,30 @@ async function sendBroadcastToSheets(subject, message, recipients) {
         return { success: false, error: error.message };
     }
 }
+
+// Update jersey number in Google Sheets
+async function updateJerseyNumberInSheets(playerId, jerseyNumber) {
+    if (!isSheetsConfigured()) {
+        return { success: false, error: 'Not configured' };
+    }
+
+    try {
+        const response = await fetch(GOOGLE_SHEETS_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'updateJerseyNumber',
+                playerId: playerId,
+                jerseyNumber: jerseyNumber
+            })
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error updating jersey number in Google Sheets:', error);
+        return { success: false, error: error.message };
+    }
+}

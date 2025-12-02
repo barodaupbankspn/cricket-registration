@@ -69,9 +69,20 @@ document.addEventListener('DOMContentLoaded', function () {
                     <h3 style="margin-bottom: 1rem; color: white; font-size: 2.5rem; font-weight: 900; text-shadow: 0 3px 10px rgba(0,0,0,0.5); text-transform: uppercase;">Welcome, ${player.name}!</h3>
                     <p style="font-size: 2.5rem; font-weight: 900; margin-bottom: 1.5rem; text-shadow: 0 3px 8px rgba(0,0,0,0.4); background: rgba(0,0,0,0.3); padding: 1rem 2rem; border-radius: 12px; display: inline-block; border: 3px solid white;">STATUS: ${statusText}</p>
                     <p style="font-size: 1.3rem; font-weight: 600; line-height: 1.8; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px;">Congratulations! You have been approved to join the Shahjahanpur Spartans.</p>
+                    
                     <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 3px solid rgba(255,255,255,0.6); background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px;">
                         <p style="font-size: 1.3rem; font-weight: 700; margin: 0.5rem 0;"><strong>Role:</strong> ${player.role}</p>
                         <p style="font-size: 1.3rem; font-weight: 700; margin: 0.5rem 0;"><strong>Experience:</strong> ${player.experience}</p>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; border: 2px dashed rgba(255,255,255,0.5);">
+                        <label style="display: block; margin-bottom: 0.8rem; font-weight: 800; font-size: 1.2rem; text-transform: uppercase;">Choose Your Jersey Number</label>
+                        <div style="display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                            <input type="number" id="jerseyNumberInput" placeholder="No." value="${player.jerseySize || ''}" 
+                                style="padding: 0.8rem; border-radius: 8px; border: none; width: 120px; color: #0a0e27; font-weight: 800; font-size: 1.5rem; text-align: center;">
+                            <button id="saveJerseyBtn" style="padding: 0.8rem 1.5rem; background: white; color: #00c853; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 1.1rem; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">Save</button>
+                        </div>
+                        <p id="jerseySaveMsg" style="margin-top: 1rem; font-size: 1rem; font-weight: 600; min-height: 1.5em;"></p>
                     </div>
                 </div>
             `;
@@ -106,6 +117,66 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         statusDisplay.innerHTML = statusHTML;
+
+        // Add event listener for Jersey Save
+        const saveJerseyBtn = document.getElementById('saveJerseyBtn');
+        if (saveJerseyBtn) {
+            saveJerseyBtn.addEventListener('click', async function () {
+                const input = document.getElementById('jerseyNumberInput');
+                const msg = document.getElementById('jerseySaveMsg');
+                const newNumber = input.value.trim();
+
+                if (!newNumber) {
+                    msg.textContent = 'Please enter a number.';
+                    msg.style.color = '#ffeb3b';
+                    return;
+                }
+
+                saveJerseyBtn.disabled = true;
+                saveJerseyBtn.textContent = 'Saving...';
+                msg.textContent = '';
+
+                try {
+                    // Call API to save
+                    if (typeof updateJerseyNumberInSheets === 'function') {
+                        const result = await updateJerseyNumberInSheets(player.id, newNumber);
+                        if (result.success) {
+                            msg.textContent = '✅ Jersey number saved!';
+                            msg.style.color = 'white';
+
+                            // Update local storage
+                            const players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
+                            const pIndex = players.findIndex(p => p.id === player.id);
+                            if (pIndex !== -1) {
+                                players[pIndex].jerseySize = newNumber;
+                                localStorage.setItem('cricketPlayers', JSON.stringify(players));
+                            }
+                        } else {
+                            if (result.error === 'Duplicate') {
+                                // Show popup for duplicate
+                                alert(`⚠️ Jersey Number ${newNumber} is already taken by ${result.ownerName || 'another player'}.\n\nPlease choose a different number.`);
+                                msg.textContent = '❌ Number taken. Try another.';
+                                msg.style.color = '#ff1744';
+                                input.value = ''; // Clear input
+                                input.focus();
+                            } else {
+                                msg.textContent = '❌ Failed to save: ' + result.error;
+                                msg.style.color = '#ff1744';
+                            }
+                        }
+                    } else {
+                        msg.textContent = '❌ API not available.';
+                        msg.style.color = '#ff1744';
+                    }
+                    console.error(e);
+                    msg.textContent = '❌ Error saving.';
+                    msg.style.color = '#ff1744';
+                } finally {
+                    saveJerseyBtn.disabled = false;
+                    saveJerseyBtn.textContent = 'Save';
+                }
+            });
+        }
     });
 
     // Clear error on input
