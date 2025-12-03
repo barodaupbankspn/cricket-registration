@@ -21,8 +21,9 @@
 
   /* Text */
   --text-primary: #ffffff;
-  --text-secondary: #b8c5d6;
-  --text-muted: #6b7a8f;
+  --text-secondary: #e0e0e0;
+  /* Brightened for better visibility */
+  --text-muted: #a0a0a0;
 
   /* Spacing */
   --spacing-xs: 0.5rem;
@@ -39,10 +40,12 @@
   --radius-xl: 30px;
 
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 30px rgba(0, 212, 255, 0.3);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 30px rgba(0, 212, 255, 0.4);
+  --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  /* Strong text shadow for legibility */
 
   /* Transitions */
   --transition-fast: 0.2s ease;
@@ -66,6 +69,8 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+  text-shadow: var(--text-shadow);
+  /* Apply global text shadow */
 }
 
 /* Colorful Cricket Stadium Background with Cartoon Players */
@@ -80,7 +85,8 @@ body::before {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.6;
+  opacity: 0.5;
+  /* Reduced opacity for better text contrast */
   z-index: -2;
 }
 
@@ -98,24 +104,32 @@ h6 {
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: var(--spacing-sm);
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.9);
+  /* Stronger shadow for headings */
 }
 
 h1 {
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  font-size: clamp(2rem, 5vw, 4rem);
+  /* Adjusted min size for mobile */
+  /* More eye-catching gradient: Neon Orange to Bright Yellow */
+  background: linear-gradient(135deg, #ff4d4d, #ffd700);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: var(--spacing-md);
+  /* Add a subtle glow/drop shadow filter to make it pop against dark bg */
+  filter: drop-shadow(0 0 10px rgba(255, 100, 50, 0.5));
 }
 
 h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  /* Adjusted min size */
   color: var(--text-primary);
 }
 
 h3 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  /* Adjusted min size */
   color: var(--text-primary);
 }
 
@@ -123,6 +137,8 @@ p {
   font-size: 1.1rem;
   color: var(--text-secondary);
   line-height: 1.6;
+  font-weight: 500;
+  /* Slightly bolder for readability */
 }
 
 /* ==========================================
@@ -156,7 +172,7 @@ p {
   font-size: 1.3rem;
   color: var(--text-secondary);
   margin-bottom: var(--spacing-lg);
-  font-weight: 400;
+  font-weight: 500;
 }
 
 /* ==========================================
@@ -230,10 +246,11 @@ p {
    ========================================== */
 
 .card {
-  background: var(--bg-card);
+  background: rgba(0, 0, 0, 0.6);
+  /* Darker background for better contrast */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-lg);
@@ -241,7 +258,7 @@ p {
 }
 
 .card:hover {
-  background: var(--bg-card-hover);
+  background: rgba(0, 0, 0, 0.7);
   transform: translateY(-5px);
   box-shadow: var(--shadow-lg), var(--shadow-glow);
 }
@@ -269,14 +286,16 @@ label {
   font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 input,
 textarea {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.4);
+  /* Darker input bg */
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-size: 1rem;
@@ -311,7 +330,7 @@ select option {
 input:focus,
 textarea:focus {
   border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.6);
   box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
 }
 
@@ -341,6 +360,7 @@ select:focus {
   letter-spacing: 1px;
   position: relative;
   overflow: hidden;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .btn::before {
@@ -577,200 +597,8 @@ tr:hover {
     padding: var(--spacing-xl) var(--spacing-sm);
   }
 
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  width: 100%;
-  margin-top: var(--spacing-md);
-}
-
-/* ==========================================
-   ADMIN DASHBOARD
-   ========================================== */
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-xl);
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
-}
-
-.stat-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  text-align: center;
-  transition: all var(--transition-normal);
-}
-
-.stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-glow);
-}
-
-.stat-value {
-  font-size: 3rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: var(--spacing-xs);
-}
-
-.stat-label {
-  font-size: 1rem;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* ==========================================
-   TABLE
-   ========================================== */
-
-.table-container {
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead {
-  background: rgba(0, 212, 255, 0.1);
-}
-
-th {
-  padding: var(--spacing-md);
-  text-align: left;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 0.9rem;
-  color: var(--primary);
-  border-bottom: 2px solid var(--primary);
-}
-
-td {
-  padding: var(--spacing-md);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary);
-}
-
-tr:hover {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-/* ==========================================
-   UTILITIES
-   ========================================== */
-
-.text-center {
-  text-align: center;
-}
-
-.mt-1 {
-  margin-top: var(--spacing-sm);
-}
-
-.mt-2 {
-  margin-top: var(--spacing-md);
-}
-
-.mt-3 {
-  margin-top: var(--spacing-lg);
-}
-
-.mb-1 {
-  margin-bottom: var(--spacing-sm);
-}
-
-.mb-2 {
-  margin-bottom: var(--spacing-md);
-}
-
-.mb-3 {
-  margin-bottom: var(--spacing-lg);
-}
-
-.hidden {
-  display: none;
-}
-
-/* ==========================================
-   MESSAGES
-   ========================================== */
-
-.success-message {
-  background: linear-gradient(135deg, var(--success), #00cc70);
-  color: white;
-  padding: var(--spacing-md);
-  border-radius: var(--radius-md);
-  margin-top: var(--spacing-md);
-  text-align: center;
-  font-weight: 600;
-  animation: slideDown 0.5s ease;
-}
-
-.error-message {
-  background: linear-gradient(135deg, var(--danger), #cc0044);
-  color: white;
-  padding: var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  margin-top: var(--spacing-xs);
-  font-size: 0.9rem;
-  animation: shake 0.5s ease;
-}
-
-/* ==========================================
-   COMPONENTS
-   ========================================== */
-
-.pulse {
-  animation: pulse 2s ease infinite;
-}
-
-.spinner {
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top: 3px solid var(--primary);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: var(--spacing-md) auto;
-}
-
-/* ==========================================
-   RESPONSIVE DESIGN
-   ========================================== */
-
-@media (max-width: 768px) {
-  .hero {
-    padding: var(--spacing-xl) var(--spacing-sm);
+  .container {
+    padding: var(--spacing-sm);
   }
 
   .stats-grid {
@@ -790,6 +618,40 @@ tr:hover {
   td {
     padding: var(--spacing-sm);
   }
+
+  h1 {
+    font-size: 2.5rem;
+    /* Ensure big title on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.8rem;
+  }
+
+  .btn {
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    width: 100%;
+    /* Full width buttons on very small screens */
+  }
+
+  .card {
+    padding: var(--spacing-md);
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .donation-notice {
+    padding: var(--spacing-sm);
+  }
 }
 
 /* ==========================================
@@ -800,15 +662,14 @@ tr:hover {
   border: 2px solid #ffd700;
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-lg);
   text-align: center;
-  animation: fadeInUp 0.8s ease;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-  backdrop-filter: blur(10px);
+  animation: fadeInUp 0.8s ease 0.2s both;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
 }
 
 .donation-title {
-  color: var(--accent);
+  color: #ffd700;
   font-size: 1.2rem;
   font-weight: 700;
   margin-bottom: var(--spacing-sm);
@@ -818,10 +679,24 @@ tr:hover {
 
 .donation-details {
   color: var(--text-primary);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: 1.1rem;
+  line-height: 1.8;
 }
 
-.donation-details strong {
-  color: var(--accent);
+/* ==========================================
+   SPARKLING NOTICE
+   ========================================== */
+.sparkling-notice {
+  margin-top: var(--spacing-lg);
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #00d4ff;
+  animation: pulse 2s infinite;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.sparkle {
+  display: inline-block;
+  animation: spin 3s linear infinite;
 }

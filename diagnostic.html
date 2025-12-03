@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection Diagnostic</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+
+        .log {
+            background: white;
+            padding: 15px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Connection Diagnostic Tool</h1>
+    <button onclick="runTest()">Run Test</button>
+    <div id="output" class="log">Ready to test...</div>
+
+    <script src="sheets-api.js"></script>
+    <script>
+        const output = document.getElementById('output');
+
+        function log(msg, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const el = document.createElement('div');
+            el.textContent = `[${timestamp}] ${msg}`;
+            if (type === 'error') el.style.color = 'red';
+            if (type === 'success') el.style.color = 'green';
+            output.appendChild(el);
+        }
+
+        async function runTest() {
+            output.innerHTML = '';
+            log('Starting diagnostic test...');
+
+            // 1. Check API Config
+            if (typeof GOOGLE_SHEETS_URL === 'undefined') {
+                log('CRITICAL: GOOGLE_SHEETS_URL is not defined. Check sheets-api.js', 'error');
+                return;
+            }
+            log(`API URL: ${GOOGLE_SHEETS_URL}`);
+
+            // 2. Test Fetch
+            try {
+                log('Attempting to fetch players...');
+                const start = Date.now();
+                const response = await fetch(GOOGLE_SHEETS_URL + '?action=getPlayers', {
+                    method: 'GET'
+                });
+                const duration = Date.now() - start;
+                log(`Fetch completed in ${duration}ms`);
+                log(`Status: ${response.status} ${response.statusText}`);
+
+                if (!response.ok) {
+                    log('Fetch failed with bad status', 'error');
+                }
+
+                const text = await response.text();
+                log('Response body preview: ' + text.substring(0, 200) + '...');
+
+                try {
+                    const data = JSON.parse(text);
+                    log('JSON parse successful', 'success');
+                    if (data.success) {
+                        log(`Found ${data.players ? data.players.length : 0} players`, 'success');
+                    } else {
+                        log('API returned error: ' + data.error, 'error');
+                    }
+                } catch (e) {
+                    log('Failed to parse JSON. Response might be HTML (e.g., Google login page or error page).', 'error');
+                }
+
+            } catch (error) {
+                log('Fetch Network Error: ' + error.message, 'error');
+                log('Possible causes: CORS issues, offline, or invalid URL.', 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>
