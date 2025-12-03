@@ -16,8 +16,8 @@
   /* Backgrounds */
   --bg-dark: #0a0e27;
   --bg-darker: #050814;
-  --bg-card: rgba(255, 255, 255, 0.05);
-  --bg-card-hover: rgba(255, 255, 255, 0.08);
+  --bg-card: rgba(0, 0, 0, 0.6);
+  --bg-card-hover: rgba(0, 0, 0, 0.8);
 
   /* Text */
   --text-primary: #ffffff;
@@ -64,16 +64,20 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background: var(--bg-dark);
+  background-color: var(--bg-dark);
   color: var(--text-primary);
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
   text-shadow: var(--text-shadow);
-  /* Apply global text shadow */
+  /* Complex gradient background */
+  background:
+    radial-gradient(circle at 15% 50%, rgba(0, 212, 255, 0.15) 0%, transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(255, 107, 53, 0.15) 0%, transparent 25%),
+    linear-gradient(135deg, #050814 0%, #0a0e27 100%);
 }
 
-/* Colorful Cricket Stadium Background with Cartoon Players */
+/* Abstract Cricket Pattern Overlay */
 body::before {
   content: '';
   position: fixed;
@@ -81,13 +85,38 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('./images/stadium_v2.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.5;
-  /* Reduced opacity for better text contrast */
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
   z-index: -2;
+  pointer-events: none;
+}
+
+/* Dynamic Glow Effect */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.05), transparent 60%);
+  z-index: -1;
+  pointer-events: none;
+  animation: pulse-glow 10s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
 }
 
 /* ==========================================
@@ -246,10 +275,10 @@ p {
    ========================================== */
 
 .card {
-  background: rgba(0, 0, 0, 0.6);
-  /* Darker background for better contrast */
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.75);
+  /* Much darker background for excellent contrast */
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
@@ -293,15 +322,18 @@ input,
 textarea {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
-  background: rgba(0, 0, 0, 0.4);
-  /* Darker input bg */
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.6);
+  /* Darker and more opaque input bg */
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  /* Stronger border */
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: 1.05rem;
+  /* Slightly larger text */
   font-family: 'Inter', sans-serif;
   transition: all var(--transition-fast);
   outline: none;
+  font-weight: 500;
 }
 
 /* Super Visible Dropdown Styling */
