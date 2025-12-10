@@ -16,6 +16,17 @@ const WHATSAPP_CONFIG = {
     API_URL: 'https://api.ultramsg.com' // Base URL
 };
 
+// -------------------------------------------------------------
+// ONE-TIME SETUP: Run this function ONCE to authorize the script
+// -------------------------------------------------------------
+function forceAuth() {
+    console.log("Requesting permissions...");
+    // This simple call forces Google to ask for "Connect to an external service" permission
+    UrlFetchApp.fetch("https://www.google.com");
+    console.log("Permissions granted!");
+}
+// -------------------------------------------------------------
+
 function doGet(e) {
     const action = e.parameter.action;
 
@@ -109,13 +120,19 @@ function sendWhatsAppMessage(phoneNumber, message) {
 
         const options = {
             method: 'post',
-            payload: payload
+            payload: payload,
+            muteHttpExceptions: true // Added to capture error responses
         };
 
         const url = `${WHATSAPP_CONFIG.API_URL}/${WHATSAPP_CONFIG.INSTANCE_ID}/messages/chat`;
 
+        console.log(`Sending WhatsApp to ${cleanPhone}...`); // Debug log
+
         const response = UrlFetchApp.fetch(url, options);
-        const json = JSON.parse(response.getContentText());
+        const responseText = response.getContentText();
+        console.log(`UltraMsg Response: ${responseText}`); // Debug log
+
+        const json = JSON.parse(responseText);
 
         if (json.sent === 'true' || json.id) {
             return { success: true };
@@ -151,7 +168,7 @@ function testEmail() {
 // Run this directly in the editor to test WhatsApp sending
 // Replace '919876543210' with your actual mobile number (with country code)
 function testWhatsApp() {
-    const testPhone = '919876543210'; // CHANGE THIS TO YOUR NUMBER
+    const testPhone = '918960281989'; // Updated to user's number
     console.log('Attempting to send WhatsApp to:', testPhone);
 
     const message = `🏏 *Test Message*
