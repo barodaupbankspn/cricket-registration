@@ -767,6 +767,58 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+    // WhatsApp Broadcast Logic
+    const sendWhatsAppBroadcastBtn = document.getElementById('sendWhatsAppBroadcastBtn');
+
+    if (sendWhatsAppBroadcastBtn) {
+        sendWhatsAppBroadcastBtn.addEventListener('click', async function () {
+            const message = broadcastMessage.value.trim();
+
+            if (!message) {
+                alert('Please enter a message.');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to send this WhatsApp message?')) {
+                return;
+            }
+
+            const originalText = sendWhatsAppBroadcastBtn.innerText;
+            sendWhatsAppBroadcastBtn.innerText = '⏳ Sending...';
+            sendWhatsAppBroadcastBtn.disabled = true;
+
+            try {
+                // Use sheets-api.js to send broadcast
+                if (typeof sendBroadcastWhatsAppToSheets === 'function') {
+                    const result = await sendBroadcastWhatsAppToSheets(message, selectedRecipients);
+
+                    if (result.success) {
+                        alert('✅ WhatsApp broadcast sent successfully!');
+                        broadcastMessage.value = '';
+
+                        // Reset selection
+                        if (selectedRecipients) {
+                            selectedRecipients = null;
+                            const checkboxes = document.querySelectorAll('.player-checkbox');
+                            checkboxes.forEach(cb => cb.checked = false);
+                            document.getElementById('selectAll').checked = false;
+                        }
+                    } else {
+                        alert('❌ Failed to send WhatsApp: ' + (result.error || 'Unknown error'));
+                    }
+                } else {
+                    alert('❌ Broadcast function not available.');
+                }
+            } catch (error) {
+                console.error('Broadcast error:', error);
+                alert('❌ An error occurred while sending WhatsApp.');
+            } finally {
+                sendWhatsAppBroadcastBtn.innerText = originalText;
+                sendWhatsAppBroadcastBtn.disabled = false;
+            }
+        });
+    }
+
     // Debug: Check if broadcast section is visible
     const broadcastSection = document.getElementById('broadcastSection');
     if (broadcastSection) {
@@ -775,6 +827,60 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('Broadcast section NOT found!');
     }
 });
+
+// Message Menu Logic
+window.toggleMessageMenu = function () {
+    const menu = document.getElementById('messageMenu');
+    menu.classList.toggle('hidden');
+
+    // Close when clicking outside
+    const closeMenu = function (e) {
+        if (!e.target.closest('.dropdown')) {
+            menu.classList.add('hidden');
+            document.removeEventListener('click', closeMenu);
+        }
+    };
+
+    if (!menu.classList.contains('hidden')) {
+        // Delay to prevent immediate closing
+        setTimeout(() => document.addEventListener('click', closeMenu), 0);
+    }
+};
+
+window.whatsappSelected = function () {
+    const checkboxes = document.querySelectorAll('.player-checkbox:checked');
+    if (checkboxes.length === 0) {
+        alert('Please select at least one player to message.');
+        return;
+    }
+
+    const recipients = [];
+    checkboxes.forEach(cb => {
+        const row = cb.closest('tr');
+        const email = row.cells[5].innerText; // Using Email as unique ID matching backend logic
+        if (email && email !== 'N/A') {
+            recipients.push(email);
+        }
+    });
+
+    if (recipients.length === 0) {
+        alert('Selected players do not have valid emails (used for ID).');
+        return;
+    }
+
+    selectedRecipients = recipients;
+
+    // Scroll to broadcast section
+    document.getElementById('broadcastSection').scrollIntoView({ behavior: 'smooth' });
+
+    // Highlight message box
+    const messageBox = document.getElementById('broadcastMessage');
+    messageBox.focus();
+    messageBox.style.boxShadow = '0 0 10px #25D366';
+    setTimeout(() => messageBox.style.boxShadow = '', 2000);
+
+    alert(`Selected ${recipients.length} players for WhatsApp. Type your message and click "Send WhatsApp".`);
+};
 
 // Email Selected Players
 let selectedRecipients = null;

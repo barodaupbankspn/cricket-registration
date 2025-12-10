@@ -105,11 +105,23 @@
                         </select>
                     </div>
 
-                    <div style="display: flex; gap: var(--spacing-sm);">
-                        <button onclick="emailSelected()" class="btn btn-secondary"
-                            style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
-                            ✉️ Email Selected
-                        </button>
+                    <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                        <div class="dropdown" style="position: relative; display: inline-block;">
+                            <button onclick="toggleMessageMenu()" class="btn btn-secondary"
+                                style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
+                                💬 Message Selected
+                            </button>
+                            <div id="messageMenu" class="hidden" 
+                                style="position: absolute; background: white; min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; border-radius: 8px; margin-top: 5px; overflow: hidden;">
+                                <button onclick="emailSelected()" style="width: 100%; padding: 12px 16px; text-align: left; border: none; background: none; cursor: pointer; color: black; font-weight: 500;">
+                                    ✉️ Email
+                                </button>
+                                <button onclick="whatsappSelected()" style="width: 100%; padding: 12px 16px; text-align: left; border: none; background: none; cursor: pointer; color: black; font-weight: 500; border-top: 1px solid #eee;">
+                                    📱 WhatsApp
+                                </button>
+                            </div>
+                        </div>
+
                         <button onclick="bulkAction('Approved')" class="btn btn-success"
                             style="padding: 0.5rem 1rem; font-size: 0.9rem;">
                             ✅ Approve Selected
@@ -124,10 +136,10 @@
 
             <!-- Broadcast Section -->
             <div id="broadcastSection" class="card mb-3" style="border-left: 4px solid var(--primary);">
-                <h3 style="margin-top: 0; color: var(--primary);">📢 Send Bulk / Broadcast Email</h3>
+                <h3 style="margin-top: 0; color: var(--primary);">📢 Send Bulk / Broadcast Message</h3>
                 <div style="display: grid; gap: var(--spacing-sm);">
                     <div>
-                        <label for="broadcastSubject">Subject</label>
+                        <label for="broadcastSubject">Subject (Email Only)</label>
                         <input type="text" id="broadcastSubject" placeholder="Email Subject" style="width: 100%;">
                     </div>
                     <div>
@@ -135,9 +147,14 @@
                         <textarea id="broadcastMessage" rows="4" placeholder="Enter your message here..."
                             style="width: 100%; resize: vertical;"></textarea>
                     </div>
-                    <button id="sendBroadcastBtn" class="btn btn-primary" style="justify-self: start;">
-                        🚀 Send Broadcast (All Players)
-                    </button>
+                    <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                        <button id="sendBroadcastBtn" class="btn btn-primary">
+                            📧 Send Email (All Players)
+                        </button>
+                        <button id="sendWhatsAppBroadcastBtn" class="btn btn-success" style="background: linear-gradient(135deg, #25D366, #128C7E);">
+                            📱 Send WhatsApp (All Players)
+                        </button>
+                    </div>
                 </div>
             </div>
 

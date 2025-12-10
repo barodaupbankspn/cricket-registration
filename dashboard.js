@@ -5,9 +5,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const playersGrid = document.getElementById('playersGrid');
     const searchInput = document.getElementById('playerSearch');
 
+    // Create Debug Log Container
+    const debugLog = document.createElement('div');
+    debugLog.style.cssText = 'background: #000; color: #0f0; padding: 10px; margin: 20px; border-radius: 5px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;';
+    debugLog.innerHTML = '<strong>Debug Log:</strong><br>';
+    document.querySelector('.container').appendChild(debugLog);
+
+    function log(msg) {
+        console.log(msg);
+        const line = document.createElement('div');
+        line.textContent = `> ${msg}`;
+        debugLog.appendChild(line);
+    }
+
     let allPlayers = [];
 
     // Initial Load
+    log('Dashboard initialized');
     loadPublicPlayers();
 
     // Search Listener
@@ -17,19 +31,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function loadPublicPlayers() {
         showLoading();
+        log('Starting loadPublicPlayers...');
 
         try {
-            // Use the existing API helper
-            // Note: We might need to ensure getAllPlayersFromSheets is available
             if (typeof getAllPlayersFromSheets !== 'function') {
-                throw new Error('API helper not loaded');
+                throw new Error('API helper (getAllPlayersFromSheets) not found. Check sheets-api.js');
             }
+            log('API helper found. Calling API...');
 
             const result = await getAllPlayersFromSheets();
+            log(`API returned. Success: ${result.success}`);
 
             if (result.success) {
-                // Filter sensitive data and only show approved/relevant players if needed
-                // For now, we show all, but we hide sensitive fields in the UI
+                log(`Player count: ${result.players.length}`);
+
                 allPlayers = result.players.map(p => ({
                     name: p.name,
                     role: p.role,
@@ -37,16 +52,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     bowlingStyle: p.bowlingStyle,
                     jerseySize: p.jerseySize,
                     status: p.status,
-                    // Exclude: contact, email, address, placeOfPosting
                 }));
 
+                log('Players mapped. Rendering...');
                 renderPlayers(allPlayers);
                 showGrid();
+                log('Grid shown.');
             } else {
+                log(`API Error: ${result.error}`);
                 showError(result.error || 'Failed to fetch players');
             }
 
         } catch (error) {
+            log(`EXCEPTION: ${error.message}`);
             console.error('Dashboard error:', error);
             showError('Error: ' + error.message);
         }
@@ -54,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderPlayers(players) {
         playersGrid.innerHTML = '';
+        log(`Rendering ${players.length} cards...`);
 
         if (players.length === 0) {
             playersGrid.innerHTML = `

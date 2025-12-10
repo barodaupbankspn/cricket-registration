@@ -169,6 +169,33 @@ async function sendBroadcastToSheets(subject, message, recipients) {
     }
 }
 
+// Send WhatsApp Broadcast
+async function sendBroadcastWhatsAppToSheets(message, recipients) {
+    if (!isSheetsConfigured()) {
+        return { success: false, error: 'Not configured' };
+    }
+
+    try {
+        const response = await fetch(GOOGLE_SHEETS_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'broadcastWhatsApp',
+                message: message,
+                recipients: recipients // Optional array of emails (used as IDs here)
+            })
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error sending WhatsApp broadcast:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 // Update jersey number in Google Sheets
 async function updateJerseyNumberInSheets(playerId, jerseyNumber) {
     if (!isSheetsConfigured()) {

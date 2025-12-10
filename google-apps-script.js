@@ -1,6 +1,21 @@
 // Google Apps Script for Cricket Registration
 // Copy this entire code into your Google Apps Script editor
 
+// ========================================
+// WHATSAPP CONFIGURATION (UltraMsg / Generic)
+// ========================================
+// 1. Sign up at https://ultramsg.com/ (or similar provider)
+// 2. Create an instance and get your Instance ID and Token
+// 3. Fill them in below
+
+const WHATSAPP_CONFIG = {
+    ENABLE_WHATSAPP: true, // Set to true to enable
+    PROVIDER: 'UltraMsg', // Just for reference
+    INSTANCE_ID: 'instance155365', // REPLACE THIS
+    TOKEN: 'pio1dd7zqwtngt1h',       // REPLACE THIS
+    API_URL: 'https://api.ultramsg.com' // Base URL
+};
+
 function doGet(e) {
     const action = e.parameter.action;
 
@@ -27,6 +42,8 @@ function doPost(e) {
             return deletePlayer(data.playerId);
         } else if (action === 'broadcast') {
             return broadcastEmail(data.subject, data.message, data.recipients);
+        } else if (action === 'broadcastWhatsApp') {
+            return broadcastWhatsApp(data.message, data.recipients);
         } else if (action === 'updateJerseyNumber') {
             return updateJerseyNumber(data.playerId, data.jerseyNumber);
         }
@@ -64,6 +81,53 @@ function sendEmailNotification(to, subject, body) {
     }
 }
 
+// Helper: Send WhatsApp Message via UltraMsg
+function sendWhatsAppMessage(phoneNumber, message) {
+    if (!WHATSAPP_CONFIG.ENABLE_WHATSAPP) {
+        return { success: false, error: 'WhatsApp is disabled in configuration' };
+    }
+
+    if (WHATSAPP_CONFIG.INSTANCE_ID === 'instance12345') {
+        return { success: false, error: 'WhatsApp Instance ID not configured' };
+    }
+
+    try {
+        // Cleaning Phone Number
+        let cleanPhone = phoneNumber.toString().replace(/\D/g, '');
+
+        // Ensure international format without +
+        // If 10 digits (India), add 91
+        if (cleanPhone.length === 10) {
+            cleanPhone = '91' + cleanPhone;
+        }
+
+        const payload = {
+            token: WHATSAPP_CONFIG.TOKEN,
+            to: cleanPhone,
+            body: message
+        };
+
+        const options = {
+            method: 'post',
+            payload: payload
+        };
+
+        const url = `${WHATSAPP_CONFIG.API_URL}/${WHATSAPP_CONFIG.INSTANCE_ID}/messages/chat`;
+
+        const response = UrlFetchApp.fetch(url, options);
+        const json = JSON.parse(response.getContentText());
+
+        if (json.sent === 'true' || json.id) {
+            return { success: true };
+        } else {
+            return { success: false, error: JSON.stringify(json) };
+        }
+
+    } catch (e) {
+        return { success: false, error: e.toString() };
+    }
+}
+
 // MANUAL TEST FUNCTION
 // Run this directly in the editor to test email sending
 function testEmail() {
@@ -83,59 +147,76 @@ function testEmail() {
     }
 }
 
-// Add a new player
-function addPlayer(player) {
+// MANUAL TEST FUNCTION FOR WHATSAPP
+// Run this directly in the editor to test WhatsApp sending
+// Replace '919876543210' with your actual mobile number (with country code)
+function testWhatsApp() {
+    const testPhone = '919876543210'; // CHANGE THIS TO YOUR NUMBER
+    console.log('Attempting to send WhatsApp to:', testPhone);
+
+    const message = `🏏 *Test Message*
+
+Hello! 👋
+
+This is a test message from your Cricket Registration System (UltraMsg).
+
+If you received this, WhatsApp integration is working! ✅`;
+
+    const result = sendWhatsAppMessage(testPhone, message);
+
+    if (result.success) {
+        console.log('✅ WhatsApp sent successfully!');
+    } else {
+        console.error('❌ WhatsApp failed:', result.error);
+    }
+}
+
+// Broadcast WhatsApp to All Players
+function broadcastWhatsApp(message, recipients) {
     try {
         const sheet = getSheet();
-
-        // Check for duplicate mobile number (Column D, index 3)
         const data = sheet.getDataRange().getValues();
-        // Skip header row
+        let count = 0;
+        let errors = [];
+
+        // If recipients provided, convert to Set for O(1) lookup
+        const targetEmails = recipients ? new Set(recipients) : null;
+
         for (let i = 1; i < data.length; i++) {
-            if (String(data[i][3]) === String(player.contact)) {
-                return ContentService.createTextOutput(JSON.stringify({
-                    success: false,
-                    error: 'Mobile number already registered'
-                })).setMimeType(ContentService.MimeType.JSON);
+            const email = data[i][4];
+            const name = data[i][1];
+            const contact = data[i][3]; // Phone number in Column D (index 3)
+
+            // Skip if we have a target list and this email isn't in it
+            // (Using email as the unique identifier for selection from frontend)
+            if (targetEmails && !targetEmails.has(email)) {
+                continue;
+            }
+
+            if (contact) {
+                const personalization = `Hello ${name},\n\n`;
+                const fullMessage = personalization + message;
+
+                const result = sendWhatsAppMessage(contact, fullMessage);
+
+                if (result.success) {
+                    count++;
+                } else {
+                    errors.push(`${name}: ${result.error}`);
+                    // Add a small delay to avoid rate limits if getting errors
+                    Utilities.sleep(500);
+                }
+
+                // Rate limiting: UltraMsg allows ~10 msg/sec, but let's be safe
+                // Sleep 200ms between messages
+                Utilities.sleep(200);
             }
         }
 
-        // Append new row with player data
-        sheet.appendRow([
-            player.id,
-            player.name,
-            player.age,
-            player.contact,
-            player.email,
-            player.placeOfPosting || '',
-            player.address || '',
-            player.role,
-            player.battingStyle,
-            player.bowlingStyle || 'N/A',
-            player.experience,
-            player.jerseySize || '',
-            player.status || 'Under Observation',
-            player.registeredAt
-        ]);
-
-        // Send Confirmation Email
-        const subject = 'Registration Successful - Shahjahanpur Spartans';
-        const body = `
-            <h2>Welcome to Shahjahanpur Spartans!</h2>
-            <p>Dear ${player.name},</p>
-            <p>Your registration has been successfully received.</p>
-            <p><strong>Status:</strong> Under Observation</p>
-            <p>We will review your details and update you shortly.</p>
-            <br>
-            <p>Best Regards,<br>Shahjahanpur Spartans Team</p>
-        `;
-
-        const emailResult = sendEmailNotification(player.email, subject, body);
-
         return ContentService.createTextOutput(JSON.stringify({
             success: true,
-            message: 'Player added successfully',
-            emailStatus: emailResult
+            message: `WhatsApp broadcast sent to ${count} players.`,
+            errors: errors.length > 0 ? errors : null
         })).setMimeType(ContentService.MimeType.JSON);
 
     } catch (error) {
