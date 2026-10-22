@@ -117,7 +117,7 @@
                 <li>Name the project: <strong>"Cricket Registration API"</strong></li>
             </ol>
             <div class="warning-box">
-                <strong>⚠️ Important:</strong> Make sure to copy the ENTIRE code from the google-apps-script.js file!
+                <strong>⚠️ Important:</strong> Make sure to copy the ENTIRE code from <code>google-apps-script.js</code>. If the web app was deployed before, deploy a <strong>new version</strong> after saving the code; the live endpoint does not update automatically.
             </div>
         </div>
 
@@ -204,6 +204,16 @@
                 <li>Use the "Download GitHub Backup" feature to save player data</li>
                 <li>Keep your admin credentials secure</li>
             </ul>
+        </div>
+
+        <div class="warning-box">
+            <h3>📋 Spreadsheet link and cross-device registrations</h3>
+            <p>The website's <code>GOOGLE_SHEETS_URL</code> is the Apps Script web-app endpoint, not the spreadsheet URL. The actual spreadsheet link is available to its owner in Google Sheets and is not stored in this project. Registrations remain visible on the submitting browser, but cross-device visibility requires the Apps Script project to be connected to the correct spreadsheet and redeployed with the latest code, including <code>addPlayer</code>.</p>
+        </div>
+
+        <div class="step-card">
+            <h2>✉️ Email and WhatsApp messages</h2>
+            <p>The admin message controls open email drafts and WhatsApp click-to-chat drafts for selected players. These are not sent automatically; the admin must review and send each message. Automated delivery requires a secure backend and provider credentials, which must not be placed in public GitHub Pages code.</p>
         </div>
 
         <div style="text-align: center; margin-top: 2rem;">

@@ -2,7 +2,7 @@
 // This file handles all communication with Google Sheets
 
 // IMPORTANT: Replace this URL with your deployed Google Apps Script Web App URL
-const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwzdq-jZ2KVuI6I0kC-WM8wIgvZ2hoqylyUEXD2QPZxFEfDmHekH3TEAytkEIzPb7_4/exec';
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyzW_uyileZE9-a1zX7hJXr7odDEWJYo0vyegaCo7cFzbDhZM5FU7l9ngVqS7jiMUhx/exec';
 
 // Check if Google Sheets is configured
 function isSheetsConfigured() {

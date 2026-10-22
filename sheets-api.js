@@ -2,13 +2,49 @@
 // This file handles all communication with Google Sheets
 
 // IMPORTANT: Replace this URL with your deployed Google Apps Script Web App URL
-const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwzdq-jZ2KVuI6I0kC-WM8wIgvZ2hoqylyUEXD2QPZxFEfDmHekH3TEAytkEIzPb7_4/exec';
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyzW_uyileZE9-a1zX7hJXr7odDEWJYo0vyegaCo7cFzbDhZM5FU7l9ngVqS7jiMUhx/exec';
 
 // Check if Google Sheets is configured
 function isSheetsConfigured() {
     return GOOGLE_SHEETS_URL && GOOGLE_SHEETS_URL !== 'YOUR_GOOGLE_SCRIPT_URL_HERE';
 }
 window.isSheetsConfigured = isSheetsConfigured;
+
+function mergePlayerLists(primaryPlayers, fallbackPlayers) {
+    const players = [];
+    const ids = new Set();
+    const phones = new Set();
+    [...primaryPlayers, ...fallbackPlayers].forEach(player => {
+        const id = player.id == null ? '' : String(player.id);
+        const phone = String(player.contact || '').replace(/\D/g, '');
+        if ((id && ids.has(id)) || (phone && phones.has(phone))) {
+            return;
+        }
+        players.push(player);
+        if (id) ids.add(id);
+        if (phone) phones.add(phone);
+    });
+    return players;
+}
+window.mergePlayerLists = mergePlayerLists;
+
+async function postToSheets(payload) {
+    const response = await fetch(GOOGLE_SHEETS_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+        throw new Error(`Google Sheets request failed (${response.status})`);
+    }
+    const data = await response.json();
+    if (!data.success) {
+        throw new Error(data.error || 'Google Sheets rejected the request');
+    }
+    return data;
+}
 
 // Save player to Google Sheets
 async function savePlayerToSheets(player) {
@@ -18,21 +54,7 @@ async function savePlayerToSheets(player) {
     }
 
     try {
-        const response = await fetch(GOOGLE_SHEETS_URL, {
-            method: 'POST',
-            mode: 'no-cors', // Required for Google Apps Script
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'addPlayer',
-                player: player
-            })
-        });
-
-        // Note: no-cors mode doesn't allow reading response
-        // We assume success if no error is thrown
-        return { success: true };
+        return await postToSheets({ action: 'addPlayer', player: player });
     } catch (error) {
         console.error('Error saving to Google Sheets:', error);
         return { success: false, error: error.message };
@@ -71,20 +93,11 @@ async function updatePlayerStatusInSheets(playerId, status) {
     }
 
     try {
-        const response = await fetch(GOOGLE_SHEETS_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'updateStatus',
-                playerId: playerId,
-                status: status
-            })
+        return await postToSheets({
+            action: 'updateStatus',
+            playerId: playerId,
+            status: status
         });
-
-        return { success: true };
     } catch (error) {
         console.error('Error updating status in Google Sheets:', error);
         return { success: false, error: error.message };
@@ -98,19 +111,7 @@ async function deletePlayerFromSheets(playerId) {
     }
 
     try {
-        const response = await fetch(GOOGLE_SHEETS_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'deletePlayer',
-                playerId: playerId
-            })
-        });
-
-        return { success: true };
+        return await postToSheets({ action: 'deletePlayer', playerId: playerId });
     } catch (error) {
         console.error('Error deleting from Google Sheets:', error);
         return { success: false, error: error.message };
@@ -122,10 +123,41 @@ async function syncWithGoogleSheets() {
     const result = await getAllPlayersFromSheets();
 
     if (result.success) {
-        // Update localStorage with Google Sheets data (even if empty)
-        localStorage.setItem('cricketPlayers', JSON.stringify(result.players));
+        const localPlayers = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
+        const remoteIds = new Set(result.players.map(player => String(player.id)));
+        const remotePhones = new Set(result.players
+            .map(player => String(player.contact || '').replace(/\D/g, ''))
+            .filter(Boolean));
+        const pendingPlayers = localPlayers.filter(player =>
+            !remoteIds.has(String(player.id)) &&
+            (!player.contact || !remotePhones.has(String(player.contact).replace(/\D/g, '')))
+        );
+
+        for (const player of pendingPlayers) {
+            await savePlayerToSheets(player);
+        }
+
+        const refreshed = pendingPlayers.length ? await getAllPlayersFromSheets() : result;
+        const sheetPlayers = refreshed.success ? refreshed.players : result.players;
+        const mergedPlayers = mergePlayerLists(sheetPlayers, localPlayers);
+        const confirmedIds = new Set(sheetPlayers.map(player => String(player.id)));
+        const confirmedPhones = new Set(sheetPlayers
+            .map(player => String(player.contact || '').replace(/\D/g, ''))
+            .filter(Boolean));
+        const localOnlyCount = localPlayers.filter(player =>
+            !confirmedIds.has(String(player.id)) &&
+            (!player.contact || !confirmedPhones.has(String(player.contact).replace(/\D/g, '')))
+        ).length;
+
+        localStorage.setItem('cricketPlayers', JSON.stringify(mergedPlayers));
         localStorage.setItem('lastSyncTime', new Date().toISOString());
-        return { success: true, count: result.players.length };
+        localStorage.setItem('pendingSheetSyncCount', String(localOnlyCount));
+        return {
+            success: true,
+            count: sheetPlayers.length,
+            localOnlyCount: localOnlyCount,
+            totalCount: mergedPlayers.length
+        };
     }
 
     return { success: false, error: result.error || 'Unknown error during sync' };
@@ -136,7 +168,9 @@ function getLastSyncTime() {
     const lastSync = localStorage.getItem('lastSyncTime');
     if (lastSync) {
         const date = new Date(lastSync);
-        return date.toLocaleString('en-IN');
+        const pendingCount = Number(localStorage.getItem('pendingSheetSyncCount') || 0);
+        return date.toLocaleString('en-IN') +
+            (pendingCount ? ` (${pendingCount} local-only registration(s) still need Sheets sync)` : '');
     }
     return 'Never';
 }
@@ -148,21 +182,12 @@ async function sendBroadcastToSheets(subject, message, recipients) {
     }
 
     try {
-        const response = await fetch(GOOGLE_SHEETS_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'broadcast',
-                subject: subject,
-                message: message,
-                recipients: recipients // Optional array of emails
-            })
+        return await postToSheets({
+            action: 'broadcast',
+            subject: subject,
+            message: message,
+            recipients: recipients
         });
-
-        return { success: true };
     } catch (error) {
         console.error('Error sending broadcast:', error);
         return { success: false, error: error.message };
@@ -176,20 +201,11 @@ async function sendBroadcastWhatsAppToSheets(message, recipients) {
     }
 
     try {
-        const response = await fetch(GOOGLE_SHEETS_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'broadcastWhatsApp',
-                message: message,
-                recipients: recipients // Optional array of emails (used as IDs here)
-            })
+        return await postToSheets({
+            action: 'broadcastWhatsApp',
+            message: message,
+            recipients: recipients
         });
-
-        return { success: true };
     } catch (error) {
         console.error('Error sending WhatsApp broadcast:', error);
         return { success: false, error: error.message };
@@ -203,21 +219,11 @@ async function updateJerseyNumberInSheets(playerId, jerseyNumber) {
     }
 
     try {
-        const response = await fetch(GOOGLE_SHEETS_URL, {
-            method: 'POST',
-            // mode: 'no-cors', // Removed to allow reading response
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8', // Changed to text/plain to avoid CORS preflight issues with GAS
-            },
-            body: JSON.stringify({
-                action: 'updateJerseyNumber',
-                playerId: playerId,
-                jerseyNumber: jerseyNumber
-            })
+        return await postToSheets({
+            action: 'updateJerseyNumber',
+            playerId: playerId,
+            jerseyNumber: jerseyNumber
         });
-
-        const data = await response.json();
-        return data; // Return the full response from server (success/error/ownerName)
     } catch (error) {
         console.error('Error updating jersey number in Google Sheets:', error);
         return { success: false, error: error.message };

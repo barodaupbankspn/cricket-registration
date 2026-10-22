@@ -136,7 +136,7 @@
 
             <!-- Broadcast Section -->
             <div id="broadcastSection" class="card mb-3" style="border-left: 4px solid var(--primary);">
-                <h3 style="margin-top: 0; color: var(--primary);">📢 Send Bulk / Broadcast Message</h3>
+                <h3 style="margin-top: 0; color: var(--primary);">📢 Message Selected Players</h3>
                 <div style="display: grid; gap: var(--spacing-sm);">
                     <div>
                         <label for="broadcastSubject">Subject (Email Only)</label>
@@ -149,12 +149,15 @@
                     </div>
                     <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
                         <button id="sendBroadcastBtn" class="btn btn-primary">
-                            📧 Send Email (All Players)
+                            📧 Open Email Draft (Selected)
                         </button>
                         <button id="sendWhatsAppBroadcastBtn" class="btn btn-success" style="background: linear-gradient(135deg, #25D366, #128C7E);">
-                            📱 Send WhatsApp (All Players)
+                            📱 Create WhatsApp Drafts (Selected)
                         </button>
                     </div>
+                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">
+                        Select players in the table first. Email opens your mail app; WhatsApp creates one click-to-chat link per selected player. You must review and send each message yourself.
+                    </p>
                 </div>
             </div>
 

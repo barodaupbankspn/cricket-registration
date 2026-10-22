@@ -199,36 +199,41 @@ document.addEventListener('DOMContentLoaded', function () {
                 registeredAt: new Date().toISOString()
             };
 
-            // Try to save to Google Sheets first
+            let sheetsMessage = '';
+            let duplicatePhone = false;
             if (typeof savePlayerToSheets === 'function') {
-                const sheetsResult = await savePlayerToSheets(player);
-
-                if (sheetsResult.success) {
-                    console.log('✅ Saved to Google Sheets');
-                    // Only save to local storage if successful on server (or if offline/not configured)
-                    savePlayer(player);
-                } else {
-                    if (sheetsResult.error === 'Mobile number already registered') {
-                        alert('⚠️ REGISTRATION FAILED:\n\nThis mobile number is already registered!');
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = originalText;
-                        return; // Stop execution
+                try {
+                    const sheetsResult = await savePlayerToSheets(player);
+                    if (sheetsResult.success) {
+                        sheetsMessage = ' It is now available through the shared registration database.';
+                    } else if (sheetsResult.error === 'Mobile number already registered') {
+                        duplicatePhone = true;
+                    } else {
+                        console.warn('Google Sheets save failed:', sheetsResult.error);
+                        sheetsMessage = ' It is saved only on this device because Google Sheets could not confirm the save.';
                     }
-
-                    console.warn('⚠️ Google Sheets save failed, using localStorage only');
-                    // If it's another error (like network), we still save locally
-                    savePlayer(player);
+                } catch (error) {
+                    console.error('Google Sheets save failed:', error);
+                    sheetsMessage = ' It is saved only on this device because Google Sheets could not confirm the save.';
                 }
-            } else {
-                // No sheets API, save locally
-                savePlayer(player);
             }
+
+            if (duplicatePhone) {
+                alert('⚠️ REGISTRATION FAILED:\n\nThis mobile number is already registered in the shared database.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                return;
+            }
+
+            // Keep local copy for immediate visibility and offline fallback.
+            savePlayer(player);
 
             // Re-enable button
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
 
             // Show success message
+            successMessage.textContent = '🎉 Registration saved on this device.' + sheetsMessage;
             successMessage.classList.remove('hidden');
 
             // Reset form
@@ -244,6 +249,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Save player to localStorage
     function savePlayer(player) {
         let players = getPlayers();
+        players = players.filter(existing => String(existing.id) !== String(player.id));
         players.push(player);
         localStorage.setItem('cricketPlayers', JSON.stringify(players));
     }

@@ -9,10 +9,9 @@
 // 3. Fill them in below
 
 const WHATSAPP_CONFIG = {
-    ENABLE_WHATSAPP: true, // Set to true to enable
+    ENABLE_WHATSAPP: false, // Configure credentials in Script Properties before enabling
     PROVIDER: 'UltraMsg', // Just for reference
-    INSTANCE_ID: 'instance155365', // REPLACE THIS
-    TOKEN: 'pio1dd7zqwtngt1h',       // REPLACE THIS
+    INSTANCE_ID: '',
     API_URL: 'https://api.ultramsg.com' // Base URL
 };
 
@@ -77,6 +76,57 @@ function getSheet() {
     return SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 }
 
+// Add a registration to the bound spreadsheet.
+function addPlayer(player) {
+    try {
+        if (!player || !player.id || !player.name || !player.contact || !player.email) {
+            return ContentService.createTextOutput(JSON.stringify({
+                success: false,
+                error: 'Missing required player details'
+            })).setMimeType(ContentService.MimeType.JSON);
+        }
+
+        const sheet = getSheet();
+        const data = sheet.getDataRange().getValues();
+        const phone = String(player.contact).replace(/\D/g, '');
+        for (let i = 1; i < data.length; i++) {
+            if (String(data[i][3]).replace(/\D/g, '') === phone) {
+                return ContentService.createTextOutput(JSON.stringify({
+                    success: false,
+                    error: 'Mobile number already registered'
+                })).setMimeType(ContentService.MimeType.JSON);
+            }
+        }
+
+        sheet.appendRow([
+            player.id,
+            player.name,
+            player.age || '',
+            player.contact,
+            player.email,
+            player.placeOfPosting || '',
+            player.address || '',
+            player.role || '',
+            player.battingStyle || '',
+            player.bowlingStyle || 'N/A',
+            player.experience || '',
+            player.jerseySize || '',
+            player.status || 'Under Observation',
+            player.registeredAt || new Date().toISOString()
+        ]);
+
+        return ContentService.createTextOutput(JSON.stringify({
+            success: true,
+            message: 'Player registered'
+        })).setMimeType(ContentService.MimeType.JSON);
+    } catch (error) {
+        return ContentService.createTextOutput(JSON.stringify({
+            success: false,
+            error: error.toString()
+        })).setMimeType(ContentService.MimeType.JSON);
+    }
+}
+
 // Helper: Send Email Notification
 function sendEmailNotification(to, subject, body) {
     if (!to || !to.includes('@')) {
@@ -98,8 +148,11 @@ function sendWhatsAppMessage(phoneNumber, message) {
         return { success: false, error: 'WhatsApp is disabled in configuration' };
     }
 
-    if (WHATSAPP_CONFIG.INSTANCE_ID === 'instance12345') {
-        return { success: false, error: 'WhatsApp Instance ID not configured' };
+    const properties = PropertiesService.getScriptProperties();
+    const instanceId = properties.getProperty('ULTRAMSG_INSTANCE_ID');
+    const token = properties.getProperty('ULTRAMSG_TOKEN');
+    if (!instanceId || !token) {
+        return { success: false, error: 'WhatsApp provider credentials are not configured' };
     }
 
     try {
@@ -113,7 +166,7 @@ function sendWhatsAppMessage(phoneNumber, message) {
         }
 
         const payload = {
-            token: WHATSAPP_CONFIG.TOKEN,
+            token: token,
             to: cleanPhone,
             body: message
         };
@@ -124,7 +177,7 @@ function sendWhatsAppMessage(phoneNumber, message) {
             muteHttpExceptions: true // Added to capture error responses
         };
 
-        const url = `${WHATSAPP_CONFIG.API_URL}/${WHATSAPP_CONFIG.INSTANCE_ID}/messages/chat`;
+        const url = `${WHATSAPP_CONFIG.API_URL}/${instanceId}/messages/chat`;
 
         console.log(`Sending WhatsApp to ${cleanPhone}...`); // Debug log
 
@@ -161,30 +214,6 @@ function testEmail() {
         console.log('✅ Email sent successfully!');
     } else {
         console.error('❌ Email failed:', result.error);
-    }
-}
-
-// MANUAL TEST FUNCTION FOR WHATSAPP
-// Run this directly in the editor to test WhatsApp sending
-// Replace '919876543210' with your actual mobile number (with country code)
-function testWhatsApp() {
-    const testPhone = '918960281989'; // Updated to user's number
-    console.log('Attempting to send WhatsApp to:', testPhone);
-
-    const message = `🏏 *Test Message*
-
-Hello! 👋
-
-This is a test message from your Cricket Registration System (UltraMsg).
-
-If you received this, WhatsApp integration is working! ✅`;
-
-    const result = sendWhatsAppMessage(testPhone, message);
-
-    if (result.success) {
-        console.log('✅ WhatsApp sent successfully!');
-    } else {
-        console.error('❌ WhatsApp failed:', result.error);
     }
 }
 
