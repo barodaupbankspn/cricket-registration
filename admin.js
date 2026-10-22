@@ -34,6 +34,12 @@ function getWhatsAppBroadcastOutcome(result, recipientCount) {
         };
     }
     if (result.error) {
+        if (/admin api key is missing or invalid/i.test(result.error)) {
+            return {
+                success: false,
+                message: 'The admin API key was rejected. Set the exact key you entered as the WHATSAPP_ADMIN_KEY Script Property in the deployed Apps Script project, then deploy a new version. The UltraMsg token is separate.'
+            };
+        }
         return { success: false, message: `WhatsApp send failed: ${result.error}` };
     }
     if (!hasCounts) {
