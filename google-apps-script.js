@@ -239,18 +239,24 @@ function broadcastWhatsApp(message, recipients) {
         const sheet = getSheet();
         const data = sheet.getDataRange().getValues();
         let count = 0;
-        let errors = [];
-
-        const targetEmails = new Set(recipients.map(email => String(email).trim().toLowerCase()));
+        const errors = [];
+        const targetEmails = new Set(
+            recipients
+                .map(email => String(email || '').trim().toLowerCase())
+                .filter(Boolean)
+        );
+        const matchedEmails = new Set();
 
         for (let i = 1; i < data.length; i++) {
             const email = String(data[i][4] || '').trim();
+            const normalizedEmail = email.toLowerCase();
             const name = data[i][1];
             const contact = data[i][3]; // Phone number in Column D (index 3)
 
-            if (!targetEmails.has(email.toLowerCase())) {
+            if (!targetEmails.has(normalizedEmail) || matchedEmails.has(normalizedEmail)) {
                 continue;
             }
+            matchedEmails.add(normalizedEmail);
 
             const normalizedPhone = String(contact || '').replace(/\D/g, '');
             if (normalizedPhone.length >= 10 && normalizedPhone.length <= 15) {
@@ -275,14 +281,19 @@ function broadcastWhatsApp(message, recipients) {
             }
         }
 
-        if (count === 0 && errors.length === 0) {
-            errors.push('No selected recipients matched registered players');
+        for (const targetEmail of targetEmails) {
+            if (!matchedEmails.has(targetEmail)) {
+                errors.push(`No registered player matched recipient ${targetEmail}`);
+            }
         }
+
+        const failed = errors.length;
         return ContentService.createTextOutput(JSON.stringify({
-            success: count > 0 && errors.length === 0,
+            success: targetEmails.size > 0 && count === targetEmails.size && failed === 0,
+            requested: targetEmails.size,
             sent: count,
-            failed: errors.length,
-            message: `WhatsApp sent to ${count} selected player(s); ${errors.length} failed.`,
+            failed: failed,
+            message: `WhatsApp provider accepted ${count} of ${targetEmails.size} selected player message(s); ${failed} failed.`,
             errors: errors.length > 0 ? errors : null
         })).setMimeType(ContentService.MimeType.JSON);
 
