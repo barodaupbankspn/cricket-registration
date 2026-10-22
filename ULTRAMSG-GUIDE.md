@@ -12,6 +12,8 @@ UltraMsg is a third-party service and may charge fees. Use this integration only
 
 ## Configure credentials privately
 
+Never place an administrator key or provider token in `index.html` or any other browser-delivered file. Anything included in a public webpage is visible to visitors. If a key has been published, revoke it and replace it in the private server-side configuration.
+
 1. Open the Apps Script project associated with the deployed Sheets web app. Replace its code with the current repository version of `google-apps-script.js`, preserving any project-specific code you need.
 2. In **Project Settings → Script Properties**, create these properties:
    - `ULTRAMSG_INSTANCE_ID`: the instance ID from UltraMsg.
