@@ -41,7 +41,9 @@ async function postToSheets(payload) {
     }
     const data = await response.json();
     if (!data.success) {
-        throw new Error(data.error || 'Google Sheets rejected the request');
+        const error = new Error(data.error || data.message || 'Google Sheets rejected the request');
+        error.responseData = data;
+        throw error;
     }
     return data;
 }
@@ -195,7 +197,7 @@ async function sendBroadcastToSheets(subject, message, recipients) {
 }
 
 // Send WhatsApp Broadcast
-async function sendBroadcastWhatsAppToSheets(message, recipients) {
+async function sendBroadcastWhatsAppToSheets(message, recipients, adminKey) {
     if (!isSheetsConfigured()) {
         return { success: false, error: 'Not configured' };
     }
@@ -204,11 +206,12 @@ async function sendBroadcastWhatsAppToSheets(message, recipients) {
         return await postToSheets({
             action: 'broadcastWhatsApp',
             message: message,
-            recipients: recipients
+            recipients: recipients,
+            adminKey: adminKey
         });
     } catch (error) {
         console.error('Error sending WhatsApp broadcast:', error);
-        return { success: false, error: error.message };
+        return Object.assign({ success: false, error: error.message }, error.responseData || {});
     }
 }
 
