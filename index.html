@@ -7,61 +7,82 @@
     <title>Shahjahanpur Spartans - Registration</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="sparkle.css">
+    <link rel="stylesheet" href="index-custom.css">
 </head>
 
-<body>
-    <div class="container compact-card">
-        <div class="header-section">
-            <h1 class="bank-name">Uttar Pradesh Gramin Bank</h1>
-            <h2 class="team-name">Shahjahanpur Spartans</h2>
-        </div>
-
-        <h2 class="text-center" style="margin-bottom: 20px;">Welcome to Shahjahanpur Spartans!</h2>
-
-        <div style="display: flex; flex-direction: column;" class="btn-gap">
-            <a href="dashboard.html" class="btn btn-primary btn-full"
-                style="text-decoration: none; background: linear-gradient(135deg, #ff4d4d, #ffd700); border: none;">
-                🏏 View Registered Players Squad
+<body class="home-page">
+    <main class="home-shell">
+        <header class="home-topbar">
+            <a class="home-brand" href="index.html" aria-label="Shahjahanpur Spartans home">
+                <span class="brand-mark" aria-hidden="true">🏏</span>
+                <span><strong>SPARTANS</strong><small>SHAHJAHANPUR</small></span>
             </a>
+            <a class="topbar-help" href="mailto:barodaupbankspn@gmail.com">Need help? <span>Email us ↗</span></a>
+        </header>
 
-            <a href="register.html" class="btn btn-primary btn-full" style="text-decoration: none;">
-                ➕ New Player Registration
-            </a>
-
-            <a href="player-login.html" class="btn btn-secondary btn-full" style="text-decoration: none;">
-                👤 Player Status Check
-            </a>
-
-            <a href="admin.html" class="btn btn-success btn-full" style="text-decoration: none;">
-                🔐 Admin Login
-            </a>
-        </div>
-
-        <!-- Donation Notice Board -->
-        <div class="donation-notice">
-            <div class="donation-title">💰 Support Sports Welfare</div>
-            <div class="donation-details">
-                <strong>Account Name:</strong> BUPGB STAFF SPORTS CLUB<br>
-                <strong>Account No:</strong> 56290100012984<br>
-                <strong>IFSC Code:</strong> BARB0BUPGBX
+        <section class="home-hero" aria-labelledby="heroTitle">
+            <div class="hero-orbit orbit-one" aria-hidden="true"></div>
+            <div class="hero-orbit orbit-two" aria-hidden="true"></div>
+            <div class="hero-copy">
+                <span class="season-pill"><span class="live-dot"></span> STAFF SPORTS CLUB</span>
+                <p class="hero-eyebrow">ONE TEAM. ONE SPIRIT.</p>
+                <h1 id="heroTitle">Play with<br><span>the Spartans.</span></h1>
+                <p class="hero-intro">The home of Shahjahanpur cricket. Register, meet the squad, and be part of the next innings.</p>
+                <div class="hero-actions">
+                    <a href="register.html" class="home-button button-primary"><span>Join the squad</span><span aria-hidden="true">→</span></a>
+                    <a href="dashboard.html" class="home-button button-glass"><span aria-hidden="true">🏆</span><span>Meet the players</span></a>
+                </div>
+                <div class="hero-note"><span aria-hidden="true">✦</span> Trials will be informed after registration</div>
             </div>
-        </div>
+            <div class="hero-visual" aria-hidden="true">
+                <div class="visual-glow"></div>
+                <div class="visual-ball">🏏</div>
+                <div class="visual-ring ring-a"></div>
+                <div class="visual-ring ring-b"></div>
+                <div class="visual-tag tag-top">SHAHJAHANPUR</div>
+                <div class="visual-tag tag-bottom">SPARTANS · EST. TEAM SPIRIT</div>
+                <div class="floating-star star-one">✦</div>
+                <div class="floating-star star-two">✧</div>
+            </div>
+        </section>
 
-        <!-- Sparkling Trial Notice -->
-        <div class="sparkling-notice">
-            <span class="sparkle">✨</span>
-            Trials will be informed after registration!
-            <span class="sparkle">✨</span>
-        </div>
+        <section class="home-links" aria-label="Player and admin links">
+            <a class="home-link-card" href="player-login.html">
+                <span class="link-icon">📋</span>
+                <span><strong>Check your status</strong><small>Registration update</small></span>
+                <span class="link-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="home-link-card" href="profiles.html">
+                <span class="link-icon">👥</span>
+                <span><strong>Player profiles</strong><small>Explore the squad</small></span>
+                <span class="link-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="home-link-card admin-link" href="admin.html">
+                <span class="link-icon">🔐</span>
+                <span><strong>Admin portal</strong><small>Team management</small></span>
+                <span class="link-arrow" aria-hidden="true">↗</span>
+            </a>
+        </section>
 
-        <div class="text-center footer-text"
-            style="border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 20px; padding-top: 10px;">
-            <p style="color: #FFFFFF;">
-                Need help? Contact us at <br>
-                <a href="mailto:barodaupbankspn@gmail.com" style="color: var(--primary);">barodaupbankspn@gmail.com</a>
-            </p>
-        </div>
-    </div>
+        <section class="support-panel" aria-labelledby="supportTitle">
+            <div class="support-icon" aria-hidden="true">💛</div>
+            <div class="support-copy">
+                <span class="support-kicker">SPORTS WELFARE</span>
+                <h2 id="supportTitle">Back the team spirit.</h2>
+                <p>Support the BUPGB Staff Sports Club.</p>
+            </div>
+            <div class="support-account">
+                <span><small>ACCOUNT NAME</small><strong>BUPGB STAFF SPORTS CLUB</strong></span>
+                <span><small>ACCOUNT NUMBER</small><strong>56290100012984</strong></span>
+                <span><small>IFSC</small><strong>BARB0BUPGBX</strong></span>
+            </div>
+        </section>
+
+        <footer class="home-footer">
+            <span>Uttar Pradesh Gramin Bank · Shahjahanpur Spartans</span>
+            <a href="mailto:barodaupbankspn@gmail.com">barodaupbankspn@gmail.com</a>
+        </footer>
+    </main>
 </body>
 
 </html>

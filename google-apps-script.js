@@ -6,10 +6,10 @@
 // ========================================
 // 1. Sign up at https://ultramsg.com/ (or similar provider)
 // 2. Create an instance and get your Instance ID and Token
-// 3. Fill them in below
+// 3. Store all credentials in Apps Script > Project Settings > Script Properties.
 
 const WHATSAPP_CONFIG = {
-    ENABLE_WHATSAPP: false, // Configure credentials in Script Properties before enabling
+    ENABLE_WHATSAPP: true, // Provider credentials remain in Script Properties.
     PROVIDER: 'UltraMsg', // Just for reference
     INSTANCE_ID: '',
     API_URL: 'https://api.ultramsg.com' // Base URL
@@ -53,6 +53,13 @@ function doPost(e) {
         } else if (action === 'broadcast') {
             return broadcastEmail(data.subject, data.message, data.recipients);
         } else if (action === 'broadcastWhatsApp') {
+            const expectedKey = PropertiesService.getScriptProperties().getProperty('WHATSAPP_ADMIN_KEY');
+            if (!expectedKey || data.adminKey !== expectedKey) {
+                return ContentService.createTextOutput(JSON.stringify({
+                    success: false,
+                    error: 'WhatsApp admin API key is missing or invalid'
+                })).setMimeType(ContentService.MimeType.JSON);
+            }
             return broadcastWhatsApp(data.message, data.recipients);
         } else if (action === 'updateJerseyNumber') {
             return updateJerseyNumber(data.playerId, data.jerseyNumber);
@@ -163,6 +170,11 @@ function sendWhatsAppMessage(phoneNumber, message) {
         // If 10 digits (India), add 91
         if (cleanPhone.length === 10) {
             cleanPhone = '91' + cleanPhone;
+        } else if (cleanPhone.length === 11 && cleanPhone.startsWith('0')) {
+            cleanPhone = '91' + cleanPhone.slice(1);
+        }
+        if (cleanPhone.length < 11 || cleanPhone.length > 15) {
+            return { success: false, error: 'Phone number must be in international format' };
         }
 
         const payload = {
@@ -179,15 +191,12 @@ function sendWhatsAppMessage(phoneNumber, message) {
 
         const url = `${WHATSAPP_CONFIG.API_URL}/${instanceId}/messages/chat`;
 
-        console.log(`Sending WhatsApp to ${cleanPhone}...`); // Debug log
-
         const response = UrlFetchApp.fetch(url, options);
         const responseText = response.getContentText();
-        console.log(`UltraMsg Response: ${responseText}`); // Debug log
-
         const json = JSON.parse(responseText);
 
-        if (json.sent === 'true' || json.id) {
+        if (response.getResponseCode() >= 200 && response.getResponseCode() < 300 &&
+            (json.sent === 'true' || json.sent === true || json.id)) {
             return { success: true };
         } else {
             return { success: false, error: JSON.stringify(json) };
@@ -220,30 +229,43 @@ function testEmail() {
 // Broadcast WhatsApp to All Players
 function broadcastWhatsApp(message, recipients) {
     try {
+        if (!WHATSAPP_CONFIG.ENABLE_WHATSAPP) {
+            throw new Error('WhatsApp sending is disabled');
+        }
+        if (!message || !String(message).trim()) {
+            throw new Error('Message is required');
+        }
+        if (!Array.isArray(recipients) || recipients.length === 0) {
+            throw new Error('Select at least one recipient');
+        }
+
+        const properties = PropertiesService.getScriptProperties();
+        if (!properties.getProperty('ULTRAMSG_INSTANCE_ID') || !properties.getProperty('ULTRAMSG_TOKEN')) {
+            throw new Error('WhatsApp provider credentials are not configured in Apps Script Script Properties');
+        }
+
         const sheet = getSheet();
         const data = sheet.getDataRange().getValues();
         let count = 0;
         let errors = [];
 
-        // If recipients provided, convert to Set for O(1) lookup
-        const targetEmails = recipients ? new Set(recipients) : null;
+        const targetEmails = new Set(recipients.map(email => String(email).trim().toLowerCase()));
 
         for (let i = 1; i < data.length; i++) {
-            const email = data[i][4];
+            const email = String(data[i][4] || '').trim();
             const name = data[i][1];
             const contact = data[i][3]; // Phone number in Column D (index 3)
 
-            // Skip if we have a target list and this email isn't in it
-            // (Using email as the unique identifier for selection from frontend)
-            if (targetEmails && !targetEmails.has(email)) {
+            if (!targetEmails.has(email.toLowerCase())) {
                 continue;
             }
 
-            if (contact) {
+            const normalizedPhone = String(contact || '').replace(/\D/g, '');
+            if (normalizedPhone.length >= 10 && normalizedPhone.length <= 15) {
                 const personalization = `Hello ${name},\n\n`;
                 const fullMessage = personalization + message;
 
-                const result = sendWhatsAppMessage(contact, fullMessage);
+                const result = sendWhatsAppMessage(normalizedPhone, fullMessage);
 
                 if (result.success) {
                     count++;
@@ -256,12 +278,19 @@ function broadcastWhatsApp(message, recipients) {
                 // Rate limiting: UltraMsg allows ~10 msg/sec, but let's be safe
                 // Sleep 200ms between messages
                 Utilities.sleep(200);
+            } else {
+                errors.push(`${name}: no valid phone number`);
             }
         }
 
+        if (count === 0 && errors.length === 0) {
+            errors.push('No selected recipients matched registered players');
+        }
         return ContentService.createTextOutput(JSON.stringify({
-            success: true,
-            message: `WhatsApp broadcast sent to ${count} players.`,
+            success: count > 0 && errors.length === 0,
+            sent: count,
+            failed: errors.length,
+            message: `WhatsApp sent to ${count} selected player(s); ${errors.length} failed.`,
             errors: errors.length > 0 ? errors : null
         })).setMimeType(ContentService.MimeType.JSON);
 

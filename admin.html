@@ -152,12 +152,16 @@
                             📧 Open Email Draft (Selected)
                         </button>
                         <button id="sendWhatsAppBroadcastBtn" class="btn btn-success" style="background: linear-gradient(135deg, #25D366, #128C7E);">
-                            📱 Create WhatsApp Drafts (Selected)
+                            📱 Send WhatsApp (Selected)
+                        </button>
+                        <button id="createWhatsAppDraftsBtn" class="btn btn-secondary">
+                            Open Manual WhatsApp Drafts
                         </button>
                     </div>
                     <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">
-                        Select players in the table first. Email opens your mail app; WhatsApp creates one click-to-chat link per selected player. You must review and send each message yourself.
+                        Select players first. Email opens a draft in your mail app. Automated WhatsApp requires the Apps Script admin key and UltraMsg credentials; otherwise use manual WhatsApp drafts and press Send in each chat.
                     </p>
+                    <p id="messageSelectionStatus" role="status" aria-live="polite" style="margin: 0; color: var(--text-primary); font-size: 0.9rem;"></p>
                 </div>
             </div>
 

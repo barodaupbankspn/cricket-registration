@@ -8,7 +8,7 @@ A modern, responsive web application for managing cricket team registrations for
 - **Status Check**: Players can check their application status (Approved, Rejected, or Under Observation) using their mobile number.
 - **Admin Dashboard**: Secure area for administrators to manage players, approve/reject applications, and export data.
 - **Google Sheets Integration**: All data is stored and synced with Google Sheets for easy management and backup.
-- **Selected-player messages**: Admins can prepare an email draft or per-player WhatsApp click-to-chat drafts. The admin must review and send them in their mail/WhatsApp app.
+- **Selected-player messages**: Email opens a mail-app draft. WhatsApp can be sent through the protected Apps Script/UltraMsg integration after credentials are configured, or opened as manual click-to-chat drafts.
 - **Responsive Design**: Works seamlessly on mobile and desktop devices.
 
 ## Setup Instructions
@@ -38,7 +38,7 @@ A modern, responsive web application for managing cricket team registrations for
 
 Registrations are saved to the current browser immediately, so that device can show them in the admin portal and registered-player views even when Sheets is unavailable. Showing registrations on other devices requires a working, deployed Apps Script endpoint connected to the team spreadsheet. `sheets-api.js` contains a **web app endpoint**, not a Google Sheets document URL; the document link is owned by the Google account that created the spreadsheet and is not stored in this repository.
 
-Email and WhatsApp actions do not send messages automatically: the static GitHub Pages site has no secure email/WhatsApp provider credentials. Email opens a draft with selected players in BCC. WhatsApp creates an encoded `wa.me` draft link for each selected player; the admin opens each chat and presses Send.
+Email remains a draft with selected players in BCC. Automated WhatsApp uses the Apps Script endpoint and requires `ULTRAMSG_INSTANCE_ID`, `ULTRAMSG_TOKEN`, and `WHATSAPP_ADMIN_KEY` in Apps Script Script Properties. Never commit provider credentials or the admin key to this public repository. See [ULTRAMSG-GUIDE.md](ULTRAMSG-GUIDE.md) for setup and deployment instructions. The manual WhatsApp draft option still requires the admin to press Send in each chat.
 
 If the previously committed UltraMsg token was active, revoke and rotate it in the provider dashboard; removing it from the current source does not remove it from Git history.
 

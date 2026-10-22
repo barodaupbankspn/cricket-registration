@@ -1,4 +1,27 @@
 // Admin Dashboard Logic
+
+function getSelectedPlayerRecords() {
+    const selectedIds = new Set(
+        Array.from(document.querySelectorAll('.player-checkbox:checked'))
+            .map(checkbox => String(checkbox.value))
+    );
+    if (selectedIds.size === 0) return [];
+
+    const players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
+    return players.filter(player => selectedIds.has(String(player.id)));
+}
+
+function getSelectedPlayerEmails(players) {
+    return players
+        .map(player => String(player.email || '').trim())
+        .filter(email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+}
+
+function showMessageSelectionStatus(message) {
+    const status = document.getElementById('messageSelectionStatus');
+    if (status) status.textContent = message;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // Admin Credentials (Hardcoded for demo)
     const ADMIN_ID = '109058';
@@ -726,18 +749,20 @@ document.addEventListener('DOMContentLoaded', function () {
         sendBroadcastBtn.addEventListener('click', function () {
             const subject = broadcastSubject.value.trim();
             const message = broadcastMessage.value.trim();
+            const selectedPlayers = getSelectedPlayerRecords();
+            const recipients = getSelectedPlayerEmails(selectedPlayers);
 
             if (!subject || !message) {
                 alert('Please enter both subject and message.');
                 return;
             }
-            if (!selectedRecipients || selectedRecipients.length === 0) {
+            if (recipients.length === 0) {
                 alert('Select players from the list, then choose Message Selected → Email.');
                 return;
             }
 
             const query = new URLSearchParams({
-                bcc: selectedRecipients.join(','),
+                bcc: recipients.join(','),
                 subject: subject,
                 body: message
             });
@@ -747,44 +772,100 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             window.location.href = mailtoUrl;
+            showMessageSelectionStatus(`Email draft prepared for ${recipients.length} selected player(s). Review and send it from your mail app.`);
         });
     }
 
 
-    // WhatsApp is opened as a prefilled click-to-chat draft for each selected
-    // player. The administrator reviews and sends each message in WhatsApp.
+    // Provider sends require an admin key; drafts remain available as a manual fallback.
     const sendWhatsAppBroadcastBtn = document.getElementById('sendWhatsAppBroadcastBtn');
 
     if (sendWhatsAppBroadcastBtn) {
-        sendWhatsAppBroadcastBtn.addEventListener('click', function () {
+        sendWhatsAppBroadcastBtn.addEventListener('click', async function () {
             const message = broadcastMessage.value.trim();
+            const selectedPlayers = getSelectedPlayerRecords();
+            const recipients = getSelectedPlayerEmails(selectedPlayers);
 
             if (!message) {
                 alert('Please enter a message.');
                 return;
             }
-            if (!selectedRecipients || selectedRecipients.length === 0) {
-                alert('Select players from the list, then choose Message Selected → WhatsApp.');
+            if (recipients.length === 0) {
+                alert('Select players with valid email addresses from the table first.');
                 return;
             }
 
-            const selectedEmails = new Set(selectedRecipients.map(email => email.toLowerCase()));
-            const players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]')
-                .filter(player => player.email && selectedEmails.has(player.email.toLowerCase()));
+            if (typeof sendBroadcastWhatsAppToSheets !== 'function') {
+                alert('WhatsApp API is unavailable. Update the published website and Apps Script, or use Message Selected → WhatsApp for manual click-to-chat drafts.');
+                return;
+            }
+
+            const adminKey = prompt('Enter the WhatsApp admin API key configured in Google Apps Script. This key is not saved by the site.');
+            if (!adminKey) return;
+
+            const originalText = sendWhatsAppBroadcastBtn.textContent;
+            sendWhatsAppBroadcastBtn.disabled = true;
+            sendWhatsAppBroadcastBtn.textContent = 'Sending WhatsApp messages...';
+            try {
+                const result = await sendBroadcastWhatsAppToSheets(message, recipients, adminKey);
+                if (result.success) {
+                    const sent = result.sent || 0;
+                    const failed = result.failed || 0;
+                    const summary = `WhatsApp provider accepted ${sent} of ${recipients.length} selected player message(s).${failed ? ` ${failed} failed.` : ''}`;
+                    showMessageSelectionStatus(summary);
+                    alert(summary);
+                    broadcastMessage.value = '';
+                } else if (typeof result.sent === 'number' || result.error) {
+                    const details = result.errors ? `\n\n${result.errors.slice(0, 5).join('\n')}` : '';
+                    const summary = `WhatsApp send failed: ${result.error || result.message || 'Provider rejected the request.'}${details}`;
+                    showMessageSelectionStatus(summary);
+                    alert(summary);
+                } else {
+                    const summary = 'WhatsApp send failed. Check the Apps Script deployment and provider setup.';
+                    showMessageSelectionStatus(summary);
+                    alert(summary);
+                }
+            } catch (error) {
+                console.error('WhatsApp send error:', error);
+                const summary = `WhatsApp send failed: ${error.message}`;
+                showMessageSelectionStatus(summary);
+                alert(summary);
+            } finally {
+                sendWhatsAppBroadcastBtn.disabled = false;
+                sendWhatsAppBroadcastBtn.textContent = originalText;
+            }
+        });
+    }
+
+    const createWhatsAppDraftsBtn = document.getElementById('createWhatsAppDraftsBtn');
+    if (createWhatsAppDraftsBtn) {
+        createWhatsAppDraftsBtn.addEventListener('click', function () {
+            const message = broadcastMessage.value.trim();
+            const selectedPlayers = getSelectedPlayerRecords();
+            if (!message) {
+                alert('Please enter a message.');
+                return;
+            }
+            if (selectedPlayers.length === 0) {
+                alert('Select players from the table first.');
+                return;
+            }
+
             const links = document.getElementById('whatsappRecipientLinks') || document.createElement('div');
             links.id = 'whatsappRecipientLinks';
             links.style.cssText = 'display:grid;gap:8px;margin-top:12px;';
             links.replaceChildren();
 
-            players.forEach(player => {
+            selectedPlayers.forEach(player => {
                 const phone = String(player.contact || '').replace(/\D/g, '');
                 const internationalPhone = phone.length === 10
                     ? `91${phone}`
-                    : phone.length === 12 && phone.startsWith('91') ? phone : '';
+                    : phone.length === 11 && phone.startsWith('0')
+                        ? `91${phone.slice(1)}`
+                        : phone.length >= 11 && phone.length <= 15 ? phone : '';
                 if (!internationalPhone) return;
                 const anchor = document.createElement('a');
-                const personalizedMessage = `Hello ${player.name || 'Player'},\n\n${message}`;
-                anchor.href = `https://wa.me/${encodeURIComponent(internationalPhone)}?text=${encodeURIComponent(personalizedMessage)}`;
+                anchor.href = `https://wa.me/${encodeURIComponent(internationalPhone)}?text=${encodeURIComponent(`Hello ${player.name || 'Player'},\n\n${message}`)}`;
                 anchor.target = '_blank';
                 anchor.rel = 'noopener noreferrer';
                 anchor.textContent = `Open WhatsApp chat with ${player.name || internationalPhone}`;
@@ -792,13 +873,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 links.appendChild(anchor);
             });
 
-            if (players.length === 0 || links.childElementCount === 0) {
-                alert('No selected players with phone numbers were found in the local player list. Sync the admin portal and try again.');
+            if (links.childElementCount === 0) {
+                alert('No selected players with valid phone numbers were found in the local player list. Sync the admin portal and try again.');
                 return;
             }
-            sendWhatsAppBroadcastBtn.insertAdjacentElement('afterend', links);
+            createWhatsAppDraftsBtn.insertAdjacentElement('afterend', links);
             links.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            alert('WhatsApp message drafts are ready below. Open each chat and press Send in WhatsApp; messages are not sent automatically.');
+            const summary = `Manual WhatsApp drafts are ready for ${links.childElementCount} player(s). Open each chat and press Send yourself.`;
+            showMessageSelectionStatus(summary);
+            alert(summary);
         });
     }
 
@@ -831,75 +914,54 @@ window.toggleMessageMenu = function () {
 };
 
 window.whatsappSelected = function () {
-    const checkboxes = document.querySelectorAll('.player-checkbox:checked');
-    if (checkboxes.length === 0) {
+    const players = getSelectedPlayerRecords();
+    if (players.length === 0) {
         alert('Please select at least one player to message.');
         return;
     }
 
-    const recipients = [];
-    checkboxes.forEach(cb => {
-        const row = cb.closest('tr');
-        const email = row.cells[5].innerText; // Using Email as unique ID matching backend logic
-        if (email && email !== 'N/A') {
-            recipients.push(email);
-        }
-    });
+    const recipients = getSelectedPlayerEmails(players);
 
     if (recipients.length === 0) {
-        alert('Selected players do not have valid emails (used for ID).');
+        alert('Selected players need valid email addresses to match their registered records.');
         return;
     }
 
-    selectedRecipients = recipients;
-
-    // Scroll to broadcast section
-    document.getElementById('broadcastSection').scrollIntoView({ behavior: 'smooth' });
-
-    // Highlight message box
-    const messageBox = document.getElementById('broadcastMessage');
-    messageBox.focus();
-    messageBox.style.boxShadow = '0 0 10px #25D366';
-    setTimeout(() => messageBox.style.boxShadow = '', 2000);
-
-    alert(`Selected ${recipients.length} players. Type the message, then use "Create WhatsApp Drafts (Selected)".`);
+    openBroadcastComposer(`${recipients.length} player(s) selected for WhatsApp. Enter a message, then choose Send WhatsApp or Open Manual WhatsApp Drafts.`);
 };
 
-// Email Selected Players
-let selectedRecipients = null;
+function openBroadcastComposer(statusMessage) {
+    const broadcastSection = document.getElementById('broadcastSection');
+    if (broadcastSection) {
+        broadcastSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        broadcastSection.style.border = '2px solid var(--primary)';
+        setTimeout(() => broadcastSection.style.border = '', 2000);
+    }
+    showMessageSelectionStatus(statusMessage);
+    const messageBox = document.getElementById('broadcastMessage');
+    if (messageBox) {
+        messageBox.focus({ preventScroll: true });
+        messageBox.style.boxShadow = '0 0 10px #25D366';
+        setTimeout(() => messageBox.style.boxShadow = '', 2000);
+    }
+}
 
+// Email Selected Players
 function emailSelected() {
-    const checkboxes = document.querySelectorAll('.player-checkbox:checked');
-    if (checkboxes.length === 0) {
+    const players = getSelectedPlayerRecords();
+    if (players.length === 0) {
         alert('Please select at least one player to email.');
         return;
     }
 
-    const recipients = [];
-    checkboxes.forEach(cb => {
-        const row = cb.closest('tr');
-        // Email is in 6th column (index 5) - verify with table structure
-        // Table: Checkbox, #, Name, Age, Contact, Email
-        const email = row.cells[5].innerText;
-        if (email && email !== 'N/A') {
-            recipients.push(email);
-        }
-    });
+    const recipients = getSelectedPlayerEmails(players);
 
     if (recipients.length === 0) {
         alert('Selected players do not have valid email addresses.');
         return;
     }
 
-    selectedRecipients = recipients;
-
-    // Scroll to broadcast section
-    const broadcastSection = document.getElementById('broadcastSection');
-    if (broadcastSection) {
-        broadcastSection.scrollIntoView({ behavior: 'smooth' });
-        broadcastSection.style.border = '2px solid var(--primary)';
-        setTimeout(() => broadcastSection.style.border = 'none', 2000);
-    }
+    openBroadcastComposer(`${recipients.length} player(s) selected for email. Enter a subject and message, then choose Open Email Draft.`);
 
     // Update button text
     const btn = document.getElementById('sendBroadcastBtn');
@@ -916,7 +978,6 @@ function emailSelected() {
             cancelBtn.innerText = '❌ Clear Selection';
             cancelBtn.style.marginLeft = '10px';
             cancelBtn.onclick = function () {
-                selectedRecipients = null;
                 btn.innerHTML = '📧 Open Email Draft (Selected)';
                 btn.classList.add('btn-primary');
                 btn.classList.remove('btn-success');
@@ -925,6 +986,7 @@ function emailSelected() {
                 });
                 const selectAll = document.getElementById('selectAll');
                 if (selectAll) selectAll.checked = false;
+                showMessageSelectionStatus('Player selection cleared.');
                 this.remove();
             };
             btn.parentNode.appendChild(cancelBtn);
