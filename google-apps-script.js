@@ -9,7 +9,6 @@
 // 3. Store all credentials in Apps Script > Project Settings > Script Properties.
 
 const WHATSAPP_CONFIG = {
-    ENABLE_WHATSAPP: true, // Provider credentials remain in Script Properties.
     PROVIDER: 'UltraMsg', // Just for reference
     INSTANCE_ID: '',
     API_URL: 'https://api.ultramsg.com' // Base URL
@@ -151,10 +150,6 @@ function sendEmailNotification(to, subject, body) {
 
 // Helper: Send WhatsApp Message via UltraMsg
 function sendWhatsAppMessage(phoneNumber, message) {
-    if (!WHATSAPP_CONFIG.ENABLE_WHATSAPP) {
-        return { success: false, error: 'WhatsApp is disabled in configuration' };
-    }
-
     const properties = PropertiesService.getScriptProperties();
     const instanceId = properties.getProperty('ULTRAMSG_INSTANCE_ID');
     const token = properties.getProperty('ULTRAMSG_TOKEN');
@@ -229,9 +224,6 @@ function testEmail() {
 // Broadcast WhatsApp to All Players
 function broadcastWhatsApp(message, recipients) {
     try {
-        if (!WHATSAPP_CONFIG.ENABLE_WHATSAPP) {
-            throw new Error('WhatsApp sending is disabled');
-        }
         if (!message || !String(message).trim()) {
             throw new Error('Message is required');
         }
