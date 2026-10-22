@@ -4,142 +4,136 @@ document.addEventListener('DOMContentLoaded', function () {
     const errorMessage = document.getElementById('errorMessage');
     const playersGrid = document.getElementById('playersGrid');
     const searchInput = document.getElementById('playerSearch');
-
-    // Create Debug Log Container
-    const debugLog = document.createElement('div');
-    debugLog.style.cssText = 'background: #000; color: #0f0; padding: 10px; margin: 20px; border-radius: 5px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;';
-    debugLog.innerHTML = '<strong>Debug Log:</strong><br>';
-    document.querySelector('.container').appendChild(debugLog);
-
-    function log(msg) {
-        console.log(msg);
-        const line = document.createElement('div');
-        line.textContent = `> ${msg}`;
-        debugLog.appendChild(line);
-    }
-
     let allPlayers = [];
 
-    // Initial Load
-    log('Dashboard initialized');
-    loadPublicPlayers();
-
-    // Search Listener
-    searchInput.addEventListener('input', function (e) {
-        filterAndRenderPlayers(e.target.value);
+    searchInput.addEventListener('input', function (event) {
+        filterAndRenderPlayers(event.target.value);
     });
+
+    window.loadPublicPlayers = loadPublicPlayers;
+    loadPublicPlayers();
 
     async function loadPublicPlayers() {
         showLoading();
-        log('Starting loadPublicPlayers...');
+        const localPlayers = readLocalPlayers();
+        let players = localPlayers;
+        let loadWarning = '';
 
-        try {
-            if (typeof getAllPlayersFromSheets !== 'function') {
-                throw new Error('API helper (getAllPlayersFromSheets) not found. Check sheets-api.js');
-            }
-            log('API helper found. Calling API...');
-
+        if (typeof getAllPlayersFromSheets === 'function') {
             const result = await getAllPlayersFromSheets();
-            log(`API returned. Success: ${result.success}`);
-
             if (result.success) {
-                log(`Player count: ${result.players.length}`);
-
-                allPlayers = result.players.map(p => ({
-                    name: p.name,
-                    role: p.role,
-                    battingStyle: p.battingStyle,
-                    bowlingStyle: p.bowlingStyle,
-                    jerseySize: p.jerseySize,
-                    status: p.status,
-                }));
-
-                log('Players mapped. Rendering...');
-                renderPlayers(allPlayers);
-                showGrid();
-                log('Grid shown.');
+                players = mergePlayers(result.players, localPlayers);
+                localStorage.setItem('cricketPlayers', JSON.stringify(players));
             } else {
-                log(`API Error: ${result.error}`);
-                showError(result.error || 'Failed to fetch players');
+                console.warn('Could not refresh registered players from Sheets:', result.error);
+                loadWarning = 'Showing registrations saved on this device; Google Sheets could not be reached.';
             }
-
-        } catch (error) {
-            log(`EXCEPTION: ${error.message}`);
-            console.error('Dashboard error:', error);
-            showError('Error: ' + error.message);
+        } else {
+            loadWarning = 'Showing registrations saved on this device; Google Sheets is not configured.';
         }
+
+        allPlayers = players.map(player => ({
+            id: player.id,
+            name: player.name,
+            role: player.role,
+            battingStyle: player.battingStyle,
+            bowlingStyle: player.bowlingStyle,
+            jerseySize: player.jerseySize,
+            status: player.status
+        }));
+
+        renderPlayers(allPlayers);
+        showGrid();
+        if (loadWarning) {
+            errorMessage.textContent = loadWarning;
+            errorState.classList.remove('hidden');
+        }
+    }
+
+    function readLocalPlayers() {
+        try {
+            const players = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
+            return Array.isArray(players) ? players : [];
+        } catch (error) {
+            console.error('Could not read locally saved registrations:', error);
+            return [];
+        }
+    }
+
+    function mergePlayers(sheetPlayers, localPlayers) {
+        if (typeof mergePlayerLists === 'function') {
+            return mergePlayerLists(sheetPlayers, localPlayers);
+        }
+        const playersById = new Map();
+        sheetPlayers.forEach(player => playersById.set(String(player.id), player));
+        localPlayers.forEach(player => {
+            if (!playersById.has(String(player.id))) {
+                playersById.set(String(player.id), player);
+            }
+        });
+        return Array.from(playersById.values());
     }
 
     function renderPlayers(players) {
         playersGrid.innerHTML = '';
-        log(`Rendering ${players.length} cards...`);
-
         if (players.length === 0) {
             playersGrid.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
                     <h3>No players found</h3>
                     <p>Try adjusting your search terms</p>
-                </div>
-            `;
+                </div>`;
             return;
         }
 
         players.forEach(player => {
             const card = document.createElement('div');
             card.className = 'player-card';
-
-            // Status Color
-            let statusClass = 'status-pending';
-            if (player.status === 'Approved') statusClass = 'status-approved';
-            if (player.status === 'Rejected') statusClass = 'status-rejected';
-
-            // Bowling Style Display
-            const bowlingDisplay = player.bowlingStyle && player.bowlingStyle !== 'N/A'
-                ? `<div class="player-detail">
-                     <span class="detail-label">Bowling</span>
-                     <span class="detail-value">${player.bowlingStyle}</span>
-                   </div>`
-                : '';
-
-            card.innerHTML = `
-                <div class="player-role-badge">${player.role || 'Player'}</div>
-                <div class="player-name">${player.name || 'Unknown'}</div>
-                
-                <div style="margin-bottom: 15px;">
-                    <span class="status-indicator ${statusClass}"></span>
-                    <span style="font-size: 0.85rem; color: var(--text-muted);">${player.status || 'Pending'}</span>
-                </div>
-
-                <div class="player-detail">
-                    <span class="detail-label">Batting</span>
-                    <span class="detail-value">${player.battingStyle || 'N/A'}</span>
-                </div>
-
-                ${bowlingDisplay}
-
-                <div class="player-detail">
-                    <span class="detail-label">Jersey Size</span>
-                    <span class="detail-value">${player.jerseySize || '-'}</span>
-                </div>
-            `;
-
+            const roleBadge = document.createElement('div');
+            roleBadge.className = 'player-role-badge';
+            roleBadge.textContent = player.role || 'Player';
+            const name = document.createElement('div');
+            name.className = 'player-name';
+            name.textContent = player.name || 'Unknown';
+            const statusClass = player.status === 'Approved'
+                ? 'status-approved'
+                : player.status === 'Rejected' ? 'status-rejected' : 'status-pending';
+            const status = document.createElement('div');
+            status.style.marginBottom = '15px';
+            status.innerHTML = `<span class="status-indicator ${statusClass}"></span>`;
+            const statusText = document.createElement('span');
+            statusText.style.cssText = 'font-size: 0.85rem; color: var(--text-muted);';
+            statusText.textContent = player.status || 'Pending';
+            status.appendChild(statusText);
+            card.append(roleBadge, name, status);
+            addDetail(card, 'Batting', player.battingStyle);
+            if (player.bowlingStyle && player.bowlingStyle !== 'N/A') {
+                addDetail(card, 'Bowling', player.bowlingStyle);
+            }
+            addDetail(card, 'Jersey Size', player.jerseySize || '-');
             playersGrid.appendChild(card);
         });
     }
 
+    function addDetail(card, label, value) {
+        const detail = document.createElement('div');
+        detail.className = 'player-detail';
+        const detailLabel = document.createElement('span');
+        detailLabel.className = 'detail-label';
+        detailLabel.textContent = label;
+        const detailValue = document.createElement('span');
+        detailValue.className = 'detail-value';
+        detailValue.textContent = value || 'N/A';
+        detail.append(detailLabel, detailValue);
+        card.appendChild(detail);
+    }
+
     function filterAndRenderPlayers(searchTerm) {
         const term = searchTerm.toLowerCase().trim();
-
-        if (!term) {
-            renderPlayers(allPlayers);
-            return;
-        }
-
-        const filtered = allPlayers.filter(player => {
-            return (player.name && player.name.toLowerCase().includes(term)) ||
-                (player.role && player.role.toLowerCase().includes(term));
-        });
-
+        const filtered = allPlayers.filter(player =>
+            !term ||
+            (player.name && player.name.toLowerCase().includes(term)) ||
+            (player.role && player.role.toLowerCase().includes(term))
+        );
         renderPlayers(filtered);
     }
 
@@ -149,16 +143,8 @@ document.addEventListener('DOMContentLoaded', function () {
         playersGrid.classList.add('hidden');
     }
 
-    function showError(msg) {
-        loadingState.classList.add('hidden');
-        errorState.classList.remove('hidden');
-        playersGrid.classList.add('hidden');
-        errorMessage.textContent = msg;
-    }
-
     function showGrid() {
         loadingState.classList.add('hidden');
-        errorState.classList.add('hidden');
         playersGrid.classList.remove('hidden');
     }
 });

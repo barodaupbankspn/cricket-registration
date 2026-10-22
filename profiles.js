@@ -4,7 +4,23 @@
 // Get all players from localStorage
 function getAllPlayers() {
     const players = localStorage.getItem('cricketPlayers');
-    return players ? JSON.parse(players) : [];
+    try {
+        const parsed = players ? JSON.parse(players) : [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        console.error('Could not read locally saved registrations:', error);
+        return [];
+    }
+}
+
+function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[character]);
 }
 
 // Get role icon
@@ -34,7 +50,7 @@ function getExperienceBadge(experience) {
 function createPlayerCard(player, index) {
     const roleIcon = getRoleIcon(player.role);
     const experienceBadge = getExperienceBadge(player.experience);
-    const registrationDate = new Date(player.timestamp).toLocaleDateString('en-US', {
+    const registrationDate = new Date(player.registeredAt || player.timestamp).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
@@ -47,7 +63,7 @@ function createPlayerCard(player, index) {
                 <div class="player-avatar" style="width: 80px; height: 80px; margin: 0 auto var(--spacing-sm); background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: var(--shadow-glow);">
                     ${roleIcon}
                 </div>
-                <h3 style="margin-bottom: var(--spacing-xs); color: var(--text-primary);">${player.name}</h3>
+                <h3 style="margin-bottom: var(--spacing-xs); color: var(--text-primary);">${escapeHtml(player.name)}</h3>
                 <div style="display: inline-block; padding: 4px 12px; background: linear-gradient(135deg, ${experienceBadge.color}22, ${experienceBadge.color}44); border: 1px solid ${experienceBadge.color}; border-radius: 20px; font-size: 0.85rem; color: ${experienceBadge.color}; font-weight: 600; margin-bottom: var(--spacing-sm);">
                     ${experienceBadge.label}
                 </div>
@@ -57,19 +73,19 @@ function createPlayerCard(player, index) {
             <div class="player-stats" style="padding: var(--spacing-md) 0;">
                 <div class="stat-row" style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                     <span style="color: var(--text-muted); font-size: 0.9rem;">Age</span>
-                    <span style="color: var(--text-primary); font-weight: 600;">${player.age} years</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">${escapeHtml(player.age)} years</span>
                 </div>
                 <div class="stat-row" style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                     <span style="color: var(--text-muted); font-size: 0.9rem;">Playing Role</span>
-                    <span style="color: var(--primary); font-weight: 600;">${player.role}</span>
+                    <span style="color: var(--primary); font-weight: 600;">${escapeHtml(player.role)}</span>
                 </div>
                 <div class="stat-row" style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                     <span style="color: var(--text-muted); font-size: 0.9rem;">Batting Style</span>
-                    <span style="color: var(--text-primary); font-weight: 600;">${player.battingStyle}</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">${escapeHtml(player.battingStyle)}</span>
                 </div>
                 <div class="stat-row" style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                     <span style="color: var(--text-muted); font-size: 0.9rem;">Bowling Style</span>
-                    <span style="color: var(--text-primary); font-weight: 600;">${player.bowlingStyle || 'N/A'}</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">${escapeHtml(player.bowlingStyle || 'N/A')}</span>
                 </div>
             </div>
 
@@ -77,11 +93,11 @@ function createPlayerCard(player, index) {
             <div class="player-contact" style="padding-top: var(--spacing-md); border-top: 1px solid rgba(255, 255, 255, 0.1);">
                 <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-xs);">
                     <span style="font-size: 1.2rem;">📧</span>
-                    <a href="mailto:${player.email}" style="color: var(--primary); text-decoration: none; font-size: 0.9rem; word-break: break-all;">${player.email}</a>
+                    <a href="mailto:${escapeHtml(player.email)}" style="color: var(--primary); text-decoration: none; font-size: 0.9rem; word-break: break-all;">${escapeHtml(player.email)}</a>
                 </div>
                 <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-xs);">
                     <span style="font-size: 1.2rem;">📱</span>
-                    <a href="tel:${player.contact}" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">${player.contact}</a>
+                    <a href="tel:${escapeHtml(player.contact)}" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">${escapeHtml(player.contact)}</a>
                 </div>
                 <div style="display: flex; align-items: center; gap: var(--spacing-sm); color: var(--text-muted); font-size: 0.85rem; margin-top: var(--spacing-sm);">
                     <span>📅</span>
@@ -155,10 +171,36 @@ function filterPlayers() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function () {
-    displayPlayers();
+    refreshProfiles();
 
     // Add event listeners for filters
     document.getElementById('searchInput').addEventListener('input', filterPlayers);
     document.getElementById('roleFilter').addEventListener('change', filterPlayers);
     document.getElementById('experienceFilter').addEventListener('change', filterPlayers);
 });
+
+async function refreshProfiles() {
+    if (typeof getAllPlayersFromSheets === 'function') {
+        const result = await getAllPlayersFromSheets();
+        if (result.success) {
+            if (typeof mergePlayerLists === 'function') {
+                localStorage.setItem('cricketPlayers', JSON.stringify(
+                    mergePlayerLists(result.players, getAllPlayers())
+                ));
+                displayPlayers();
+                return;
+            }
+            const playersById = new Map();
+            result.players.forEach(player => playersById.set(String(player.id), player));
+            getAllPlayers().forEach(player => {
+                if (!playersById.has(String(player.id))) {
+                    playersById.set(String(player.id), player);
+                }
+            });
+            localStorage.setItem('cricketPlayers', JSON.stringify(Array.from(playersById.values())));
+        } else {
+            console.warn('Could not refresh player profiles from Sheets:', result.error);
+        }
+    }
+    displayPlayers();
+}
