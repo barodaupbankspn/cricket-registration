@@ -12,14 +12,42 @@ function getSelectedPlayerRecords() {
 }
 
 function getSelectedPlayerEmails(players) {
-    return players
+    return Array.from(new Set(players
         .map(player => String(player.email || '').trim())
-        .filter(email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+        .filter(email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))));
 }
 
 function showMessageSelectionStatus(message) {
     const status = document.getElementById('messageSelectionStatus');
     if (status) status.textContent = message;
+}
+
+function getWhatsAppBroadcastOutcome(result, recipientCount) {
+    const hasCounts = Number.isFinite(Number(result.sent)) &&
+        Number.isFinite(Number(result.failed));
+    const sent = hasCounts ? Number(result.sent) : 0;
+    const failed = hasCounts ? Number(result.failed) : recipientCount;
+    if (result.success && hasCounts && sent === recipientCount && failed === 0) {
+        return {
+            success: true,
+            message: `WhatsApp provider accepted all ${sent} selected player message(s).`
+        };
+    }
+    if (result.error) {
+        return { success: false, message: `WhatsApp send failed: ${result.error}` };
+    }
+    if (!hasCounts) {
+        return {
+            success: false,
+            message: `The Apps Script response is outdated or incomplete. It did not confirm a sent count, so no success is reported. Redeploy the current google-apps-script.js. Server response: ${result.message || 'No message provided.'}`
+        };
+    }
+
+    const details = result.errors ? ` ${result.errors.slice(0, 5).join(' ')}` : '';
+    return {
+        success: false,
+        message: `${result.message || 'WhatsApp provider did not confirm all selected messages.'} ${sent} of ${recipientCount} accepted; ${failed} failed.${details}`
+    };
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -808,22 +836,13 @@ document.addEventListener('DOMContentLoaded', function () {
             sendWhatsAppBroadcastBtn.textContent = 'Sending WhatsApp messages...';
             try {
                 const result = await sendBroadcastWhatsAppToSheets(message, recipients, adminKey);
-                if (result.success) {
-                    const sent = result.sent || 0;
-                    const failed = result.failed || 0;
-                    const summary = `WhatsApp provider accepted ${sent} of ${recipients.length} selected player message(s).${failed ? ` ${failed} failed.` : ''}`;
-                    showMessageSelectionStatus(summary);
-                    alert(summary);
+                const outcome = getWhatsAppBroadcastOutcome(result, recipients.length);
+                showMessageSelectionStatus(outcome.message);
+                if (outcome.success) {
+                    alert(outcome.message);
                     broadcastMessage.value = '';
-                } else if (typeof result.sent === 'number' || result.error) {
-                    const details = result.errors ? `\n\n${result.errors.slice(0, 5).join('\n')}` : '';
-                    const summary = `WhatsApp send failed: ${result.error || result.message || 'Provider rejected the request.'}${details}`;
-                    showMessageSelectionStatus(summary);
-                    alert(summary);
                 } else {
-                    const summary = 'WhatsApp send failed. Check the Apps Script deployment and provider setup.';
-                    showMessageSelectionStatus(summary);
-                    alert(summary);
+                    alert(outcome.message);
                 }
             } catch (error) {
                 console.error('WhatsApp send error:', error);

@@ -21,6 +21,8 @@ UltraMsg is a third-party service and may charge fees. Use this integration only
 4. In Apps Script, save the code. If permissions are requested, run `forceAuth` once from the editor and approve the UrlFetch permission.
 5. Open **Deploy → Manage deployments**, edit the existing web-app deployment, choose **New version**, and deploy. Keep the web app URL the same as the one configured in `sheets-api.js`. It must be accessible to the public website; the sending action itself checks the administrator key. Do not use an unrestricted provider token in the website.
 
+The deployment must contain the `WHATSAPP_ADMIN_KEY` validation in `doPost` and recipient accounting in `broadcastWhatsApp`. Older deployed versions may ignore the key and return `success: true` with `sent: 0`; that response is not a successful send. Update and redeploy the script before using broadcasts. The website rejects any response that does not confirm every selected recipient.
+
 ## Send from the admin page
 
 1. Open the admin portal, sign in, and sync the player list.
