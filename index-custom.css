@@ -647,3 +647,227 @@ body.home-page::after {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* Bright, readable bank-and-club theme */
+:root {
+    --home-ink: #183b2d;
+    --home-muted: #536b5e;
+    --home-gold: #a96f0b;
+    --home-green: #17613f;
+}
+
+body.home-page {
+    color: var(--home-ink);
+    text-shadow: none;
+    background:
+        radial-gradient(ellipse at 82% 24%, rgba(222, 239, 218, 0.8), transparent 34rem),
+        linear-gradient(135deg, #f8faf5 0%, #edf5eb 54%, #f7f5e9 100%);
+}
+
+body.home-page::before {
+    background:
+        linear-gradient(90deg, rgba(248, 251, 246, 0.98), rgba(248, 251, 246, 0.95) 48%, rgba(248, 251, 246, 0.91)),
+        url("./images/stadium_v2.png") center / cover no-repeat;
+    opacity: 1;
+}
+
+body.home-page::after {
+    background:
+        radial-gradient(circle at 78% 30%, rgba(244, 201, 93, 0.16), transparent 26rem),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(237, 245, 235, 0.3));
+}
+
+.home-brand {
+    color: var(--home-ink);
+}
+
+.bank-brand {
+    color: var(--home-muted);
+}
+
+.bank-brand img {
+    border-color: rgba(23, 97, 63, 0.16);
+    box-shadow: 0 7px 24px rgba(31, 77, 51, 0.12);
+}
+
+.brand-mark {
+    border-color: rgba(169, 111, 11, 0.28);
+    background: rgba(244, 201, 93, 0.2);
+}
+
+.season-pill {
+    border-color: rgba(23, 97, 63, 0.17);
+    background: rgba(255, 255, 255, 0.76);
+    color: #315b45;
+    box-shadow: 0 6px 20px rgba(32, 74, 50, 0.06);
+}
+
+.live-dot {
+    background: #31a365;
+    box-shadow: 0 0 12px rgba(49, 163, 101, 0.55);
+}
+
+.home-hero h1 {
+    color: #193d2d;
+    background: none;
+    filter: none;
+    text-shadow: none;
+    -webkit-text-fill-color: currentColor;
+}
+
+.home-hero h1 span {
+    color: #26734a;
+}
+
+.hero-intro {
+    color: #52685b;
+}
+
+.button-primary {
+    color: #fff;
+    background: linear-gradient(135deg, #248653, #17613f);
+    box-shadow: 0 10px 28px rgba(23, 97, 63, 0.2);
+}
+
+.button-primary:hover {
+    background: linear-gradient(135deg, #2b9860, #17613f);
+    box-shadow: 0 13px 32px rgba(23, 97, 63, 0.26);
+}
+
+.button-glass {
+    border-color: rgba(23, 97, 63, 0.2);
+    background: rgba(255, 255, 255, 0.76);
+    color: #234b36;
+    box-shadow: 0 6px 20px rgba(32, 74, 50, 0.06);
+}
+
+.button-glass:hover {
+    background: #fff;
+}
+
+.hero-note {
+    color: #536b5e;
+}
+
+.visual-glow {
+    background: radial-gradient(circle, rgba(84, 167, 104, 0.28), rgba(166, 205, 144, 0.12) 55%, transparent 72%);
+}
+
+.visual-ball {
+    border-color: rgba(255, 255, 255, 0.84);
+    background:
+        radial-gradient(circle at 32% 25%, rgba(255, 255, 255, 0.96), rgba(221, 240, 218, 0.91) 52%, rgba(175, 213, 177, 0.88));
+    box-shadow: 0 24px 64px rgba(34, 83, 50, 0.16), inset 0 0 35px rgba(255, 255, 255, 0.7);
+}
+
+.visual-ring {
+    border-color: rgba(169, 111, 11, 0.35);
+}
+
+.ring-b {
+    border-color: rgba(23, 97, 63, 0.2);
+}
+
+.visual-tag {
+    border-color: rgba(23, 97, 63, 0.13);
+    background: rgba(255, 255, 255, 0.88);
+    color: #234b36;
+    box-shadow: 0 8px 24px rgba(31, 77, 51, 0.08);
+}
+
+.tag-bottom {
+    color: #94600b;
+}
+
+.home-link-card {
+    border-color: rgba(41, 104, 66, 0.13);
+    background: rgba(255, 255, 255, 0.82);
+    color: #1e4632;
+    box-shadow: 0 10px 28px rgba(35, 78, 49, 0.07);
+    backdrop-filter: blur(12px);
+}
+
+.home-link-card:hover {
+    border-color: rgba(41, 126, 72, 0.35);
+    background: #fff;
+    box-shadow: 0 15px 34px rgba(35, 78, 49, 0.12);
+}
+
+.link-icon {
+    background: #edf5e9;
+}
+
+.home-link-card small {
+    color: #607568;
+}
+
+.support-panel {
+    border-color: rgba(169, 111, 11, 0.2);
+    background: linear-gradient(100deg, rgba(255, 247, 220, 0.9), rgba(239, 247, 235, 0.94));
+    box-shadow: 0 10px 28px rgba(35, 78, 49, 0.06);
+}
+
+.support-icon {
+    background: rgba(244, 201, 93, 0.25);
+}
+
+.support-copy h2,
+.support-account strong {
+    color: #234b36;
+}
+
+.support-copy p {
+    color: #586f60;
+}
+
+.support-account small {
+    color: #94600b;
+}
+
+.home-footer {
+    color: #536b5e;
+}
+
+.home-page :is(h1, h2, h3, h4, h5, h6, p, a, span, small, strong, div) {
+    text-shadow: none;
+}
+
+.home-footer a,
+.topbar-help span {
+    color: #17613f;
+}
+
+.home-page a:focus-visible {
+    outline-color: #24784c;
+}
+
+@media (max-width: 760px) {
+    .bank-brand {
+        border-top-color: rgba(23, 97, 63, 0.12);
+    }
+
+    .support-account {
+        border-top-color: rgba(23, 97, 63, 0.12);
+    }
+}
+
+@media (max-width: 420px) {
+    .home-hero h1 {
+        font-size: clamp(42px, 13vw, 56px);
+    }
+}
+
+@media (max-width: 320px) {
+    .bank-brand {
+        gap: 8px;
+    }
+
+    .bank-brand img {
+        width: 42vw;
+    }
+
+    .bank-brand > span {
+        max-width: 92px;
+        font-size: 9px;
+    }
+}
