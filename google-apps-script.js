@@ -82,6 +82,11 @@ function getSheet() {
     return SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 }
 
+function normalizeRegistrationPhone(phone) {
+    const digits = String(phone || '').replace(/\D/g, '');
+    return digits.length > 10 ? digits.slice(-10) : digits;
+}
+
 // Add a registration to the bound spreadsheet.
 function addPlayer(player) {
     try {
@@ -94,9 +99,9 @@ function addPlayer(player) {
 
         const sheet = getSheet();
         const data = sheet.getDataRange().getValues();
-        const phone = String(player.contact).replace(/\D/g, '');
+        const phone = normalizeRegistrationPhone(player.contact);
         for (let i = 1; i < data.length; i++) {
-            if (String(data[i][3]).replace(/\D/g, '') === phone) {
+            if (normalizeRegistrationPhone(data[i][3]) === phone) {
                 return ContentService.createTextOutput(JSON.stringify({
                     success: false,
                     error: 'Mobile number already registered'

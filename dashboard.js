@@ -22,8 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (typeof getAllPlayersFromSheets === 'function') {
             const result = await getAllPlayersFromSheets();
             if (result.success) {
-                players = mergePlayers(result.players, localPlayers);
-                localStorage.setItem('cricketPlayers', JSON.stringify(players));
+                players = Array.isArray(result.players) ? result.players : [];
             } else {
                 console.warn('Could not refresh registered players from Sheets:', result.error);
                 loadWarning = 'Showing registrations saved on this device; Google Sheets could not be reached.';
@@ -32,15 +31,17 @@ document.addEventListener('DOMContentLoaded', function () {
             loadWarning = 'Showing registrations saved on this device; Google Sheets is not configured.';
         }
 
-        allPlayers = players.map(player => ({
-            id: player.id,
-            name: player.name,
-            role: player.role,
-            battingStyle: player.battingStyle,
-            bowlingStyle: player.bowlingStyle,
-            jerseySize: player.jerseySize,
-            status: player.status
-        }));
+        allPlayers = players
+            .filter(player => typeof isCurrentCricketSeasonPlayer !== 'function' || isCurrentCricketSeasonPlayer(player))
+            .map(player => ({
+                id: player.id,
+                name: player.name,
+                role: player.role,
+                battingStyle: player.battingStyle,
+                bowlingStyle: player.bowlingStyle,
+                jerseySize: player.jerseySize,
+                status: player.status
+            }));
 
         renderPlayers(allPlayers);
         showGrid();
@@ -58,20 +59,6 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Could not read locally saved registrations:', error);
             return [];
         }
-    }
-
-    function mergePlayers(sheetPlayers, localPlayers) {
-        if (typeof mergePlayerLists === 'function') {
-            return mergePlayerLists(sheetPlayers, localPlayers);
-        }
-        const playersById = new Map();
-        sheetPlayers.forEach(player => playersById.set(String(player.id), player));
-        localPlayers.forEach(player => {
-            if (!playersById.has(String(player.id))) {
-                playersById.set(String(player.id), player);
-            }
-        });
-        return Array.from(playersById.values());
     }
 
     function renderPlayers(players) {

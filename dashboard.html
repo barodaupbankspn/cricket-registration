@@ -127,6 +127,69 @@
             color: var(--text-muted);
             font-size: 1.2rem;
         }
+
+        .squad-season-note {
+            margin: 0 auto;
+            max-width: 58ch;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: max(0.75rem, env(safe-area-inset-top)) 0.75rem max(1rem, env(safe-area-inset-bottom));
+            }
+
+            .header-section h1 {
+                font-size: clamp(1.8rem, 8vw, 2.5rem);
+                overflow-wrap: anywhere;
+            }
+
+            .header-section h2 {
+                font-size: 1.15rem !important;
+                line-height: 1.4;
+            }
+
+            .squad-season-note {
+                font-size: 0.88rem;
+                line-height: 1.5;
+            }
+
+            .player-grid {
+                grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+                gap: 12px;
+                padding: 14px 0;
+            }
+
+            .player-card {
+                padding: 16px;
+                border-radius: 16px;
+            }
+
+            .player-name {
+                font-size: 1.2rem;
+                overflow-wrap: anywhere;
+            }
+
+            .player-detail {
+                gap: 12px;
+                font-size: 0.9rem;
+            }
+
+            .detail-value {
+                text-align: right;
+                overflow-wrap: anywhere;
+            }
+
+            .search-bar {
+                margin-bottom: 16px;
+            }
+
+            .search-input {
+                min-height: 48px;
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 
@@ -135,6 +198,7 @@
         <div class="header-section text-center">
             <h1 class="bank-name">Shahjahanpur Spartans</h1>
             <h2 class="team-name" style="font-size: 1.5rem; color: var(--accent);">Registered Players Squad</h2>
+            <p class="squad-season-note">Showing this season’s squad. Previous-season registrations remain available by mobile-number lookup.</p>
         </div>
 
         <div class="search-bar">
@@ -161,8 +225,8 @@
         </div>
     </div>
 
-    <script src="sheets-api.js"></script>
-    <script src="dashboard.js"></script>
+    <script src="sheets-api.js?v=20261023-mobile3"></script>
+    <script src="dashboard.js?v=20261023-mobile3"></script>
 </body>
 
 </html>

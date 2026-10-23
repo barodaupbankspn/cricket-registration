@@ -11,6 +11,8 @@ function getAllPlayers() {
         console.error('Could not read locally saved registrations:', error);
         return [];
     }
+
+    let profilePlayers = [];
 }
 
 function escapeHtml(value) {
@@ -123,7 +125,7 @@ function updateStats(players) {
 
 // Display players
 function displayPlayers(playersToDisplay = null) {
-    const players = playersToDisplay || getAllPlayers();
+    const players = playersToDisplay || profilePlayers;
     const playersGrid = document.getElementById('playersGrid');
     const noPlayers = document.getElementById('noPlayers');
 
@@ -147,7 +149,7 @@ function filterPlayers() {
     const roleFilter = document.getElementById('roleFilter').value;
     const experienceFilter = document.getElementById('experienceFilter').value;
 
-    let players = getAllPlayers();
+    let players = profilePlayers;
 
     // Apply search filter
     if (searchTerm) {
@@ -183,24 +185,15 @@ async function refreshProfiles() {
     if (typeof getAllPlayersFromSheets === 'function') {
         const result = await getAllPlayersFromSheets();
         if (result.success) {
-            if (typeof mergePlayerLists === 'function') {
-                localStorage.setItem('cricketPlayers', JSON.stringify(
-                    mergePlayerLists(result.players, getAllPlayers())
-                ));
-                displayPlayers();
-                return;
-            }
-            const playersById = new Map();
-            result.players.forEach(player => playersById.set(String(player.id), player));
-            getAllPlayers().forEach(player => {
-                if (!playersById.has(String(player.id))) {
-                    playersById.set(String(player.id), player);
-                }
-            });
-            localStorage.setItem('cricketPlayers', JSON.stringify(Array.from(playersById.values())));
+            profilePlayers = (Array.isArray(result.players) ? result.players : [])
+                .filter(player => typeof isCurrentCricketSeasonPlayer !== 'function' || isCurrentCricketSeasonPlayer(player));
+            displayPlayers();
+            return;
         } else {
             console.warn('Could not refresh player profiles from Sheets:', result.error);
         }
     }
+    profilePlayers = getAllPlayers()
+        .filter(player => typeof isCurrentCricketSeasonPlayer !== 'function' || isCurrentCricketSeasonPlayer(player));
     displayPlayers();
 }

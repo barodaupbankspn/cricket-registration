@@ -19,6 +19,155 @@ document.addEventListener('DOMContentLoaded', function () {
         placeOfPosting: document.getElementById('placeOfPosting'),
         address: document.getElementById('address')
     };
+    const existingRegistrationNotice = document.getElementById('existingRegistrationNotice');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const defaultSubmitText = submitBtn.textContent.trim();
+    let contactLookupState = 'idle';
+    let contactLookupTimer = null;
+    let contactLookupSequence = 0;
+    let lastContactLookup = '';
+
+    function normalizePhone(value) {
+        if (typeof normalizeCricketPhone === 'function') {
+            return normalizeCricketPhone(value);
+        }
+        const digits = String(value || '').replace(/\D/g, '');
+        return digits.length > 10 ? digits.slice(-10) : digits;
+    }
+
+    function setNotice(message, state) {
+        existingRegistrationNotice.textContent = message;
+        existingRegistrationNotice.className = `existing-registration-notice is-${state}`;
+        existingRegistrationNotice.classList.remove('hidden');
+    }
+
+    function clearNotice() {
+        existingRegistrationNotice.replaceChildren();
+        existingRegistrationNotice.className = 'existing-registration-notice hidden';
+    }
+
+    function showExistingRegistration(player, source, remoteAvailable) {
+        existingRegistrationNotice.replaceChildren();
+        existingRegistrationNotice.className = 'existing-registration-notice is-found';
+
+        const heading = document.createElement('strong');
+        heading.textContent = 'We found your existing registration';
+        const detail = document.createElement('div');
+        detail.textContent = `${player.name || 'Registered player'} · ${player.status || 'Under Observation'}`;
+        existingRegistrationNotice.append(heading, detail);
+
+        if (player.role) {
+            const role = document.createElement('div');
+            role.className = 'existing-registration-meta';
+            role.textContent = `Playing role: ${player.role}`;
+            existingRegistrationNotice.appendChild(role);
+        }
+
+        if (player.registeredAt) {
+            const registeredDate = new Date(player.registeredAt);
+            if (!Number.isNaN(registeredDate.getTime())) {
+                const date = document.createElement('div');
+                date.className = 'existing-registration-meta';
+                date.textContent = `Registered on ${registeredDate.toLocaleDateString('en-IN')}`;
+                existingRegistrationNotice.appendChild(date);
+            }
+        }
+
+        if (source === 'device' && remoteAvailable) {
+            const localNote = document.createElement('div');
+            localNote.className = 'existing-registration-meta';
+            localNote.textContent = 'This registration is saved on this browser and was not found in the shared list.';
+            existingRegistrationNotice.appendChild(localNote);
+        } else if (!remoteAvailable) {
+            const localNote = document.createElement('div');
+            localNote.className = 'existing-registration-meta';
+            localNote.textContent = 'This copy was found on this device. The shared list could not be checked.';
+            existingRegistrationNotice.appendChild(localNote);
+        }
+
+        const statusLink = document.createElement('a');
+        statusLink.href = 'player-login.html';
+        statusLink.textContent = 'Open registration status';
+        existingRegistrationNotice.appendChild(statusLink);
+        existingRegistrationNotice.classList.remove('hidden');
+    }
+
+    function updateSubmitButton() {
+        if (contactLookupState === 'checking') {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Checking previous registration…';
+        } else if (contactLookupState === 'found') {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Already registered';
+        } else {
+            submitBtn.disabled = false;
+            submitBtn.textContent = defaultSubmitText;
+        }
+    }
+
+    async function checkPreviousRegistration(phone, sequence) {
+        try {
+            let timeoutId;
+            const timeout = new Promise((_, reject) => {
+                timeoutId = setTimeout(() => reject(new Error('Registration lookup timed out')), 10000);
+            });
+            const lookup = typeof findRegisteredPlayerByContact === 'function'
+                ? findRegisteredPlayerByContact(phone)
+                : Promise.resolve({ success: false, error: 'Registration lookup is unavailable' });
+            let result;
+            try {
+                result = await Promise.race([lookup, timeout]);
+            } finally {
+                clearTimeout(timeoutId);
+            }
+
+            if (sequence !== contactLookupSequence) return;
+            if (result.success && result.player) {
+                contactLookupState = 'found';
+                showExistingRegistration(result.player, result.source, result.remoteAvailable);
+            } else if (result.success) {
+                contactLookupState = 'not-found';
+                setNotice('No previous registration was found for this number. You can continue with registration.', 'empty');
+            } else {
+                contactLookupState = 'unavailable';
+                setNotice('We could not reach the shared registration list. You can continue; the server will still prevent a duplicate registration.', 'unavailable');
+            }
+        } catch (error) {
+            if (sequence !== contactLookupSequence) return;
+            console.warn('Could not check previous registration:', error);
+            contactLookupState = 'unavailable';
+            setNotice('We could not reach the shared registration list. You can continue; the server will still prevent a duplicate registration.', 'unavailable');
+        }
+        updateSubmitButton();
+    }
+
+    function resetContactLookup() {
+        clearTimeout(contactLookupTimer);
+        contactLookupSequence++;
+        lastContactLookup = '';
+        contactLookupState = 'idle';
+        clearNotice();
+        updateSubmitButton();
+    }
+
+    fields.contact.addEventListener('input', function () {
+        clearTimeout(contactLookupTimer);
+        const phone = normalizePhone(fields.contact.value);
+        if (phone.length !== 10) {
+            resetContactLookup();
+            return;
+        }
+        if (phone === lastContactLookup && (contactLookupState === 'checking' || contactLookupState === 'found' || contactLookupState === 'not-found')) {
+            return;
+        }
+
+        lastContactLookup = phone;
+        const sequence = ++contactLookupSequence;
+        contactLookupState = 'checking';
+        setNotice('Checking for your previous registration…', 'checking');
+        updateSubmitButton();
+        contactLookupTimer = setTimeout(() => checkPreviousRegistration(phone, sequence), 350);
+    });
 
     // Error message elements
     const errors = {
@@ -159,6 +308,14 @@ document.addEventListener('DOMContentLoaded', function () {
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
+        if (contactLookupState === 'checking') {
+            setNotice('Please wait while we check whether this number is already registered.', 'checking');
+            return;
+        }
+        if (contactLookupState === 'found') {
+            return;
+        }
+
         // Validate all fields
         const isNameValid = validateName();
         const isAgeValid = validateAge();
@@ -176,8 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
             isPostingValid && isAddressValid) {
 
             // Disable submit button and show loading
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
+            const originalText = defaultSubmitText;
             submitBtn.disabled = true;
             submitBtn.textContent = '⏳ Submitting...';
 
@@ -219,9 +375,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (duplicatePhone) {
-                alert('⚠️ REGISTRATION FAILED:\n\nThis mobile number is already registered in the shared database.');
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
+                contactLookupState = 'found';
+                setNotice('This mobile number is already registered in the shared database. Open registration status to view the existing record.', 'found');
+                const statusLink = document.createElement('a');
+                statusLink.href = 'player-login.html';
+                statusLink.textContent = 'Open registration status';
+                existingRegistrationNotice.appendChild(statusLink);
+                existingRegistrationNotice.classList.remove('hidden');
+                updateSubmitButton();
                 return;
             }
 
@@ -238,6 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Reset form
             form.reset();
+            resetContactLookup();
 
             // Hide success message after 5 seconds
             setTimeout(() => {

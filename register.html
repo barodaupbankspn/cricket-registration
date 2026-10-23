@@ -103,9 +103,125 @@
             grid-column: 1 / -1;
         }
 
+        .previous-registration-note,
+        .existing-registration-notice {
+            padding: 1rem 1.1rem;
+            border-radius: 12px;
+            line-height: 1.55;
+        }
+
+        .previous-registration-note {
+            margin: 1rem 0;
+            border: 1px solid rgba(0, 212, 255, 0.28);
+            background: rgba(0, 212, 255, 0.08);
+            color: #e7f7ff;
+            font-size: 0.9rem;
+        }
+
+        .existing-registration-notice {
+            grid-column: 1 / -1;
+            margin: 0 0 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.07);
+            color: #f4f7fb;
+            font-size: 0.9rem;
+        }
+
+        .existing-registration-notice.is-checking {
+            border-color: rgba(0, 212, 255, 0.4);
+        }
+
+        .existing-registration-notice.is-found {
+            border-color: rgba(0, 255, 136, 0.55);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .existing-registration-notice.is-unavailable {
+            border-color: rgba(255, 215, 0, 0.45);
+            background: rgba(255, 215, 0, 0.08);
+        }
+
+        .existing-registration-notice strong {
+            display: block;
+            margin-bottom: 0.25rem;
+            color: #fff;
+        }
+
+        .existing-registration-notice a {
+            display: inline-block;
+            margin-top: 0.45rem;
+            color: #8ee7ff;
+            font-weight: 700;
+        }
+
+        .existing-registration-notice .existing-registration-meta {
+            margin-top: 0.4rem;
+            color: rgba(244, 247, 251, 0.8);
+            font-size: 0.82rem;
+        }
+
         @media (max-width: 600px) {
+            .hero {
+                min-height: 100svh;
+                align-items: stretch;
+                justify-content: flex-start;
+                padding: max(0.75rem, env(safe-area-inset-top)) 0.75rem max(1rem, env(safe-area-inset-bottom));
+            }
+
+            .form-card {
+                width: 100%;
+                padding: 1.1rem;
+                border-radius: 18px;
+            }
+
+            .registration-page .form-card h2 {
+                font-size: clamp(1.15rem, 5vw, 1.45rem);
+                line-height: 1.3;
+                overflow-wrap: anywhere;
+            }
+
+            .form-card p {
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+
+            .previous-registration-note,
+            .existing-registration-notice {
+                padding: 0.85rem;
+                font-size: 0.88rem;
+                overflow-wrap: anywhere;
+            }
+
             .form-grid {
                 grid-template-columns: 1fr;
+                gap: 0.55rem;
+            }
+
+            .form-group {
+                margin-bottom: 0.35rem;
+            }
+
+            input,
+            select,
+            textarea {
+                width: 100%;
+                min-height: 46px;
+                padding: 0.7rem 0.75rem;
+                font-size: 16px;
+            }
+
+            textarea {
+                min-height: 88px;
+            }
+
+            .btn {
+                min-height: 48px;
+                margin-top: 0.65rem;
+            }
+
+            .footer-links {
+                flex-wrap: wrap;
+                gap: 0.75rem;
             }
         }
     </style>
@@ -116,6 +232,10 @@
         <div class="form-card card">
             <h2 class="text-center">🏏 Shahjahanpur Spartans Registration</h2>
             <p class="text-center" style="color: var(--text-muted);">Fill in your details to join the Spartans team!</p>
+            <div class="previous-registration-note" role="note">
+                <strong>Registered with us before?</strong>
+                Enter your mobile number below. We’ll check previous registrations and show your existing record here.
+            </div>
 
             <form id="registrationForm">
                 <div class="form-grid">
@@ -138,6 +258,8 @@
                             required>
                         <div id="contactError" class="error-message hidden">Invalid number</div>
                     </div>
+                    <div id="existingRegistrationNotice" class="existing-registration-notice hidden" role="status"
+                        aria-live="polite"></div>
 
                     <div class="form-group">
                         <label for="email">Email Address *</label>
@@ -253,8 +375,8 @@
         </div>
     </div>
 
-    <script src="sheets-api.js"></script>
-    <script src="app.js"></script>
+    <script src="sheets-api.js?v=20261023-returning3"></script>
+    <script src="app.js?v=20261023-returning3"></script>
 
 </body>
 
