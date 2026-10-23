@@ -39,7 +39,13 @@ document.addEventListener('DOMContentLoaded', function () {
         form.querySelector('button').innerText = originalBtnText;
 
         // Find player by mobile number
-        const player = players.find(p => String(p.contact).trim() === mobile);
+        const normalizePhone = typeof normalizeCricketPhone === 'function'
+            ? normalizeCricketPhone
+            : value => {
+                const digits = String(value || '').replace(/\D/g, '');
+                return digits.length > 10 ? digits.slice(-10) : digits;
+            };
+        const player = players.find(p => normalizePhone(p.contact) === normalizePhone(mobile));
 
         if (!player) {
             // Player not found

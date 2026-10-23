@@ -6,10 +6,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Admin Dashboard - Manage Shahjahanpur Spartans registrations">
     <title>Admin Dashboard | Shahjahanpur Spartans</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20261023-mobile3">
+    <style>
+        @media (max-width: 600px) {
+            .admin-page .container {
+                padding: max(0.75rem, env(safe-area-inset-top)) 0.75rem max(1rem, env(safe-area-inset-bottom)) !important;
+            }
+
+            .admin-page .dashboard-header {
+                align-items: stretch;
+                gap: 12px;
+                margin-bottom: 1rem;
+            }
+
+            .admin-page .dashboard-header h1 {
+                font-size: clamp(1.7rem, 7vw, 2.25rem);
+                overflow-wrap: anywhere;
+            }
+
+            .admin-page .dashboard-header > div:last-child {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+                width: 100%;
+                gap: 8px !important;
+            }
+
+            .admin-page .dashboard-header .btn {
+                min-height: 44px;
+                padding: 0.55rem;
+                font-size: 0.85rem;
+            }
+
+            .admin-page .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                margin-bottom: 1rem;
+            }
+
+            .admin-page .stat-card {
+                min-width: 0;
+                padding: 0.9rem 0.5rem;
+            }
+
+            .admin-page .stat-value {
+                font-size: 2rem;
+            }
+
+            .admin-page .stat-label {
+                font-size: 0.7rem;
+                letter-spacing: 0.04em;
+            }
+
+            .admin-filter-controls {
+                min-width: 0 !important;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .admin-filter-controls > * {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .admin-filter-controls input,
+            .admin-filter-controls select {
+                min-height: 46px;
+                width: 100% !important;
+                font-size: 16px;
+            }
+
+            .bulk-action-controls {
+                display: grid !important;
+                grid-template-columns: 1fr;
+                width: 100%;
+            }
+
+            .bulk-action-controls .btn {
+                min-height: 44px;
+                width: 100%;
+            }
+
+            #broadcastSection {
+                padding: 1rem;
+            }
+
+            #broadcastSection input,
+            #broadcastSection textarea {
+                width: 100%;
+                font-size: 16px;
+            }
+
+            #broadcastSection button {
+                min-height: 44px;
+                width: 100%;
+            }
+
+            .admin-page .table-responsive {
+                max-width: calc(100vw - 2rem);
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .admin-page .table-responsive table {
+                min-width: 1050px;
+            }
+        }
+    </style>
 </head>
 
-<body>
+<body class="admin-page">
     <!-- Login Screen -->
     <div id="loginScreen" class="hero">
         <div class="form-card card" style="max-width: 400px;">
@@ -86,7 +191,7 @@
             <div class="card mb-3">
                 <div
                     style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; gap: var(--spacing-sm); flex: 1; min-width: 300px;">
+                    <div class="admin-filter-controls" style="display: flex; gap: var(--spacing-sm); flex: 1; min-width: 300px;">
                         <input type="text" id="searchInput" placeholder="🔍 Search by name, email, or contact..."
                             style="margin: 0; flex: 1;">
                         <select id="roleFilter" style="margin: 0; width: auto;">
@@ -105,7 +210,7 @@
                         </select>
                     </div>
 
-                    <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                    <div class="bulk-action-controls" style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
                         <div class="dropdown" style="position: relative; display: inline-block;">
                             <button onclick="toggleMessageMenu()" class="btn btn-secondary"
                                 style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
@@ -210,7 +315,7 @@
         </div>
     </div>
 
-    <script src="sheets-api.js?v=20261022-4"></script>
+    <script src="sheets-api.js?v=20261023-mobile3"></script>
     <script src="admin.js?v=20261022-4"></script>
 </body>
 

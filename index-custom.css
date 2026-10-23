@@ -342,6 +342,7 @@ body.home-page::after {
 }
 
 .hero-orbit {
+    display: none;
     position: absolute;
     z-index: -1;
     width: 260px;
@@ -599,6 +600,11 @@ body.home-page::after {
         padding-top: 15px;
         line-height: 1.6;
     }
+
+    .photo-credit {
+        order: 0;
+        text-align: left;
+    }
 }
 
 @media (max-width: 420px) {
@@ -825,7 +831,20 @@ body.home-page::after {
 }
 
 .home-footer {
+    flex-wrap: wrap;
     color: #536b5e;
+}
+
+.photo-credit {
+    flex: 1 1 100%;
+    order: 3;
+    color: #607568;
+    font-size: 9px;
+    text-align: center;
+}
+
+.photo-credit a {
+    color: #17613f;
 }
 
 .home-page :is(h1, h2, h3, h4, h5, h6, p, a, span, small, strong, div) {
@@ -842,6 +861,10 @@ body.home-page::after {
 }
 
 @media (max-width: 760px) {
+    body.home-page::before {
+        background-position: 54% center;
+    }
+
     .bank-brand {
         border-top-color: rgba(23, 97, 63, 0.12);
     }
@@ -875,8 +898,8 @@ body.home-page::after {
 /* Cricket-ground hero scene */
 body.home-page::before {
     background:
-        radial-gradient(ellipse at 76% 20%, rgba(255, 255, 255, 0.8), transparent 38rem),
-        linear-gradient(180deg, #e7f7d9 0%, #f5f9e9 56%, #e4f2d9 100%);
+        linear-gradient(90deg, rgba(242, 250, 235, 0.84), rgba(242, 250, 235, 0.76) 48%, rgba(242, 250, 235, 0.71)),
+        url("./images/cricket-ground-sussex.jpg") center 54% / cover no-repeat;
     opacity: 1;
 }
 
@@ -1112,7 +1135,7 @@ body.home-page::after {
     left: 69%;
     transform: scale(0.72) rotate(7deg);
     transform-origin: center bottom;
-    animation: bowler-run 3.7s ease-in-out infinite;
+    animation: bowler-run 5s ease-in-out infinite;
 }
 
 .player-helmet,
@@ -1194,6 +1217,7 @@ body.home-page::after {
 .bowler .arm-back {
     left: 3px;
     transform: rotate(39deg);
+    animation: bowler-arm 5s ease-in-out infinite;
 }
 
 .player-leg {
@@ -1215,6 +1239,7 @@ body.home-page::after {
 .batter .leg-back {
     left: 25px;
     transform: rotate(-9deg);
+    animation: batter-leg 5s ease-in-out infinite;
 }
 
 .bowler .leg-front {
@@ -1225,6 +1250,7 @@ body.home-page::after {
 .bowler .leg-back {
     left: 25px;
     transform: rotate(-24deg);
+    animation: bowler-leg 5s ease-in-out infinite;
 }
 
 .player-bat {
@@ -1239,7 +1265,7 @@ body.home-page::after {
     background: linear-gradient(90deg, #c78a3d, #f3d18c 54%, #be7d31);
     transform: rotate(-39deg);
     transform-origin: 50% 92%;
-    animation: batter-swing 3.7s ease-in-out infinite;
+    animation: batter-swing 5s ease-in-out infinite;
 }
 
 .player-bat::before {
@@ -1264,7 +1290,27 @@ body.home-page::after {
     border-radius: 50%;
     background: #df4b40;
     box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.24), 0 0 16px rgba(221, 65, 52, 0.8);
-    animation: ball-flight 3.7s cubic-bezier(0.42, 0, 0.3, 1) infinite;
+    animation: ball-flight 5s cubic-bezier(0.42, 0, 0.3, 1) infinite;
+}
+
+.scene-ball::before {
+    position: absolute;
+    inset: 2px;
+    content: "";
+    border: 1px solid rgba(255, 245, 225, 0.95);
+    border-radius: 50%;
+    transform: rotate(-38deg) scaleX(0.48);
+}
+
+.scene-ball::after {
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    width: 3px;
+    height: 3px;
+    content: "";
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.82);
 }
 
 .ball-trail {
@@ -1278,7 +1324,7 @@ body.home-page::after {
     background: linear-gradient(90deg, transparent, rgba(229, 86, 62, 0.68));
     transform: rotate(-25deg);
     transform-origin: right center;
-    animation: trail-flight 3.7s ease-in-out infinite;
+    animation: trail-flight 5s ease-in-out infinite;
 }
 
 .scene-boundary {
@@ -1390,32 +1436,60 @@ body.home-page::after {
 }
 
 @keyframes batter-swing {
-    0%, 32%, 100% { transform: rotate(-39deg); }
-    43% { transform: rotate(24deg); }
+    0%, 39%, 100% { transform: rotate(-39deg); }
+    46% { transform: rotate(-8deg); }
     53% { transform: rotate(31deg); }
-    68% { transform: rotate(-39deg); }
+    60% { transform: rotate(38deg); }
+    71% { transform: rotate(-18deg); }
 }
 
 @keyframes bowler-run {
-    0%, 58%, 100% { translate: 0 0; }
-    68% { translate: -7px -3px; }
-    77% { translate: -2px 0; }
+    0%, 13%, 100% { translate: 0 0; }
+    22% { translate: -5px -2px; }
+    31% { translate: 2px 0; }
+    40% { translate: -4px -3px; }
+    49% { translate: 0 0; }
+}
+
+@keyframes bowler-arm {
+    0%, 24%, 100% { transform: rotate(39deg); }
+    35% { transform: rotate(-74deg); }
+    43% { transform: rotate(104deg); }
+    50% { transform: rotate(34deg); }
+}
+
+@keyframes bowler-leg {
+    0%, 20%, 100% { transform: rotate(-24deg); }
+    30% { transform: rotate(18deg); }
+    40% { transform: rotate(-39deg); }
+    49% { transform: rotate(-24deg); }
+}
+
+@keyframes batter-leg {
+    0%, 42%, 100% { transform: rotate(-9deg); }
+    51% { transform: rotate(-20deg); }
+    61% { transform: rotate(12deg); }
+    72% { transform: rotate(-9deg); }
 }
 
 @keyframes ball-flight {
-    0%, 5% { top: 47%; left: 71%; opacity: 0; transform: scale(0.55); }
-    11% { opacity: 1; transform: scale(0.8); }
-    40% { top: 38%; left: 59%; opacity: 1; transform: scale(0.95); }
-    61% { top: 30%; left: 49%; opacity: 1; transform: scale(1.25); }
-    75% { top: 24%; left: 40%; opacity: 1; transform: scale(1.45); }
-    93%, 100% { top: 15%; left: 29%; opacity: 0; transform: scale(1.8); }
+    0%, 17%, 100% { top: 47%; left: 71%; opacity: 0; transform: scale(0.55); }
+    21% { opacity: 1; transform: scale(0.82); }
+    34% { top: 52%; left: 60%; opacity: 1; transform: scale(0.72); }
+    43% { top: 48%; left: 51%; opacity: 1; transform: scale(0.9); }
+    47% { top: 46%; left: 48%; opacity: 1; transform: scale(1.05); }
+    53% { top: 38%; left: 43%; opacity: 1; transform: scale(1.2); }
+    70% { top: 20%; left: 31%; opacity: 1; transform: scale(1.5); }
+    88% { top: 7%; left: 19%; opacity: 0.7; transform: scale(1.75); }
+    96% { top: 4%; left: 15%; opacity: 0; transform: scale(1.85); }
 }
 
 @keyframes trail-flight {
-    0%, 8%, 100% { opacity: 0; translate: 0 0; rotate: -25deg; }
-    15% { opacity: 0.7; }
-    72% { opacity: 0.68; translate: -28px -21px; rotate: -25deg; }
-    92% { opacity: 0; translate: -39px -30px; rotate: -25deg; }
+    0%, 18%, 100% { opacity: 0; translate: 0 0; rotate: -25deg; }
+    22% { opacity: 0.55; }
+    45% { opacity: 0.7; translate: -7px 3px; rotate: -4deg; }
+    69% { opacity: 0.68; translate: -28px -21px; rotate: -25deg; }
+    91% { opacity: 0; translate: -39px -30px; rotate: -25deg; }
 }
 
 @keyframes sparkle-pop {
@@ -1492,7 +1566,10 @@ body.home-page::after {
     .join-button::after,
     .scene-score i,
     .batter .player-bat,
+    .batter .leg-back,
     .bowler,
+    .bowler .arm-back,
+    .bowler .leg-back,
     .scene-ball,
     .ball-trail,
     .scene-sparkle {
@@ -1507,5 +1584,224 @@ body.home-page::after {
 
     .ball-trail {
         opacity: 0.4;
+    }
+}
+
+@media (max-width: 600px) {
+    .home-shell {
+        width: min(100% - 28px, 480px);
+        padding-top: max(12px, env(safe-area-inset-top));
+    }
+
+    .home-topbar {
+        align-items: center;
+        gap: 8px;
+    }
+
+    .home-brand {
+        flex-shrink: 0;
+    }
+
+    .bank-brand {
+        flex: 1;
+        min-width: 0;
+        justify-content: center;
+        gap: 7px;
+        padding-top: 9px;
+    }
+
+    .bank-brand img {
+        width: min(56vw, 194px);
+        height: 53px;
+    }
+
+    .bank-brand > span {
+        max-width: 100px;
+        font-size: 8px;
+        line-height: 1.35;
+    }
+
+    .home-hero {
+        gap: 4px;
+        padding: 34px 0 18px;
+    }
+
+    .hero-copy {
+        min-width: 0;
+    }
+
+    .hero-eyebrow {
+        margin: 18px 0 10px;
+        font-size: 10px;
+        letter-spacing: 0.2em;
+    }
+
+    .home-hero h1 {
+        font-size: clamp(40px, 12.5vw, 58px);
+        line-height: 0.98;
+        overflow-wrap: anywhere;
+    }
+
+    .hero-intro {
+        max-width: 38ch;
+        margin-top: 12px;
+        font-size: 15px;
+        line-height: 1.55;
+    }
+
+    .hero-actions {
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .home-button {
+        min-height: 50px;
+        justify-content: center;
+        padding: 0 16px;
+    }
+
+    .join-button {
+        overflow: hidden;
+    }
+
+    .join-button::before {
+        display: none;
+    }
+
+    .hero-visual {
+        min-height: 0;
+        margin-top: 8px;
+        padding: 4px 0 14px;
+    }
+
+    .stadium-scene {
+        width: min(100%, 480px);
+        margin-inline: auto;
+        border-width: 5px;
+        border-radius: 46% 46% 22px 22px / 28% 28% 22px 22px;
+    }
+
+    .scene-score {
+        top: 7%;
+        left: 5%;
+        padding: 6px 8px;
+    }
+
+    .scene-score > span {
+        font-size: clamp(6px, 1.5vw, 8px);
+    }
+
+    .scene-score strong {
+        font-size: clamp(9px, 2.3vw, 12px);
+    }
+
+    .scene-boundary {
+        max-width: 74%;
+        padding: 6px 9px;
+        font-size: clamp(6px, 1.6vw, 8px);
+        letter-spacing: 0.1em;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .home-links {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .home-link-card {
+        min-height: 64px;
+        padding: 12px 15px;
+    }
+
+    .support-panel {
+        grid-template-columns: auto 1fr;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .support-account {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .support-account span:first-child {
+        grid-column: auto;
+    }
+
+    .support-account strong {
+        overflow-wrap: anywhere;
+    }
+
+    .home-footer {
+        gap: 7px;
+        overflow-wrap: anywhere;
+    }
+
+    .photo-credit {
+        font-size: 10px;
+        line-height: 1.5;
+    }
+}
+
+@media (max-width: 360px) {
+    .home-shell {
+        width: calc(100% - 24px);
+    }
+
+    .home-topbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+    }
+
+    .home-brand {
+        gap: 7px;
+    }
+
+    .brand-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+    }
+
+    .home-brand strong {
+        font-size: 10px;
+    }
+
+    .home-brand small {
+        font-size: 8px;
+    }
+
+    .bank-brand {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        justify-content: center;
+        padding-top: 9px;
+        border-top: 1px solid rgba(23, 97, 63, 0.12);
+    }
+
+    .bank-brand img {
+        width: min(56vw, 180px);
+        max-width: 60%;
+        height: 48px;
+    }
+
+    .bank-brand > span {
+        max-width: 88px;
+        text-align: left;
+    }
+
+    .home-hero {
+        padding-top: 25px;
+    }
+
+    .hero-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .hero-actions .home-button {
+        width: 100%;
     }
 }

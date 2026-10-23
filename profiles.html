@@ -6,7 +6,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="View player profiles - Cricket Team Registration">
     <title>Player Profiles | Cricket Team</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20261023-mobile3">
+    <style>
+        #playersGrid {
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)) !important;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: max(0.75rem, env(safe-area-inset-top)) 0.75rem max(1rem, env(safe-area-inset-bottom));
+            }
+
+            .profile-filters {
+                display: grid !important;
+                grid-template-columns: 1fr;
+                gap: 10px !important;
+            }
+
+            .profile-filters > div {
+                width: 100%;
+                min-width: 0 !important;
+            }
+
+            .profile-filters input,
+            .profile-filters select {
+                width: 100%;
+                min-height: 46px;
+                font-size: 16px;
+            }
+
+            .dashboard-header {
+                gap: 12px;
+                margin-bottom: 1rem;
+            }
+
+            .dashboard-header h1 {
+                font-size: clamp(1.8rem, 8vw, 2.5rem);
+                overflow-wrap: anywhere;
+            }
+
+            .dashboard-header p {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+
+            .dashboard-header > div:last-child {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+                width: 100%;
+                gap: 8px !important;
+            }
+
+            .dashboard-header .btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 44px;
+                padding: 0.55rem;
+                font-size: 0.88rem;
+                text-align: center;
+            }
+
+            #playersGrid {
+                gap: 12px !important;
+                margin-top: 1rem !important;
+            }
+
+            .player-profile-card {
+                padding: 1rem;
+            }
+
+            .player-profile-card .stat-row {
+                gap: 12px;
+            }
+
+            .player-profile-card .stat-row span:last-child {
+                text-align: right;
+                overflow-wrap: anywhere;
+            }
+
+            .card {
+                min-width: 0;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -15,7 +98,7 @@
         <div class="dashboard-header">
             <div>
                 <h1 style="margin-bottom: 0.5rem;">Player Profiles</h1>
-                <p style="color: var(--text-muted);">Browse our talented cricket team members</p>
+                <p style="color: var(--text-muted);">Browse this season’s squad. Previous-season registrations remain available by mobile-number lookup.</p>
             </div>
             <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
                 <a href="index.html" class="btn btn-primary">➕ Register</a>
@@ -25,7 +108,7 @@
 
         <!-- Search and Filter -->
         <div class="card mb-3">
-            <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; align-items: center;">
+            <div class="profile-filters" style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; align-items: center;">
                 <div style="flex: 1; min-width: 250px;">
                     <input type="text" id="searchInput" placeholder="🔍 Search players by name..." style="margin: 0;">
                 </div>
@@ -84,8 +167,8 @@
         </div>
     </div>
 
-    <script src="sheets-api.js"></script>
-    <script src="profiles.js"></script>
+    <script src="sheets-api.js?v=20261023-mobile3"></script>
+    <script src="profiles.js?v=20261023-mobile3"></script>
 </body>
 
 </html>

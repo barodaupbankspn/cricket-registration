@@ -10,13 +10,27 @@ function isSheetsConfigured() {
 }
 window.isSheetsConfigured = isSheetsConfigured;
 
+function normalizeCricketPhone(value) {
+    const digits = String(value || '').replace(/\D/g, '');
+    return digits.length > 10 ? digits.slice(-10) : digits;
+}
+window.normalizeCricketPhone = normalizeCricketPhone;
+
+function isCurrentCricketSeasonPlayer(player, seasonYear = new Date().getUTCFullYear()) {
+    const registeredAt = player && (player.registeredAt || player.timestamp);
+    if (!registeredAt) return true;
+    const date = registeredAt instanceof Date ? registeredAt : new Date(registeredAt);
+    return Number.isNaN(date.getTime()) || date.getUTCFullYear() >= seasonYear;
+}
+window.isCurrentCricketSeasonPlayer = isCurrentCricketSeasonPlayer;
+
 function mergePlayerLists(primaryPlayers, fallbackPlayers) {
     const players = [];
     const ids = new Set();
     const phones = new Set();
     [...primaryPlayers, ...fallbackPlayers].forEach(player => {
         const id = player.id == null ? '' : String(player.id);
-        const phone = String(player.contact || '').replace(/\D/g, '');
+        const phone = normalizeCricketPhone(player.contact);
         if ((id && ids.has(id)) || (phone && phones.has(phone))) {
             return;
         }
@@ -27,6 +41,46 @@ function mergePlayerLists(primaryPlayers, fallbackPlayers) {
     return players;
 }
 window.mergePlayerLists = mergePlayerLists;
+
+async function findRegisteredPlayerByContact(contact) {
+    const phone = normalizeCricketPhone(contact);
+    if (phone.length !== 10) {
+        return { success: false, error: 'Enter a valid 10-digit mobile number', player: null };
+    }
+
+    let localPlayers = [];
+    try {
+        const storedPlayers = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
+        localPlayers = Array.isArray(storedPlayers) ? storedPlayers : [];
+    } catch (error) {
+        console.error('Could not read locally saved registrations:', error);
+    }
+
+    const localMatch = localPlayers.find(player => normalizeCricketPhone(player.contact) === phone);
+    if (isSheetsConfigured()) {
+        const result = await getAllPlayersFromSheets();
+        if (result.success) {
+            const sheetPlayers = Array.isArray(result.players) ? result.players : [];
+            const sheetMatch = sheetPlayers.find(player => normalizeCricketPhone(player.contact) === phone);
+            return {
+                success: true,
+                player: sheetMatch,
+                source: sheetMatch ? 'shared' : null,
+                remoteAvailable: true
+            };
+        }
+
+        if (localMatch) {
+            return { success: true, player: localMatch, source: 'device', remoteAvailable: false, warning: result.error };
+        }
+        return { success: false, error: result.error || 'Could not check the shared registration list', player: null };
+    }
+
+    return localMatch
+        ? { success: true, player: localMatch, source: 'device', remoteAvailable: false }
+        : { success: false, error: 'The shared registration list is not configured', player: null };
+}
+window.findRegisteredPlayerByContact = findRegisteredPlayerByContact;
 
 async function postToSheets(payload) {
     const response = await fetch(GOOGLE_SHEETS_URL, {
@@ -71,8 +125,9 @@ async function getAllPlayersFromSheets() {
     }
 
     try {
-        const response = await fetch(GOOGLE_SHEETS_URL + '?action=getPlayers', {
+        const response = await fetch(GOOGLE_SHEETS_URL + '?action=getPlayers&_=' + Date.now(), {
             method: 'GET',
+            cache: 'no-store',
         });
 
         const data = await response.json();
@@ -128,11 +183,11 @@ async function syncWithGoogleSheets() {
         const localPlayers = JSON.parse(localStorage.getItem('cricketPlayers') || '[]');
         const remoteIds = new Set(result.players.map(player => String(player.id)));
         const remotePhones = new Set(result.players
-            .map(player => String(player.contact || '').replace(/\D/g, ''))
+            .map(player => normalizeCricketPhone(player.contact))
             .filter(Boolean));
         const pendingPlayers = localPlayers.filter(player =>
             !remoteIds.has(String(player.id)) &&
-            (!player.contact || !remotePhones.has(String(player.contact).replace(/\D/g, '')))
+            (!player.contact || !remotePhones.has(normalizeCricketPhone(player.contact)))
         );
 
         for (const player of pendingPlayers) {
@@ -144,11 +199,11 @@ async function syncWithGoogleSheets() {
         const mergedPlayers = mergePlayerLists(sheetPlayers, localPlayers);
         const confirmedIds = new Set(sheetPlayers.map(player => String(player.id)));
         const confirmedPhones = new Set(sheetPlayers
-            .map(player => String(player.contact || '').replace(/\D/g, ''))
+            .map(player => normalizeCricketPhone(player.contact))
             .filter(Boolean));
         const localOnlyCount = localPlayers.filter(player =>
             !confirmedIds.has(String(player.id)) &&
-            (!player.contact || !confirmedPhones.has(String(player.contact).replace(/\D/g, '')))
+            (!player.contact || !confirmedPhones.has(normalizeCricketPhone(player.contact)))
         ).length;
 
         localStorage.setItem('cricketPlayers', JSON.stringify(mergedPlayers));
