@@ -2,9 +2,11 @@
 
 The admin page can send a message to selected registered players through the existing Google Apps Script deployment and UltraMsg. The browser sends only the selected player emails, message, and an administrator key. Keep the UltraMsg token and administrator key in Apps Script Script Properties; never add them to this public GitHub Pages repository.
 
+The intended WhatsApp sender is **+91 6390937612** (international format: `916390937612`). UltraMsg sends from the WhatsApp account connected to its instance; the website cannot select or change that account. Connect this exact number to the UltraMsg instance before using automated broadcasts. Manual `wa.me` drafts instead use the WhatsApp account signed in on the administrator's device.
+
 ## Requirements
 
-- An UltraMsg account with a connected WhatsApp instance, its instance ID, and token.
+- The WhatsApp account for **+91 6390937612** and an UltraMsg instance connected to that account, with its instance ID and token.
 - Access to the Google Apps Script project that serves the configured Sheets web app.
 - The current `google-apps-script.js` saved to that project and deployed as a new web app version.
 
