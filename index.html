@@ -7,7 +7,7 @@
     <title>Shahjahanpur Spartans - Registration</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="sparkle.css">
-    <link rel="stylesheet" href="index-custom.css?v=20261023-match5">
+    <link rel="stylesheet" href="index-custom.css?v=20261023-match7">
 </head>
 
 <body class="home-page">
@@ -64,28 +64,117 @@
                         <span class="wicket wicket-left"><i></i><i></i><i></i></span>
                         <span class="wicket wicket-right"><i></i><i></i><i></i></span>
                     </div>
-                    <div class="scene-player batter">
-                        <span class="player-helmet"></span>
-                        <span class="player-body"></span>
-                        <span class="player-arm arm-front"></span>
-                        <span class="player-arm arm-back"></span>
-                        <span class="player-leg leg-front"></span>
-                        <span class="player-leg leg-back"></span>
-                        <span class="player-bat"></span>
-                    </div>
-                    <div class="scene-player bowler">
-                        <span class="player-head"></span>
-                        <span class="player-body"></span>
-                        <span class="player-arm arm-front"></span>
-                        <span class="player-arm arm-back"></span>
-                        <span class="player-leg leg-front"></span>
-                        <span class="player-leg leg-back"></span>
-                    </div>
+                    <svg class="scene-official" viewBox="0 0 100 210" role="presentation">
+                        <ellipse class="player-shadow" cx="50" cy="201" rx="25" ry="5"/>
+                        <path class="official-trouser" d="M40 108 L60 108 L62 151 L58 188 L49 188 L49 151 L43 188 L34 188 L36 149Z"/>
+                        <path class="player-shoe" d="M48 184 L59 184 L63 191 L62 194 L45 194Z"/>
+                        <path class="player-shoe" d="M33 184 L43 184 L42 191 L38 194 L25 194 L25 191Z"/>
+                        <path class="official-shirt" d="M39 45 Q50 40 61 45 L69 56 L63 78 L62 111 Q50 116 37 111 L36 77 L30 57Z"/>
+                        <path class="official-tie" d="M47 48 L53 48 L55 54 L52 59 L56 89 L50 95 L45 89 L49 59 L45 54Z"/>
+                        <path class="player-neck" d="M44 38 L56 38 L56 49 Q50 54 44 49Z"/>
+                        <ellipse class="player-skin" cx="50" cy="27" rx="13" ry="16"/>
+                        <path class="official-cap" d="M36 27 Q36 9 50 9 Q64 9 64 27 L58 24 L43 24Z"/>
+                        <path class="official-cap-peak" d="M56 25 Q69 25 72 29 L58 31Z"/>
+                        <path class="player-skin official-arm" d="M34 53 Q27 56 25 65 L20 84 Q18 90 22 92 Q27 93 29 87 L38 67Z"/>
+                        <path class="player-skin official-arm" d="M65 53 Q72 56 75 65 L80 84 Q82 90 78 92 Q73 93 71 87 L62 67Z"/>
+                    </svg>
+                    <svg class="scene-fielder fielder-ready" viewBox="0 0 100 210" role="presentation">
+                        <ellipse class="player-shadow" cx="50" cy="201" rx="28" ry="5"/>
+                        <g class="fielder-legs">
+                            <path class="player-trouser" d="M38 111 L62 111 L66 150 L62 184 L53 184 L49 153 L42 184 L32 184 L34 150Z"/>
+                            <path class="player-shoe" d="M52 181 L63 181 L67 188 L65 191 L49 191Z"/>
+                            <path class="player-shoe" d="M31 181 L42 181 L41 188 L36 191 L23 191 L23 188Z"/>
+                        </g>
+                        <g class="fielder-body">
+                            <path class="player-shirt" d="M38 48 Q50 40 63 48 L73 58 L67 80 L64 115 Q51 122 35 115 L33 79 L27 61Z"/>
+                            <path class="shirt-stripe" d="M59 51 L64 54 L67 111 L61 114Z"/>
+                            <path class="player-neck" d="M44 39 L57 39 L57 51 Q50 56 43 50Z"/>
+                            <ellipse class="player-skin" cx="50" cy="28" rx="14" ry="17"/>
+                            <path class="player-hair" d="M36 27 Q36 9 51 10 Q65 10 64 28 L59 22 L42 20Z"/>
+                            <g class="fielder-arms">
+                                <path class="player-sleeve" d="M38 51 Q30 51 28 59 L23 72 L34 77 L44 62Z"/>
+                                <path class="player-skin" d="M28 69 L18 83 Q14 89 18 93 Q22 96 26 90 L39 77Z"/>
+                                <path class="player-sleeve" d="M62 51 Q70 52 72 60 L77 72 L66 78 L57 62Z"/>
+                                <path class="player-skin" d="M73 69 L83 82 Q87 88 83 92 Q79 95 75 89 L62 77Z"/>
+                            </g>
+                        </g>
+                    </svg>
+                    <svg class="scene-fielder fielder-chasing" viewBox="0 0 100 210" role="presentation">
+                        <ellipse class="player-shadow" cx="50" cy="201" rx="28" ry="5"/>
+                        <g class="fielder-chase-legs">
+                            <path class="player-trouser" d="M38 111 L62 111 L65 149 L57 184 L48 184 L49 151 L38 184 L29 181 L34 146Z"/>
+                            <path class="player-shoe" d="M47 181 L58 181 L62 188 L60 191 L44 191Z"/>
+                            <path class="player-shoe" d="M28 178 L39 181 L36 188 L30 190 L18 185 L19 182Z"/>
+                        </g>
+                        <g class="fielder-chase-body">
+                            <path class="player-shirt" d="M38 48 Q50 40 63 48 L73 58 L67 80 L64 115 Q51 122 35 115 L33 79 L27 61Z"/>
+                            <path class="shirt-stripe" d="M59 51 L64 54 L67 111 L61 114Z"/>
+                            <path class="player-neck" d="M44 39 L57 39 L57 51 Q50 56 43 50Z"/>
+                            <ellipse class="player-skin" cx="50" cy="28" rx="14" ry="17"/>
+                            <path class="player-hair" d="M36 27 Q36 9 51 10 Q65 10 64 28 L59 22 L42 20Z"/>
+                            <g class="fielder-catching-arms">
+                                <path class="player-sleeve" d="M38 51 Q30 51 28 59 L24 72 L35 77 L44 62Z"/>
+                                <path class="player-skin" d="M28 69 L20 53 Q17 47 21 44 Q26 41 29 48 L40 67Z"/>
+                                <path class="player-sleeve" d="M62 51 Q70 52 72 60 L77 72 L66 78 L57 62Z"/>
+                                <path class="player-skin" d="M73 69 L81 53 Q84 47 80 44 Q75 41 72 48 L61 67Z"/>
+                                <circle class="player-skin" cx="22" cy="43" r="5"/>
+                                <circle class="player-skin" cx="79" cy="43" r="5"/>
+                            </g>
+                        </g>
+                    </svg>
+                    <svg class="scene-player bowler" viewBox="0 0 100 210" role="presentation">
+                        <ellipse class="player-shadow" cx="49" cy="201" rx="30" ry="6"/>
+                        <g class="bowler-legs">
+                            <path class="player-trouser" d="M39 112 L61 112 L65 153 L58 188 L48 188 L47 151 L39 188 L29 188 L34 148Z"/>
+                            <path class="player-shoe" d="M48 184 L59 184 L64 191 L64 195 L44 195Z"/>
+                            <path class="player-shoe" d="M28 184 L39 184 L39 191 L34 195 L19 195 L19 191Z"/>
+                        </g>
+                        <g class="bowler-body">
+                            <path class="player-shirt" d="M37 47 Q49 39 62 47 L73 57 L66 78 L63 116 Q50 124 35 116 L33 78 L26 61Z"/>
+                            <path class="shirt-stripe" d="M37 53 L43 51 L40 115 L35 114Z"/>
+                            <path class="player-neck" d="M44 39 L57 39 L57 51 Q50 57 43 50Z"/>
+                            <ellipse class="player-skin" cx="50" cy="28" rx="15" ry="18"/>
+                            <path class="player-hair" d="M35 27 Q35 8 52 8 Q68 10 66 29 L61 22 L43 20Z"/>
+                            <g class="bowling-arm">
+                                <path class="player-skin" d="M40 53 Q31 58 28 69 L18 89 Q15 95 20 98 Q24 100 28 94 L42 74 Q49 64 48 57Z"/>
+                                <path class="player-sleeve" d="M39 51 Q32 50 28 58 L23 68 L34 75 L44 62Z"/>
+                                <circle class="player-skin" cx="20" cy="96" r="5"/>
+                            </g>
+                            <path class="player-skin" d="M61 54 Q69 56 73 65 L82 82 Q85 88 81 91 Q76 94 72 87 L61 72Z"/>
+                            <path class="player-sleeve" d="M60 51 Q68 50 73 58 L78 67 L67 74 L59 62Z"/>
+                        </g>
+                    </svg>
+                    <svg class="scene-player batter" viewBox="0 0 100 210" role="presentation">
+                        <ellipse class="player-shadow" cx="51" cy="201" rx="30" ry="6"/>
+                        <g class="batter-legs">
+                            <path class="player-trouser" d="M39 111 L62 111 L67 150 L64 188 L53 188 L50 151 L42 188 L31 188 L34 149Z"/>
+                            <path class="player-shoe" d="M52 184 L64 184 L70 191 L70 195 L49 195Z"/>
+                            <path class="player-shoe" d="M30 184 L42 184 L42 191 L37 195 L21 195 L21 191Z"/>
+                        </g>
+                        <g class="batter-body">
+                            <path class="player-shirt" d="M38 48 Q50 40 63 48 L73 58 L67 80 L64 115 Q51 122 35 115 L33 79 L27 61Z"/>
+                            <path class="shirt-stripe" d="M58 51 L64 54 L67 111 L61 114Z"/>
+                            <path class="player-neck" d="M44 39 L57 39 L57 51 Q50 56 43 50Z"/>
+                            <path class="helmet-shell" d="M34 29 Q34 8 51 8 Q68 9 68 29 L63 39 L39 39Z"/>
+                            <path class="helmet-peak" d="M57 31 L78 34 Q82 35 79 38 L59 39Z"/>
+                            <path class="helmet-grill" d="M59 38 L73 40 M60 43 L72 44 M61 48 L70 48"/>
+                            <g class="batter-arms">
+                                <path class="player-skin" d="M39 55 Q31 58 32 68 L43 83 L55 91 Q60 94 63 89 Q66 84 60 80 L50 71 L48 59Z"/>
+                                <path class="player-sleeve" d="M38 51 Q30 51 29 59 L32 70 L43 68 L45 57Z"/>
+                                <path class="player-skin" d="M61 54 Q69 57 67 67 L61 79 L56 88 Q53 94 48 91 Q43 88 47 82 L51 70 L51 59Z"/>
+                                <path class="player-sleeve" d="M61 51 Q70 52 71 60 L67 71 L57 68 L55 57Z"/>
+                                <circle class="player-skin" cx="55" cy="88" r="5"/>
+                                <circle class="player-skin" cx="49" cy="89" r="5"/>
+                            </g>
+                            <g class="bat-follow-through">
+                                <path class="cricket-bat" d="M54 91 L65 87 L94 156 Q96 161 91 164 L84 167 Q80 169 78 163Z"/>
+                                <path class="bat-grip" d="M51 88 L58 85 L66 99 L59 102Z"/>
+                            </g>
+                        </g>
+                    </svg>
                     <span class="scene-ball"></span>
                     <span class="ball-trail"></span>
                     <div class="scene-boundary">SHAHJAHANPUR SPARTANS</div>
-                    <span class="scene-sparkle sparkle-one">✦</span>
-                    <span class="scene-sparkle sparkle-two">✦</span>
                 </div>
             </div>
         </section>
