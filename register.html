@@ -161,10 +161,15 @@
         }
 
         @media (max-width: 600px) {
+            .registration-page::after {
+                max-width: 100vw;
+            }
+
             .hero {
                 min-height: 100svh;
                 align-items: stretch;
                 justify-content: flex-start;
+                overflow-x: clip;
                 padding: max(0.75rem, env(safe-area-inset-top)) 0.75rem max(1rem, env(safe-area-inset-bottom));
             }
 
@@ -217,6 +222,10 @@
             .btn {
                 min-height: 48px;
                 margin-top: 0.65rem;
+            }
+
+            .registration-page .btn-primary {
+                overflow: hidden;
             }
 
             .footer-links {
@@ -375,8 +384,8 @@
         </div>
     </div>
 
-    <script src="sheets-api.js?v=20261023-returning3"></script>
-    <script src="app.js?v=20261023-returning3"></script>
+    <script src="sheets-api.js?v=20261023-returning4"></script>
+    <script src="app.js?v=20261023-returning4"></script>
 
 </body>
 
