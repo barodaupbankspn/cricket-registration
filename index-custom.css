@@ -1805,3 +1805,570 @@ body.home-page::after {
         width: 100%;
     }
 }
+
+/* Replace the stick-figure demo with a coordinated delivery and shot. */
+.scene-player {
+    width: auto;
+    height: 44%;
+    overflow: visible;
+    filter: drop-shadow(0 4px 3px rgba(25, 54, 31, 0.26));
+    transform: none;
+    transform-origin: 50% 100%;
+}
+
+.player-shadow {
+    fill: rgba(31, 73, 37, 0.3);
+    transform-box: fill-box;
+    animation: player-shadow 6s ease-in-out infinite;
+}
+
+.player-shirt {
+    fill: #176747;
+    stroke: #f3f1de;
+    stroke-width: 2;
+    stroke-linejoin: round;
+}
+
+.bowler .player-shirt {
+    fill: #c88928;
+}
+
+.shirt-stripe {
+    fill: #e9c968;
+}
+
+.player-trouser {
+    fill: #f0eee0;
+    stroke: #d1d0c4;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+}
+
+.player-shoe {
+    fill: #25392d;
+    stroke: #f7f1dc;
+    stroke-width: 1;
+    stroke-linejoin: round;
+}
+
+.player-skin {
+    fill: #9a6042;
+    stroke: #f1d4b6;
+    stroke-width: 1.25;
+    stroke-linejoin: round;
+}
+
+.player-neck {
+    fill: #9a6042;
+}
+
+.player-sleeve {
+    fill: #176747;
+    stroke: #f3f1de;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+}
+
+.bowler .player-sleeve {
+    fill: #c88928;
+}
+
+.player-hair {
+    fill: #28352c;
+}
+
+.helmet-shell {
+    fill: #e8bd4c;
+    stroke: #fff5d7;
+    stroke-width: 2;
+    stroke-linejoin: round;
+}
+
+.helmet-peak,
+.helmet-grill {
+    fill: none;
+    stroke: #fff5d7;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+}
+
+.cricket-bat {
+    fill: #dfb66c;
+    stroke: #fff2d2;
+    stroke-width: 1.4;
+    stroke-linejoin: round;
+}
+
+.bat-grip {
+    fill: #263d31;
+}
+
+.scene-official,
+.scene-fielder {
+    position: absolute;
+    width: auto;
+    overflow: visible;
+    filter: drop-shadow(0 3px 2px rgba(25, 54, 31, 0.25));
+}
+
+.scene-official {
+    z-index: 4;
+    top: 45%;
+    left: 55%;
+    height: 31%;
+}
+
+.official-shirt {
+    fill: #fffdf4;
+    stroke: #b7b39f;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+}
+
+.official-trouser {
+    fill: #303b39;
+    stroke: #e2dfd1;
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+}
+
+.official-tie {
+    fill: #b54836;
+    stroke: #fffdf4;
+    stroke-width: 0.8;
+    stroke-linejoin: round;
+}
+
+.official-cap {
+    fill: #293d32;
+    stroke: #fffdf4;
+    stroke-width: 1.3;
+}
+
+.official-cap-peak {
+    fill: #293d32;
+    stroke: #fffdf4;
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+}
+
+.official-arm {
+    stroke: #f1d4b6;
+    stroke-width: 1;
+}
+
+.scene-fielder {
+    z-index: 4;
+    height: 27%;
+}
+
+.fielder-ready {
+    top: 49%;
+    left: 79%;
+    animation: fielder-ready 6s ease-in-out infinite;
+}
+
+.fielder-ready .fielder-body {
+    transform-box: view-box;
+    transform-origin: 50% 75%;
+    animation: fielder-set-position 6s ease-in-out infinite;
+}
+
+.fielder-ready .fielder-legs {
+    transform-box: view-box;
+    transform-origin: 50% 60%;
+    animation: fielder-ready-legs 6s ease-in-out infinite;
+}
+
+.fielder-ready .fielder-arms {
+    transform-box: view-box;
+    transform-origin: 50% 55%;
+    animation: fielder-ready-arms 6s ease-in-out infinite;
+}
+
+.fielder-chasing {
+    top: 34%;
+    left: 23%;
+    height: 29%;
+    animation: fielder-chase 6s ease-in-out infinite;
+}
+
+.fielder-chase-body,
+.fielder-chase-legs {
+    transform-box: view-box;
+    transform-origin: 50% 55%;
+}
+
+.fielder-chase-body {
+    animation: fielder-sprint-body 6s ease-in-out infinite;
+}
+
+.fielder-chase-legs {
+    animation: fielder-sprint-legs 6s ease-in-out infinite;
+}
+
+.fielder-catching-arms {
+    transform-box: view-box;
+    transform-origin: 50% 53%;
+    animation: fielder-catching 6s ease-in-out infinite;
+}
+
+.batter {
+    top: 46%;
+    left: 38%;
+    height: 48%;
+    transform: none;
+    transform-origin: 50% 100%;
+}
+
+.batter-body {
+    transform-box: view-box;
+    transform-origin: 50% 55%;
+    animation: batter-weight-shift 6s ease-in-out infinite;
+}
+
+.batter-legs {
+    transform-box: view-box;
+    transform-origin: 50% 55%;
+    animation: batter-footwork 6s ease-in-out infinite;
+}
+
+.batter-arms {
+    transform-box: view-box;
+    transform-origin: 54% 48%;
+    animation: batter-arms 6s ease-in-out infinite;
+}
+
+.bat-follow-through {
+    transform-box: view-box;
+    transform-origin: 55% 44%;
+    animation: bat-follow-through 6s cubic-bezier(0.2, 0.75, 0.25, 1) infinite;
+}
+
+.bowler {
+    top: 39%;
+    left: 67%;
+    height: 46%;
+    transform: none;
+    transform-origin: 50% 100%;
+    animation: bowler-run-up 6s ease-in-out infinite;
+}
+
+.bowler-body {
+    transform-box: view-box;
+    transform-origin: 50% 56%;
+    animation: bowler-lean 6s ease-in-out infinite;
+}
+
+.bowler-legs {
+    transform-box: view-box;
+    transform-origin: 50% 54%;
+    animation: bowler-stride 6s ease-in-out infinite;
+}
+
+.bowling-arm {
+    transform-box: view-box;
+    transform-origin: 40% 27%;
+    animation: overarm-action 6s cubic-bezier(0.35, 0, 0.2, 1) infinite;
+}
+
+.scene-ball {
+    top: 44%;
+    left: 66%;
+    width: clamp(8px, 1.1vw, 12px);
+    border: 1px solid #f9eee0;
+    background: radial-gradient(circle at 32% 28%, #f77765 0 15%, #c72e29 50%, #85231f 100%);
+    box-shadow: 0 1px 2px rgba(40, 41, 20, 0.48);
+    animation: delivery-and-shot 6s cubic-bezier(0.36, 0.05, 0.2, 1) infinite;
+}
+
+.scene-ball::before {
+    inset: 1px;
+    border: 1px dashed rgba(255, 248, 232, 0.95);
+    transform: rotate(-40deg) scaleX(0.42);
+}
+
+.scene-ball::after {
+    display: none;
+}
+
+.ball-trail {
+    top: 44%;
+    left: 65%;
+    width: 7%;
+    height: 2px;
+    opacity: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 239, 219, 0.84));
+    animation: delivery-trail 6s ease-out infinite;
+}
+
+.scene-pitch {
+    left: 39%;
+    width: 23%;
+    border-radius: 4% 4% 2% 2%;
+    background:
+        linear-gradient(90deg, rgba(137, 105, 62, 0.18), transparent 18% 82%, rgba(137, 105, 62, 0.18)),
+        linear-gradient(90deg, #bfa575, #e2cfaa 47%, #ceb98d);
+}
+
+.crease-top {
+    top: 13%;
+    left: -16%;
+    height: 3px;
+}
+
+.crease-bottom {
+    bottom: 14%;
+    left: -16%;
+    height: 3px;
+}
+
+.wicket {
+    bottom: 12%;
+    gap: 3px;
+    height: 22%;
+    border-bottom-width: 3px;
+}
+
+.wicket-left {
+    left: -9%;
+}
+
+.wicket-right {
+    right: -9%;
+}
+
+.wicket i {
+    width: 3px;
+}
+
+.scene-sparkle {
+    display: none;
+}
+
+@keyframes player-shadow {
+    0%, 30%, 100% { opacity: 0.72; transform: scaleX(1); }
+    38%, 57% { opacity: 0.55; transform: scaleX(0.86); }
+    74% { opacity: 0.36; transform: scaleX(1.22); }
+}
+
+@keyframes bowler-run-up {
+    0%, 5% { translate: 15px 0; rotate: 0deg; }
+    13% { translate: 5px -2px; rotate: -2deg; }
+    21% { translate: -7px -5px; rotate: 3deg; }
+    27% { translate: -11px 0; rotate: -1deg; }
+    34%, 100% { translate: 0 0; rotate: 0deg; }
+}
+
+@keyframes bowler-lean {
+    0%, 5%, 100% { rotate: 0deg; }
+    13% { rotate: -6deg; }
+    22% { rotate: 8deg; }
+    29% { rotate: -9deg; }
+    35% { rotate: 13deg; }
+    42% { rotate: 0deg; }
+}
+
+@keyframes bowler-stride {
+    0%, 5%, 100% { rotate: 0deg; }
+    13% { rotate: -12deg; }
+    21% { rotate: 15deg; }
+    28% { rotate: -8deg; }
+    35% { rotate: 5deg; }
+    42% { rotate: 0deg; }
+}
+
+@keyframes overarm-action {
+    0%, 18%, 100% { rotate: 0deg; }
+    25% { rotate: -100deg; }
+    31% { rotate: -155deg; }
+    36% { rotate: -45deg; }
+    41% { rotate: 38deg; }
+    47% { rotate: 72deg; }
+    55% { rotate: 14deg; }
+}
+
+@keyframes batter-weight-shift {
+    0%, 48%, 100% { translate: 0 0; rotate: 0deg; }
+    56% { translate: -1px 0; rotate: -3deg; }
+    66% { translate: 2px -1px; rotate: 6deg; }
+    76% { translate: 0 0; rotate: 10deg; }
+    88% { rotate: 3deg; }
+}
+
+@keyframes batter-footwork {
+    0%, 53%, 100% { translate: 0 0; }
+    62% { translate: -2px 0; }
+    72% { translate: 1px 0; }
+    82% { translate: 0 0; }
+}
+
+@keyframes fielder-ready {
+    0%, 54%, 100% { translate: 0 0; }
+    62% { translate: -2px 0; }
+    72% { translate: 1px -1px; }
+    84% { translate: -1px 0; }
+}
+
+@keyframes fielder-set-position {
+    0%, 54%, 100% { rotate: 0deg; }
+    61% { rotate: -7deg; }
+    72% { rotate: 5deg; }
+    84% { rotate: -2deg; }
+}
+
+@keyframes fielder-ready-legs {
+    0%, 54%, 100% { rotate: 0deg; }
+    61% { rotate: -8deg; }
+    72% { rotate: 8deg; }
+    84% { rotate: 0deg; }
+}
+
+@keyframes fielder-ready-arms {
+    0%, 56%, 100% { rotate: 0deg; }
+    65% { rotate: -8deg; }
+    76% { rotate: 8deg; }
+    86% { rotate: 0deg; }
+}
+
+@keyframes fielder-chase {
+    0%, 59%, 100% { translate: 0 0; rotate: 0deg; }
+    67% { translate: 4px -1px; rotate: 2deg; }
+    76% { translate: 13px -5px; rotate: -4deg; }
+    86% { translate: 21px -9px; rotate: -2deg; }
+    94% { translate: 24px -8px; rotate: 1deg; }
+}
+
+@keyframes fielder-sprint-body {
+    0%, 58%, 100% { rotate: 0deg; }
+    67% { rotate: 8deg; }
+    76% { rotate: -10deg; }
+    86% { rotate: 8deg; }
+    94% { rotate: 0deg; }
+}
+
+@keyframes fielder-sprint-legs {
+    0%, 58%, 100% { rotate: 0deg; }
+    67% { rotate: -13deg; }
+    76% { rotate: 16deg; }
+    86% { rotate: -12deg; }
+    94% { rotate: 2deg; }
+}
+
+@keyframes fielder-catching {
+    0%, 65%, 100% { rotate: 0deg; }
+    76% { rotate: -12deg; }
+    86% { rotate: 9deg; }
+    92% { rotate: 0deg; }
+}
+
+@keyframes batter-arms {
+    0%, 50%, 100% { rotate: 0deg; }
+    58% { rotate: -10deg; }
+    66% { rotate: 10deg; }
+    74% { rotate: 18deg; }
+    86% { rotate: 5deg; }
+}
+
+@keyframes bat-follow-through {
+    0%, 51%, 100% { rotate: -28deg; }
+    58% { rotate: -48deg; }
+    66% { rotate: -19deg; }
+    71% { rotate: 38deg; }
+    79% { rotate: 68deg; }
+    91% { rotate: 54deg; }
+}
+
+@keyframes delivery-and-shot {
+    0%, 31%, 100% { top: 44%; left: 66%; opacity: 0; transform: scale(0.5); }
+    35% { top: 44%; left: 65%; opacity: 1; transform: scale(0.62); }
+    43% { top: 49%; left: 60%; opacity: 1; transform: scale(0.68); }
+    50% { top: 53%; left: 55%; opacity: 1; transform: scale(0.76); }
+    53% { top: 51%; left: 53%; opacity: 1; transform: scale(0.82); }
+    58% { top: 44%; left: 50%; opacity: 1; transform: scale(0.92); }
+    63% { top: 43%; left: 48%; opacity: 1; transform: scale(1); }
+    68% { top: 39%; left: 45%; opacity: 1; transform: scale(1.08); }
+    76% { top: 33%; left: 38%; opacity: 1; transform: scale(1.18); }
+    86% { top: 28%; left: 30%; opacity: 1; transform: scale(1.28); }
+    96% { top: 30%; left: 22%; opacity: 0; transform: scale(1.36); }
+}
+
+@keyframes delivery-trail {
+    0%, 33%, 100% { opacity: 0; translate: 0 0; rotate: 0deg; }
+    38% { opacity: 0.56; translate: -2px 2px; rotate: 20deg; }
+    51% { opacity: 0.5; translate: -7px 5px; rotate: 35deg; }
+    60% { opacity: 0.6; translate: -10px 0; rotate: -8deg; }
+    77% { opacity: 0.65; translate: -23px -18px; rotate: -33deg; }
+    92% { opacity: 0; translate: -32px -25px; rotate: -33deg; }
+}
+
+@media (max-width: 760px) {
+    .scene-player {
+        height: 44%;
+        transform: none;
+    }
+
+    .batter {
+        top: 46%;
+        left: 38%;
+        height: 48%;
+        transform: none;
+    }
+
+    .bowler {
+        top: 39%;
+        left: 67%;
+        height: 46%;
+        transform: none;
+    }
+}
+
+@media (max-width: 420px) {
+    .scene-player {
+        height: 44%;
+        transform: none;
+    }
+
+    .batter {
+        height: 48%;
+    }
+
+    .bowler {
+        height: 46%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bowler,
+    .player-shadow,
+    .batter-body,
+    .batter-legs,
+    .batter-arms,
+    .bat-follow-through,
+    .bowler-body,
+    .bowler-legs,
+    .bowling-arm,
+    .fielder-ready,
+    .fielder-ready .fielder-body,
+    .fielder-ready .fielder-legs,
+    .fielder-ready .fielder-arms,
+    .fielder-chasing,
+    .fielder-chase-body,
+    .fielder-chase-legs,
+    .fielder-catching-arms,
+    .scene-ball,
+    .ball-trail {
+        animation: none !important;
+    }
+
+    .scene-ball {
+        top: 43%;
+        left: 48%;
+        opacity: 1;
+        transform: none;
+    }
+
+    .ball-trail {
+        display: none;
+    }
+}
