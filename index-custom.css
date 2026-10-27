@@ -668,7 +668,7 @@ body.home-page {
 
 body.home-page::before {
     background:
-        linear-gradient(90deg, rgba(248, 251, 246, 0.98), rgba(248, 251, 246, 0.95) 48%, rgba(248, 251, 246, 0.91)),
+        linear-gradient(90deg, rgba(248, 251, 246, 0.4), rgba(248, 251, 246, 0.4) 48%, rgba(248, 251, 246, 0.4)),
         url("./images/cricket-ground-himachal-web.jpg") center / cover no-repeat;
     opacity: 1;
 }
