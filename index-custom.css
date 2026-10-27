@@ -601,10 +601,6 @@ body.home-page::after {
         line-height: 1.6;
     }
 
-    .photo-credit {
-        order: 0;
-        text-align: left;
-    }
 }
 
 @media (max-width: 420px) {
@@ -673,7 +669,7 @@ body.home-page {
 body.home-page::before {
     background:
         linear-gradient(90deg, rgba(248, 251, 246, 0.98), rgba(248, 251, 246, 0.95) 48%, rgba(248, 251, 246, 0.91)),
-        url("./images/stadium_v2.png") center / cover no-repeat;
+        url("./images/cricket-ground-himachal-web.jpg") center / cover no-repeat;
     opacity: 1;
 }
 
@@ -835,18 +831,6 @@ body.home-page::after {
     color: #536b5e;
 }
 
-.photo-credit {
-    flex: 1 1 100%;
-    order: 3;
-    color: #607568;
-    font-size: 9px;
-    text-align: center;
-}
-
-.photo-credit a {
-    color: #17613f;
-}
-
 .home-page :is(h1, h2, h3, h4, h5, h6, p, a, span, small, strong, div) {
     text-shadow: none;
 }
@@ -861,10 +845,6 @@ body.home-page::after {
 }
 
 @media (max-width: 760px) {
-    body.home-page::before {
-        background-position: 54% center;
-    }
-
     .bank-brand {
         border-top-color: rgba(23, 97, 63, 0.12);
     }
@@ -896,13 +876,6 @@ body.home-page::after {
 }
 
 /* Cricket-ground hero scene */
-body.home-page::before {
-    background:
-        linear-gradient(90deg, rgba(242, 250, 235, 0.84), rgba(242, 250, 235, 0.76) 48%, rgba(242, 250, 235, 0.71)),
-        url("./images/cricket-ground-sussex.jpg") center 54% / cover no-repeat;
-    opacity: 1;
-}
-
 body.home-page::after {
     background:
         radial-gradient(ellipse at 82% 28%, rgba(246, 214, 111, 0.2), transparent 24rem),
@@ -1738,10 +1711,6 @@ body.home-page::after {
         overflow-wrap: anywhere;
     }
 
-    .photo-credit {
-        font-size: 10px;
-        line-height: 1.5;
-    }
 }
 
 @media (max-width: 360px) {
