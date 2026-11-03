@@ -254,7 +254,7 @@
                     </div>
                     <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
                         <button id="sendBroadcastBtn" class="btn btn-primary">
-                            📧 Open Email Draft (Selected)
+                            📧 Send Email to Selected
                         </button>
                         <button id="sendWhatsAppBroadcastBtn" class="btn btn-success" style="background: linear-gradient(135deg, #25D366, #128C7E);">
                             📱 Send WhatsApp (Selected)
@@ -264,7 +264,10 @@
                         </button>
                     </div>
                     <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">
-                        Select players first. Email opens a draft in your mail app. WhatsApp sender: <strong>+91 6390937612</strong>. Automated messages use the WhatsApp account connected to the configured UltraMsg instance, so connect this exact number there and configure the Apps Script credentials. Manual drafts are sent from the WhatsApp account signed in on your device; review and press Send in each chat.
+                        Email is sent individually to each selected player's registered email address through Google Apps Script. To send from <strong>barodaupbankspn@gmail.com</strong>, configure and deploy Apps Script under that Google account (or add it as a verified Gmail send-as alias). Email sending requires the Apps Script admin key.
+                    </p>
+                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">
+                        WhatsApp sender: <strong>+91 6390937612</strong>. Automated messages use the WhatsApp account connected to the configured UltraMsg instance, so connect this exact number there and configure the Apps Script credentials. Manual drafts are sent from the WhatsApp account signed in on your device; review and press Send in each chat.
                     </p>
                     <p id="messageSelectionStatus" role="status" aria-live="polite" style="margin: 0; color: var(--text-primary); font-size: 0.9rem;"></p>
                 </div>

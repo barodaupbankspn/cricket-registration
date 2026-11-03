@@ -13,13 +13,49 @@ function getSelectedPlayerRecords() {
 
 function getSelectedPlayerEmails(players) {
     return Array.from(new Set(players
-        .map(player => String(player.email || '').trim())
+        .map(player => String(player.email || '').trim().toLowerCase())
         .filter(email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))));
 }
 
 function showMessageSelectionStatus(message) {
     const status = document.getElementById('messageSelectionStatus');
     if (status) status.textContent = message;
+}
+
+function getEmailBroadcastOutcome(result, recipientCount) {
+    const hasCounts = Number.isFinite(Number(result.sent)) &&
+        Number.isFinite(Number(result.failed));
+    const sent = hasCounts ? Number(result.sent) : 0;
+    const failed = hasCounts ? Number(result.failed) : recipientCount;
+
+    if (result.success && hasCounts && sent === recipientCount && failed === 0) {
+        return {
+            success: true,
+            message: `Email sent to all ${sent} selected player(s).`
+        };
+    }
+
+    if (result.error && /email admin api key is missing or invalid/i.test(result.error)) {
+        return {
+            success: false,
+            message: 'The email admin key was rejected. Enter the key stored as WHATSAPP_ADMIN_KEY in Apps Script Script Properties.'
+        };
+    }
+
+    if (hasCounts) {
+        const details = Array.isArray(result.errors) ? ` ${result.errors.slice(0, 5).join(' ')}` : '';
+        return {
+            success: false,
+            message: `${result.message || 'Email sending was not confirmed.'} ${sent} of ${recipientCount} sent; ${failed} failed.${details}`
+        };
+    }
+
+    return {
+        success: false,
+        message: result.success
+            ? `The Apps Script response did not confirm a sent count. No success is reported. Deploy the current google-apps-script.js before retrying. Server response: ${result.message || 'No message provided.'}`
+            : `Email send failed: ${result.error || result.message || 'The Apps Script response did not confirm delivery.'}`
+    };
 }
 
 function getWhatsAppBroadcastOutcome(result, recipientCount) {
@@ -773,14 +809,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Email is composed in the administrator's mail client; the static site
-    // cannot securely send email without a configured backend/provider.
+    // Email is sent by Apps Script so recipients and sender credentials stay server-side.
     const sendBroadcastBtn = document.getElementById('sendBroadcastBtn');
     const broadcastSubject = document.getElementById('broadcastSubject');
     const broadcastMessage = document.getElementById('broadcastMessage');
 
     if (sendBroadcastBtn) {
-        sendBroadcastBtn.addEventListener('click', function () {
+        sendBroadcastBtn.addEventListener('click', async function () {
             const subject = broadcastSubject.value.trim();
             const message = broadcastMessage.value.trim();
             const selectedPlayers = getSelectedPlayerRecords();
@@ -795,18 +830,39 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const query = new URLSearchParams({
-                bcc: recipients.join(','),
-                subject: subject,
-                body: message
-            });
-            const mailtoUrl = `mailto:?${query.toString()}`;
-            if (mailtoUrl.length > 1800) {
-                alert('Too many selected email recipients for one email draft. Select a smaller group and try again.');
+            if (typeof sendBroadcastToSheets !== 'function') {
+                alert('Email sending is unavailable. Update and deploy the current Google Apps Script, or contact the site administrator.');
                 return;
             }
-            window.location.href = mailtoUrl;
-            showMessageSelectionStatus(`Email draft prepared for ${recipients.length} selected player(s). Review and send it from your mail app.`);
+
+            if (!confirm(`Send "${subject}" to the registered email address(es) of ${recipients.length} selected player(s) now?`)) {
+                return;
+            }
+
+            const adminKey = prompt('Enter the admin key configured as WHATSAPP_ADMIN_KEY in Google Apps Script. The site does not save it.');
+            if (!adminKey) return;
+
+            const originalText = sendBroadcastBtn.textContent;
+            sendBroadcastBtn.disabled = true;
+            sendBroadcastBtn.textContent = 'Sending email...';
+            try {
+                const result = await sendBroadcastToSheets(subject, message, recipients, adminKey);
+                const outcome = getEmailBroadcastOutcome(result, recipients.length);
+                showMessageSelectionStatus(outcome.message);
+                alert(outcome.message);
+                if (outcome.success) {
+                    broadcastSubject.value = '';
+                    broadcastMessage.value = '';
+                }
+            } catch (error) {
+                console.error('Email send error:', error);
+                const summary = `Email send failed: ${error.message}`;
+                showMessageSelectionStatus(summary);
+                alert(summary);
+            } finally {
+                sendBroadcastBtn.disabled = false;
+                sendBroadcastBtn.textContent = originalText;
+            }
         });
     }
 
@@ -986,12 +1042,12 @@ function emailSelected() {
         return;
     }
 
-    openBroadcastComposer(`${recipients.length} player(s) selected for email. Enter a subject and message, then choose Open Email Draft.`);
+    openBroadcastComposer(`${recipients.length} player(s) selected for email. Enter a subject and message, then choose Send Email to Selected.`);
 
     // Update button text
     const btn = document.getElementById('sendBroadcastBtn');
     if (btn) {
-        btn.innerHTML = `📧 Open Email Draft for ${recipients.length} Selected`;
+        btn.innerHTML = `📧 Send Email to ${recipients.length} Selected`;
         btn.classList.add('btn-success');
         btn.classList.remove('btn-primary');
 
@@ -1003,7 +1059,7 @@ function emailSelected() {
             cancelBtn.innerText = '❌ Clear Selection';
             cancelBtn.style.marginLeft = '10px';
             cancelBtn.onclick = function () {
-                btn.innerHTML = '📧 Open Email Draft (Selected)';
+                btn.innerHTML = '📧 Send Email to Selected';
                 btn.classList.add('btn-primary');
                 btn.classList.remove('btn-success');
                 document.querySelectorAll('.player-checkbox:checked').forEach(checkbox => {

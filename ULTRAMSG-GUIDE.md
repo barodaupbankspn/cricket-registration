@@ -34,7 +34,7 @@ The deployment must contain the `WHATSAPP_ADMIN_KEY` validation in `doPost` and 
 3. Write the message and select **Send WhatsApp (Selected)**.
 4. Paste the `WHATSAPP_ADMIN_KEY` when prompted. The site does not save it. The UI reports the provider response and any failed recipients.
 
-The **Open Manual WhatsApp Drafts** button is a fallback that opens one encoded `wa.me` chat per selected player; an administrator must review and press **Send** in each chat. Email also remains a mail-app draft and is not automatically sent.
+The **Open Manual WhatsApp Drafts** button is a fallback that opens one encoded `wa.me` chat per selected player; an administrator must review and press **Send** in each chat. Email is sent through the Apps Script Gmail account; see [EMAIL-SETUP.md](EMAIL-SETUP.md) for its sender setup and authorization requirements.
 
 ## Smoke test and troubleshooting
 
