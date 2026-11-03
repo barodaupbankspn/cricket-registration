@@ -38,7 +38,7 @@ function getEmailBroadcastOutcome(result, recipientCount) {
     if (result.error && /email admin api key is missing or invalid/i.test(result.error)) {
         return {
             success: false,
-            message: 'The email admin key was rejected. Enter the key stored as WHATSAPP_ADMIN_KEY in Apps Script Script Properties.'
+            message: 'The email admin key was rejected. Enter the key stored as EMAIL_ADMIN_KEY in Apps Script Script Properties.'
         };
     }
 
@@ -55,40 +55,6 @@ function getEmailBroadcastOutcome(result, recipientCount) {
         message: result.success
             ? `The Apps Script response did not confirm a sent count. No success is reported. Deploy the current google-apps-script.js before retrying. Server response: ${result.message || 'No message provided.'}`
             : `Email send failed: ${result.error || result.message || 'The Apps Script response did not confirm delivery.'}`
-    };
-}
-
-function getWhatsAppBroadcastOutcome(result, recipientCount) {
-    const hasCounts = Number.isFinite(Number(result.sent)) &&
-        Number.isFinite(Number(result.failed));
-    const sent = hasCounts ? Number(result.sent) : 0;
-    const failed = hasCounts ? Number(result.failed) : recipientCount;
-    if (result.success && hasCounts && sent === recipientCount && failed === 0) {
-        return {
-            success: true,
-            message: `WhatsApp provider accepted all ${sent} selected player message(s).`
-        };
-    }
-    if (result.error) {
-        if (/admin api key is missing or invalid/i.test(result.error)) {
-            return {
-                success: false,
-                message: 'The admin API key was rejected. Set the exact key you entered as the WHATSAPP_ADMIN_KEY Script Property in the deployed Apps Script project, then deploy a new version. The UltraMsg token is separate.'
-            };
-        }
-        return { success: false, message: `WhatsApp send failed: ${result.error}` };
-    }
-    if (!hasCounts) {
-        return {
-            success: false,
-            message: `The Apps Script response is outdated or incomplete. It did not confirm a sent count, so no success is reported. Redeploy the current google-apps-script.js. Server response: ${result.message || 'No message provided.'}`
-        };
-    }
-
-    const details = result.errors ? ` ${result.errors.slice(0, 5).join(' ')}` : '';
-    return {
-        success: false,
-        message: `${result.message || 'WhatsApp provider did not confirm all selected messages.'} ${sent} of ${recipientCount} accepted; ${failed} failed.${details}`
     };
 }
 
@@ -839,7 +805,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const adminKey = prompt('Enter the admin key configured as WHATSAPP_ADMIN_KEY in Google Apps Script. The site does not save it.');
+            const adminKey = prompt('Enter the email admin key configured as EMAIL_ADMIN_KEY in Google Apps Script. The site does not save it.');
             if (!adminKey) return;
 
             const originalText = sendBroadcastBtn.textContent;
@@ -867,105 +833,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // Provider sends require an admin key; drafts remain available as a manual fallback.
-    const sendWhatsAppBroadcastBtn = document.getElementById('sendWhatsAppBroadcastBtn');
-
-    if (sendWhatsAppBroadcastBtn) {
-        sendWhatsAppBroadcastBtn.addEventListener('click', async function () {
-            const message = broadcastMessage.value.trim();
-            const selectedPlayers = getSelectedPlayerRecords();
-            const recipients = getSelectedPlayerEmails(selectedPlayers);
-
-            if (!message) {
-                alert('Please enter a message.');
-                return;
-            }
-            if (recipients.length === 0) {
-                alert('Select players with valid email addresses from the table first.');
-                return;
-            }
-
-            if (typeof sendBroadcastWhatsAppToSheets !== 'function') {
-                alert('WhatsApp API is unavailable. Update the published website and Apps Script, or use Message Selected → WhatsApp for manual click-to-chat drafts.');
-                return;
-            }
-
-            const adminKey = prompt('Enter the WhatsApp admin API key configured in Google Apps Script. This key is not saved by the site.');
-            if (!adminKey) return;
-
-            const originalText = sendWhatsAppBroadcastBtn.textContent;
-            sendWhatsAppBroadcastBtn.disabled = true;
-            sendWhatsAppBroadcastBtn.textContent = 'Sending WhatsApp messages...';
-            try {
-                const result = await sendBroadcastWhatsAppToSheets(message, recipients, adminKey);
-                const outcome = getWhatsAppBroadcastOutcome(result, recipients.length);
-                showMessageSelectionStatus(outcome.message);
-                if (outcome.success) {
-                    alert(outcome.message);
-                    broadcastMessage.value = '';
-                } else {
-                    alert(outcome.message);
-                }
-            } catch (error) {
-                console.error('WhatsApp send error:', error);
-                const summary = `WhatsApp send failed: ${error.message}`;
-                showMessageSelectionStatus(summary);
-                alert(summary);
-            } finally {
-                sendWhatsAppBroadcastBtn.disabled = false;
-                sendWhatsAppBroadcastBtn.textContent = originalText;
-            }
-        });
-    }
-
-    const createWhatsAppDraftsBtn = document.getElementById('createWhatsAppDraftsBtn');
-    if (createWhatsAppDraftsBtn) {
-        createWhatsAppDraftsBtn.addEventListener('click', function () {
-            const message = broadcastMessage.value.trim();
-            const selectedPlayers = getSelectedPlayerRecords();
-            if (!message) {
-                alert('Please enter a message.');
-                return;
-            }
-            if (selectedPlayers.length === 0) {
-                alert('Select players from the table first.');
-                return;
-            }
-
-            const links = document.getElementById('whatsappRecipientLinks') || document.createElement('div');
-            links.id = 'whatsappRecipientLinks';
-            links.style.cssText = 'display:grid;gap:8px;margin-top:12px;';
-            links.replaceChildren();
-
-            selectedPlayers.forEach(player => {
-                const phone = String(player.contact || '').replace(/\D/g, '');
-                const internationalPhone = phone.length === 10
-                    ? `91${phone}`
-                    : phone.length === 11 && phone.startsWith('0')
-                        ? `91${phone.slice(1)}`
-                        : phone.length >= 11 && phone.length <= 15 ? phone : '';
-                if (!internationalPhone) return;
-                const anchor = document.createElement('a');
-                anchor.href = `https://wa.me/${encodeURIComponent(internationalPhone)}?text=${encodeURIComponent(`Hello ${player.name || 'Player'},\n\n${message}`)}`;
-                anchor.target = '_blank';
-                anchor.rel = 'noopener noreferrer';
-                anchor.textContent = `Open WhatsApp chat with ${player.name || internationalPhone}`;
-                anchor.className = 'btn btn-secondary';
-                links.appendChild(anchor);
-            });
-
-            if (links.childElementCount === 0) {
-                alert('No selected players with valid phone numbers were found in the local player list. Sync the admin portal and try again.');
-                return;
-            }
-            createWhatsAppDraftsBtn.insertAdjacentElement('afterend', links);
-            links.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            const summary = `Manual WhatsApp drafts are ready for ${links.childElementCount} player(s). Open each chat and press Send yourself.`;
-            showMessageSelectionStatus(summary);
-            alert(summary);
-        });
-    }
-
     // Debug: Check if broadcast section is visible
     const broadcastSection = document.getElementById('broadcastSection');
     if (broadcastSection) {
@@ -974,42 +841,6 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('Broadcast section NOT found!');
     }
 });
-
-// Message Menu Logic
-window.toggleMessageMenu = function () {
-    const menu = document.getElementById('messageMenu');
-    menu.classList.toggle('hidden');
-
-    // Close when clicking outside
-    const closeMenu = function (e) {
-        if (!e.target.closest('.dropdown')) {
-            menu.classList.add('hidden');
-            document.removeEventListener('click', closeMenu);
-        }
-    };
-
-    if (!menu.classList.contains('hidden')) {
-        // Delay to prevent immediate closing
-        setTimeout(() => document.addEventListener('click', closeMenu), 0);
-    }
-};
-
-window.whatsappSelected = function () {
-    const players = getSelectedPlayerRecords();
-    if (players.length === 0) {
-        alert('Please select at least one player to message.');
-        return;
-    }
-
-    const recipients = getSelectedPlayerEmails(players);
-
-    if (recipients.length === 0) {
-        alert('Selected players need valid email addresses to match their registered records.');
-        return;
-    }
-
-    openBroadcastComposer(`${recipients.length} player(s) selected for WhatsApp. Enter a message, then choose Send WhatsApp or Open Manual WhatsApp Drafts.`);
-};
 
 function openBroadcastComposer(statusMessage) {
     const broadcastSection = document.getElementById('broadcastSection');
@@ -1022,7 +853,7 @@ function openBroadcastComposer(statusMessage) {
     const messageBox = document.getElementById('broadcastMessage');
     if (messageBox) {
         messageBox.focus({ preventScroll: true });
-        messageBox.style.boxShadow = '0 0 10px #25D366';
+        messageBox.style.boxShadow = '0 0 10px var(--primary)';
         setTimeout(() => messageBox.style.boxShadow = '', 2000);
     }
 }

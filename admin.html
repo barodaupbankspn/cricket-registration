@@ -211,21 +211,9 @@
                     </div>
 
                     <div class="bulk-action-controls" style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
-                        <div class="dropdown" style="position: relative; display: inline-block;">
-                            <button onclick="toggleMessageMenu()" class="btn btn-secondary"
-                                style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
-                                💬 Message Selected
-                            </button>
-                            <div id="messageMenu" class="hidden" 
-                                style="position: absolute; background: white; min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; border-radius: 8px; margin-top: 5px; overflow: hidden;">
-                                <button onclick="emailSelected()" style="width: 100%; padding: 12px 16px; text-align: left; border: none; background: none; cursor: pointer; color: black; font-weight: 500;">
-                                    ✉️ Email
-                                </button>
-                                <button onclick="whatsappSelected()" style="width: 100%; padding: 12px 16px; text-align: left; border: none; background: none; cursor: pointer; color: black; font-weight: 500; border-top: 1px solid #eee;">
-                                    📱 WhatsApp
-                                </button>
-                            </div>
-                        </div>
+                        <button onclick="emailSelected()" class="btn btn-primary">
+                            ✉️ Email Selected
+                        </button>
 
                         <button onclick="bulkAction('Approved')" class="btn btn-success"
                             style="padding: 0.5rem 1rem; font-size: 0.9rem;">
@@ -244,7 +232,7 @@
                 <h3 style="margin-top: 0; color: var(--primary);">📢 Message Selected Players</h3>
                 <div style="display: grid; gap: var(--spacing-sm);">
                     <div>
-                        <label for="broadcastSubject">Subject (Email Only)</label>
+                        <label for="broadcastSubject">Email Subject</label>
                         <input type="text" id="broadcastSubject" placeholder="Email Subject" style="width: 100%;">
                     </div>
                     <div>
@@ -256,18 +244,9 @@
                         <button id="sendBroadcastBtn" class="btn btn-primary">
                             📧 Send Email to Selected
                         </button>
-                        <button id="sendWhatsAppBroadcastBtn" class="btn btn-success" style="background: linear-gradient(135deg, #25D366, #128C7E);">
-                            📱 Send WhatsApp (Selected)
-                        </button>
-                        <button id="createWhatsAppDraftsBtn" class="btn btn-secondary">
-                            Open Manual WhatsApp Drafts
-                        </button>
                     </div>
                     <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">
-                        Email is sent individually to each selected player's registered email address through Google Apps Script. To send from <strong>barodaupbankspn@gmail.com</strong>, configure and deploy Apps Script under that Google account (or add it as a verified Gmail send-as alias). Email sending requires the Apps Script admin key.
-                    </p>
-                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">
-                        WhatsApp sender: <strong>+91 6390937612</strong>. Automated messages use the WhatsApp account connected to the configured UltraMsg instance, so connect this exact number there and configure the Apps Script credentials. Manual drafts are sent from the WhatsApp account signed in on your device; review and press Send in each chat.
+                        Email is sent individually to each selected player's registered email address through Google Apps Script. Configure and deploy Apps Script with <strong>barodaupbankspn@gmail.com</strong> as the sender (or a verified Gmail alias). A private email admin key is required.
                     </p>
                     <p id="messageSelectionStatus" role="status" aria-live="polite" style="margin: 0; color: var(--text-primary); font-size: 0.9rem;"></p>
                 </div>

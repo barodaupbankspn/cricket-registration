@@ -8,7 +8,7 @@ A modern, responsive web application for managing cricket team registrations for
 - **Status Check**: Players can check their application status (Approved, Rejected, or Under Observation) using their mobile number.
 - **Admin Dashboard**: Secure area for administrators to manage players, approve/reject applications, and export data.
 - **Google Sheets Integration**: All data is stored and synced with Google Sheets for easy management and backup.
-- **Selected-player messages**: Email opens a mail-app draft. WhatsApp can be sent through the protected Apps Script/UltraMsg integration after credentials are configured, or opened as manual click-to-chat drafts.
+- **Selected-player email**: Send individual email messages to selected players through the protected Google Apps Script backend.
 - **Responsive Design**: Works seamlessly on mobile and desktop devices.
 
 ## Setup Instructions
@@ -38,9 +38,7 @@ A modern, responsive web application for managing cricket team registrations for
 
 Registrations are saved to the current browser immediately, so that device can show them in the admin portal and registered-player views even when Sheets is unavailable. Showing registrations on other devices requires a working, deployed Apps Script endpoint connected to the team spreadsheet. `sheets-api.js` contains a **web app endpoint**, not a Google Sheets document URL; the document link is owned by the Google account that created the spreadsheet and is not stored in this repository.
 
-The admin portal sends email individually to the selected players' registered addresses through Google Apps Script. Set `EMAIL_SENDER_ADDRESS` and `WHATSAPP_ADMIN_KEY` in Apps Script Script Properties, authorize Gmail sending, and deploy the current `google-apps-script.js`. To send as `barodaupbankspn@gmail.com`, the web app must execute under that Google account or use it as a verified Gmail send-as alias. See [EMAIL-SETUP.md](EMAIL-SETUP.md). Automated WhatsApp uses the Apps Script endpoint and requires `ULTRAMSG_INSTANCE_ID`, `ULTRAMSG_TOKEN`, and `WHATSAPP_ADMIN_KEY` in Script Properties. Never commit provider credentials or the admin key to this public repository. See [ULTRAMSG-GUIDE.md](ULTRAMSG-GUIDE.md) for setup. The manual WhatsApp draft option still requires the admin to press Send in each chat.
-
-If the previously committed UltraMsg token was active, revoke and rotate it in the provider dashboard; removing it from the current source does not remove it from Git history.
+The admin portal sends email individually to the selected players' registered addresses through Google Apps Script. Set `EMAIL_SENDER_ADDRESS` and `EMAIL_ADMIN_KEY` in Apps Script Script Properties, authorize Gmail sending, and deploy the current `google-apps-script.js`. To send as `barodaupbankspn@gmail.com`, the web app must execute under that Google account or use it as a verified Gmail send-as alias. See [EMAIL-SETUP.md](EMAIL-SETUP.md). Never commit the email admin key to this public repository.
 
 ## Credits
 
