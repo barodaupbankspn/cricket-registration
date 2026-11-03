@@ -13,7 +13,7 @@ The admin portal sends a separate email to each selected player's registered ema
 5. In the Apps Script editor, run `authorizeEmail` once and grant the Gmail sending permission. This function only requests authorization; it does not send an email.
 6. Under **Deploy → Manage deployments**, edit the web-app deployment, choose **New version**, and deploy the updated script. The website and Apps Script endpoint must use the same deployment URL.
 
-The admin page checks for the new, admin-key-protected email capability before submitting a broadcast. If the check reports an outdated script, it stops without posting the message; deploy the current Apps Script before trying again.
+The admin page checks that the live Apps Script supports protected email broadcasts before asking for the admin key. If the endpoint is old or unavailable, it explains what setup is missing and stops without asking for the key or sending a message. Deploy the current Apps Script before trying again.
 
 ## Send from the admin portal
 

@@ -801,6 +801,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            if (typeof checkEmailBroadcastAvailability === 'function') {
+                sendBroadcastBtn.disabled = true;
+                const originalText = sendBroadcastBtn.textContent;
+                sendBroadcastBtn.textContent = 'Checking email setup...';
+                let availability;
+                try {
+                    availability = await checkEmailBroadcastAvailability();
+                } catch (error) {
+                    availability = { success: false, error: error.message };
+                } finally {
+                    sendBroadcastBtn.disabled = false;
+                    sendBroadcastBtn.textContent = originalText;
+                }
+                if (!availability.success) {
+                    showMessageSelectionStatus(availability.error);
+                    alert(availability.error);
+                    return;
+                }
+            }
+
             if (!confirm(`Send "${subject}" to the registered email address(es) of ${recipients.length} selected player(s) now?`)) {
                 return;
             }

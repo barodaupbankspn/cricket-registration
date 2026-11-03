@@ -233,9 +233,9 @@ function getLastSyncTime() {
 }
 
 // Send Broadcast Email
-async function sendBroadcastToSheets(subject, message, recipients, adminKey) {
+async function checkEmailBroadcastAvailability() {
     if (!isSheetsConfigured()) {
-        return { success: false, error: 'Not configured' };
+        return { success: false, error: 'Email is not configured: the Google Apps Script endpoint is missing.' };
     }
 
     try {
@@ -252,10 +252,25 @@ async function sendBroadcastToSheets(subject, message, recipients, adminKey) {
             capabilities.requiresAdminKey !== true) {
             return {
                 success: false,
-                error: 'Email was not sent: the deployed Apps Script is outdated. Deploy the current google-apps-script.js and try again.'
+                error: `Email is not ready on the server (Apps Script response: ${capabilities.error || 'email capability unavailable'}). No email was sent and you do not need to enter an admin key yet. Deploy the current google-apps-script.js, set EMAIL_SENDER_ADDRESS and EMAIL_ADMIN_KEY in Script Properties, authorize Gmail, and deploy a new web-app version.`
             };
         }
 
+        return { success: true };
+    } catch (error) {
+        console.error('Error checking email broadcast availability:', error);
+        return {
+            success: false,
+            error: `Could not verify email setup with Apps Script: ${error.message}. No email was sent and you do not need to enter an admin key yet.`
+        };
+    }
+}
+
+async function sendBroadcastToSheets(subject, message, recipients, adminKey) {
+    const availability = await checkEmailBroadcastAvailability();
+    if (!availability.success) return availability;
+
+    try {
         return await postToSheets({
             action: 'broadcast',
             subject: subject,
