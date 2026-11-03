@@ -1,30 +1,6 @@
 // Google Apps Script for Cricket Registration
 // Copy this entire code into your Google Apps Script editor
 
-// ========================================
-// WHATSAPP CONFIGURATION (UltraMsg / Generic)
-// ========================================
-// 1. Sign up at https://ultramsg.com/ (or similar provider)
-// 2. Create an instance and get your Instance ID and Token
-// 3. Store all credentials in Apps Script > Project Settings > Script Properties.
-
-const WHATSAPP_CONFIG = {
-    PROVIDER: 'UltraMsg', // Just for reference
-    INSTANCE_ID: '',
-    API_URL: 'https://api.ultramsg.com' // Base URL
-};
-
-// -------------------------------------------------------------
-// ONE-TIME SETUP: Run this function ONCE to authorize the script
-// -------------------------------------------------------------
-function forceAuth() {
-    console.log("Requesting permissions...");
-    // This simple call forces Google to ask for "Connect to an external service" permission
-    UrlFetchApp.fetch("https://www.google.com");
-    console.log("Permissions granted!");
-}
-// -------------------------------------------------------------
-
 function authorizeEmail() {
     GmailApp.getAliases();
     console.log('Email sending permission granted.');
@@ -62,7 +38,7 @@ function doPost(e) {
         } else if (action === 'deletePlayer') {
             return deletePlayer(data.playerId);
         } else if (action === 'broadcast') {
-            const expectedKey = PropertiesService.getScriptProperties().getProperty('WHATSAPP_ADMIN_KEY');
+            const expectedKey = PropertiesService.getScriptProperties().getProperty('EMAIL_ADMIN_KEY');
             if (!expectedKey || data.adminKey !== expectedKey) {
                 return ContentService.createTextOutput(JSON.stringify({
                     success: false,
@@ -70,15 +46,6 @@ function doPost(e) {
                 })).setMimeType(ContentService.MimeType.JSON);
             }
             return broadcastEmail(data.subject, data.message, data.recipients);
-        } else if (action === 'broadcastWhatsApp') {
-            const expectedKey = PropertiesService.getScriptProperties().getProperty('WHATSAPP_ADMIN_KEY');
-            if (!expectedKey || data.adminKey !== expectedKey) {
-                return ContentService.createTextOutput(JSON.stringify({
-                    success: false,
-                    error: 'WhatsApp admin API key is missing or invalid'
-                })).setMimeType(ContentService.MimeType.JSON);
-            }
-            return broadcastWhatsApp(data.message, data.recipients);
         } else if (action === 'updateJerseyNumber') {
             return updateJerseyNumber(data.playerId, data.jerseyNumber);
         }
@@ -172,60 +139,6 @@ function sendEmailNotification(to, subject, body) {
     }
 }
 
-// Helper: Send WhatsApp Message via UltraMsg
-function sendWhatsAppMessage(phoneNumber, message) {
-    const properties = PropertiesService.getScriptProperties();
-    const instanceId = properties.getProperty('ULTRAMSG_INSTANCE_ID');
-    const token = properties.getProperty('ULTRAMSG_TOKEN');
-    if (!instanceId || !token) {
-        return { success: false, error: 'WhatsApp provider credentials are not configured' };
-    }
-
-    try {
-        // Cleaning Phone Number
-        let cleanPhone = phoneNumber.toString().replace(/\D/g, '');
-
-        // Ensure international format without +
-        // If 10 digits (India), add 91
-        if (cleanPhone.length === 10) {
-            cleanPhone = '91' + cleanPhone;
-        } else if (cleanPhone.length === 11 && cleanPhone.startsWith('0')) {
-            cleanPhone = '91' + cleanPhone.slice(1);
-        }
-        if (cleanPhone.length < 11 || cleanPhone.length > 15) {
-            return { success: false, error: 'Phone number must be in international format' };
-        }
-
-        const payload = {
-            token: token,
-            to: cleanPhone,
-            body: message
-        };
-
-        const options = {
-            method: 'post',
-            payload: payload,
-            muteHttpExceptions: true // Added to capture error responses
-        };
-
-        const url = `${WHATSAPP_CONFIG.API_URL}/${instanceId}/messages/chat`;
-
-        const response = UrlFetchApp.fetch(url, options);
-        const responseText = response.getContentText();
-        const json = JSON.parse(responseText);
-
-        if (response.getResponseCode() >= 200 && response.getResponseCode() < 300 &&
-            (json.sent === 'true' || json.sent === true || json.id)) {
-            return { success: true };
-        } else {
-            return { success: false, error: JSON.stringify(json) };
-        }
-
-    } catch (e) {
-        return { success: false, error: e.toString() };
-    }
-}
-
 // MANUAL TEST FUNCTION
 // Run this directly in the editor to test email sending
 function testEmail() {
@@ -242,90 +155,6 @@ function testEmail() {
         console.log('✅ Email sent successfully!');
     } else {
         console.error('❌ Email failed:', result.error);
-    }
-}
-
-// Broadcast WhatsApp to All Players
-function broadcastWhatsApp(message, recipients) {
-    try {
-        if (!message || !String(message).trim()) {
-            throw new Error('Message is required');
-        }
-        if (!Array.isArray(recipients) || recipients.length === 0) {
-            throw new Error('Select at least one recipient');
-        }
-
-        const properties = PropertiesService.getScriptProperties();
-        if (!properties.getProperty('ULTRAMSG_INSTANCE_ID') || !properties.getProperty('ULTRAMSG_TOKEN')) {
-            throw new Error('WhatsApp provider credentials are not configured in Apps Script Script Properties');
-        }
-
-        const sheet = getSheet();
-        const data = sheet.getDataRange().getValues();
-        let count = 0;
-        const errors = [];
-        const targetEmails = new Set(
-            recipients
-                .map(email => String(email || '').trim().toLowerCase())
-                .filter(Boolean)
-        );
-        const matchedEmails = new Set();
-
-        for (let i = 1; i < data.length; i++) {
-            const email = String(data[i][4] || '').trim();
-            const normalizedEmail = email.toLowerCase();
-            const name = data[i][1];
-            const contact = data[i][3]; // Phone number in Column D (index 3)
-
-            if (!targetEmails.has(normalizedEmail) || matchedEmails.has(normalizedEmail)) {
-                continue;
-            }
-            matchedEmails.add(normalizedEmail);
-
-            const normalizedPhone = String(contact || '').replace(/\D/g, '');
-            if (normalizedPhone.length >= 10 && normalizedPhone.length <= 15) {
-                const personalization = `Hello ${name},\n\n`;
-                const fullMessage = personalization + message;
-
-                const result = sendWhatsAppMessage(normalizedPhone, fullMessage);
-
-                if (result.success) {
-                    count++;
-                } else {
-                    errors.push(`${name}: ${result.error}`);
-                    // Add a small delay to avoid rate limits if getting errors
-                    Utilities.sleep(500);
-                }
-
-                // Rate limiting: UltraMsg allows ~10 msg/sec, but let's be safe
-                // Sleep 200ms between messages
-                Utilities.sleep(200);
-            } else {
-                errors.push(`${name}: no valid phone number`);
-            }
-        }
-
-        for (const targetEmail of targetEmails) {
-            if (!matchedEmails.has(targetEmail)) {
-                errors.push(`No registered player matched recipient ${targetEmail}`);
-            }
-        }
-
-        const failed = errors.length;
-        return ContentService.createTextOutput(JSON.stringify({
-            success: targetEmails.size > 0 && count === targetEmails.size && failed === 0,
-            requested: targetEmails.size,
-            sent: count,
-            failed: failed,
-            message: `WhatsApp provider accepted ${count} of ${targetEmails.size} selected player message(s); ${failed} failed.`,
-            errors: errors.length > 0 ? errors : null
-        })).setMimeType(ContentService.MimeType.JSON);
-
-    } catch (error) {
-        return ContentService.createTextOutput(JSON.stringify({
-            success: false,
-            error: error.toString()
-        })).setMimeType(ContentService.MimeType.JSON);
     }
 }
 

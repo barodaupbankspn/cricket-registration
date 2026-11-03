@@ -269,25 +269,6 @@ async function sendBroadcastToSheets(subject, message, recipients, adminKey) {
     }
 }
 
-// Send WhatsApp Broadcast
-async function sendBroadcastWhatsAppToSheets(message, recipients, adminKey) {
-    if (!isSheetsConfigured()) {
-        return { success: false, error: 'Not configured' };
-    }
-
-    try {
-        return await postToSheets({
-            action: 'broadcastWhatsApp',
-            message: message,
-            recipients: recipients,
-            adminKey: adminKey
-        });
-    } catch (error) {
-        console.error('Error sending WhatsApp broadcast:', error);
-        return Object.assign({ success: false, error: error.message }, error.responseData || {});
-    }
-}
-
 // Update jersey number in Google Sheets
 async function updateJerseyNumberInSheets(playerId, jerseyNumber) {
     if (!isSheetsConfigured()) {
