@@ -233,21 +233,39 @@ function getLastSyncTime() {
 }
 
 // Send Broadcast Email
-async function sendBroadcastToSheets(subject, message, recipients) {
+async function sendBroadcastToSheets(subject, message, recipients, adminKey) {
     if (!isSheetsConfigured()) {
         return { success: false, error: 'Not configured' };
     }
 
     try {
+        const capabilityResponse = await fetch(
+            GOOGLE_SHEETS_URL + '?action=getMessagingCapabilities&_=' + Date.now(),
+            { method: 'GET', cache: 'no-store' }
+        );
+        if (!capabilityResponse.ok) {
+            throw new Error(`Apps Script capability check failed (${capabilityResponse.status})`);
+        }
+        const capabilities = await capabilityResponse.json();
+        if (capabilities.success !== true ||
+            capabilities.emailBroadcastVersion !== 1 ||
+            capabilities.requiresAdminKey !== true) {
+            return {
+                success: false,
+                error: 'Email was not sent: the deployed Apps Script is outdated. Deploy the current google-apps-script.js and try again.'
+            };
+        }
+
         return await postToSheets({
             action: 'broadcast',
             subject: subject,
             message: message,
-            recipients: recipients
+            recipients: recipients,
+            adminKey: adminKey
         });
     } catch (error) {
         console.error('Error sending broadcast:', error);
-        return { success: false, error: error.message };
+        return Object.assign({ success: false, error: error.message }, error.responseData || {});
     }
 }
 

@@ -25,11 +25,23 @@ function forceAuth() {
 }
 // -------------------------------------------------------------
 
+function authorizeEmail() {
+    GmailApp.getAliases();
+    console.log('Email sending permission granted.');
+}
+
 function doGet(e) {
     const action = e.parameter.action;
 
     if (action === 'getPlayers') {
         return getPlayers();
+    }
+    if (action === 'getMessagingCapabilities') {
+        return ContentService.createTextOutput(JSON.stringify({
+            success: true,
+            emailBroadcastVersion: 1,
+            requiresAdminKey: true
+        })).setMimeType(ContentService.MimeType.JSON);
     }
 
     return ContentService.createTextOutput(JSON.stringify({
@@ -50,6 +62,13 @@ function doPost(e) {
         } else if (action === 'deletePlayer') {
             return deletePlayer(data.playerId);
         } else if (action === 'broadcast') {
+            const expectedKey = PropertiesService.getScriptProperties().getProperty('WHATSAPP_ADMIN_KEY');
+            if (!expectedKey || data.adminKey !== expectedKey) {
+                return ContentService.createTextOutput(JSON.stringify({
+                    success: false,
+                    error: 'Email admin API key is missing or invalid'
+                })).setMimeType(ContentService.MimeType.JSON);
+            }
             return broadcastEmail(data.subject, data.message, data.recipients);
         } else if (action === 'broadcastWhatsApp') {
             const expectedKey = PropertiesService.getScriptProperties().getProperty('WHATSAPP_ADMIN_KEY');
@@ -440,45 +459,114 @@ function deletePlayer(playerId) {
     }
 }
 
-// Broadcast Email to All Players
+function escapeEmailHtml(value) {
+    return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// Send an individual email to each selected, registered player.
 function broadcastEmail(subject, message, recipients) {
     try {
-        const sheet = getSheet();
-        const data = sheet.getDataRange().getValues();
-        let count = 0;
+        const cleanSubject = String(subject || '').trim();
+        const cleanMessage = String(message || '').trim();
+        if (!cleanSubject || !cleanMessage) {
+            throw new Error('Email subject and message are required');
+        }
+        if (/[\r\n]/.test(cleanSubject)) {
+            throw new Error('Email subject cannot contain line breaks');
+        }
+        if (!Array.isArray(recipients) || recipients.length === 0) {
+            throw new Error('Select at least one recipient');
+        }
 
-        // If recipients provided, convert to Set for O(1) lookup
-        const targetEmails = recipients ? new Set(recipients) : null;
-
-        for (let i = 1; i < data.length; i++) {
-            const email = data[i][4];
-            const name = data[i][1];
-
-            if (email && email.includes('@')) {
-                // Skip if we have a target list and this email isn't in it
-                if (targetEmails && !targetEmails.has(email)) {
-                    continue;
-                }
-
-                const body = `
-                    <h2>Announcement from Shahjahanpur Spartans</h2>
-                    <p>Dear ${name},</p>
-                    <p>${message.replace(/\n/g, '<br>')}</p>
-                    <br>
-                    <p>Best Regards,<br>Shahjahanpur Spartans Admin</p>
-                `;
-                try {
-                    GmailApp.sendEmail(email, subject, "", {
-                        htmlBody: body
-                    });
-                    count++;
-                } catch (e) {
-                    console.error('Failed to send to ' + email, e);
-                }
+        const targetEmails = new Set(recipients
+            .map(email => String(email || '').trim().toLowerCase())
+            .filter(Boolean));
+        if (targetEmails.size === 0 || targetEmails.size !== recipients.length) {
+            throw new Error('Recipients must be valid, unique email addresses');
+        }
+        for (const email of targetEmails) {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                throw new Error('One or more selected recipient email addresses are invalid');
             }
         }
+
+        const properties = PropertiesService.getScriptProperties();
+        const senderAddress = String(properties.getProperty('EMAIL_SENDER_ADDRESS') || '').trim().toLowerCase();
+        if (!senderAddress) {
+            throw new Error('Set EMAIL_SENDER_ADDRESS in Apps Script Script Properties');
+        }
+        const effectiveAddress = String(Session.getEffectiveUser().getEmail() || '').trim().toLowerCase();
+        const aliases = GmailApp.getAliases().map(alias => String(alias).trim().toLowerCase());
+        const isPrimarySender = senderAddress === effectiveAddress;
+        const isConfiguredAlias = aliases.includes(senderAddress);
+        if (!isPrimarySender && !isConfiguredAlias) {
+            throw new Error('EMAIL_SENDER_ADDRESS must be the Apps Script account or one of its verified Gmail send-as aliases');
+        }
+
+        const sheet = getSheet();
+        const data = sheet.getDataRange().getValues();
+        const selectedPlayers = new Map();
+        const errors = [];
+
+        for (let i = 1; i < data.length; i++) {
+            const email = String(data[i][4] || '').trim().toLowerCase();
+            const name = data[i][1];
+            if (targetEmails.has(email) && !selectedPlayers.has(email)) {
+                selectedPlayers.set(email, String(name || 'Player'));
+            }
+        }
+
+        for (const email of targetEmails) {
+            if (!selectedPlayers.has(email)) {
+                errors.push(`No registered player matched ${email}`);
+            }
+        }
+
+        let sent = 0;
+        for (const [email, name] of selectedPlayers) {
+            const greetingName = escapeEmailHtml(name);
+            const safeMessage = escapeEmailHtml(cleanMessage).replace(/\r\n|\r|\n/g, '<br>');
+            const htmlBody = `
+                <h2>Announcement from Shahjahanpur Spartans</h2>
+                <p>Dear ${greetingName},</p>
+                <p>${safeMessage}</p>
+                <br>
+                <p>Best Regards,<br>Shahjahanpur Spartans Admin</p>
+            `;
+            const plainBody = `Announcement from Shahjahanpur Spartans\n\nDear ${name},\n\n${cleanMessage}\n\nBest Regards,\nShahjahanpur Spartans Admin`;
+            const options = {
+                htmlBody: htmlBody,
+                name: 'Shahjahanpur Spartans',
+                replyTo: senderAddress
+            };
+            if (isConfiguredAlias && !isPrimarySender) {
+                options.from = senderAddress;
+            }
+
+            try {
+                GmailApp.sendEmail(email, cleanSubject, plainBody, options);
+                sent++;
+            } catch (error) {
+                console.error('Failed to send selected player email:', email, error);
+                errors.push(`Could not send to ${email}: ${error.message || error}`);
+            }
+        }
+
+        const failed = errors.length;
+        const success = sent === targetEmails.size && failed === 0;
         return ContentService.createTextOutput(JSON.stringify({
-            success: true, message: `Broadcast sent to ${count} players`
+            success: success,
+            requested: targetEmails.size,
+            sent: sent,
+            failed: failed,
+            message: `Email sent to ${sent} of ${targetEmails.size} selected player(s); ${failed} failed.`,
+            errors: failed > 0 ? errors : null,
+            from: senderAddress
         })).setMimeType(ContentService.MimeType.JSON);
     } catch (error) {
         return ContentService.createTextOutput(JSON.stringify({
