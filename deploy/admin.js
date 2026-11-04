@@ -235,14 +235,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             playersTableBody.appendChild(row);
 
-            const actionsCell = row.lastElementChild;
+            const nameCell = row.children[2];
             const editButton = document.createElement('button');
             editButton.type = 'button';
-            editButton.className = 'view-btn';
-            editButton.textContent = '✏️ Edit';
-            editButton.style.cssText = 'background: linear-gradient(135deg, #6c63ff, #4a43c8); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-right: 5px;';
+            editButton.className = 'btn btn-secondary';
+            editButton.textContent = '✏️ Edit details';
+            editButton.setAttribute('aria-label', `Edit details for ${playerName}`);
+            editButton.style.cssText = 'display: block; margin-top: 6px; padding: 4px 8px; font-size: 0.8rem;';
             editButton.addEventListener('click', () => window.editPlayer(player.id));
-            actionsCell.insertBefore(editButton, actionsCell.firstChild);
+            nameCell.appendChild(editButton);
         });
     }
 
