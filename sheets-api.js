@@ -161,6 +161,24 @@ async function updatePlayerStatusInSheets(playerId, status) {
     }
 }
 
+async function updatePlayerDetailsInSheets(playerId, player, adminKey) {
+    if (!isSheetsConfigured()) {
+        return { success: false, error: 'Google Sheets is not configured' };
+    }
+
+    try {
+        return await postToSheets({
+            action: 'updatePlayerDetails',
+            playerId: playerId,
+            player: player,
+            adminKey: adminKey
+        });
+    } catch (error) {
+        console.error('Error updating player details in Google Sheets:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 // Delete player from Google Sheets
 async function deletePlayerFromSheets(playerId) {
     if (!isSheetsConfigured()) {

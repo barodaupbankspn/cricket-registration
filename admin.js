@@ -293,8 +293,190 @@ document.addEventListener('DOMContentLoaded', function () {
             `;
 
             playersTableBody.appendChild(row);
+
+            const actionsCell = row.lastElementChild;
+            const editButton = document.createElement('button');
+            editButton.type = 'button';
+            editButton.className = 'view-btn';
+            editButton.textContent = '✏️ Edit';
+            editButton.style.cssText = 'background: linear-gradient(135deg, #6c63ff, #4a43c8); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-right: 5px;';
+            editButton.addEventListener('click', () => window.editPlayer(player.id));
+            actionsCell.insertBefore(editButton, actionsCell.firstChild);
         });
     }
+
+    window.editPlayer = function (id) {
+        if (localStorage.getItem('adminLoggedIn') !== 'true') {
+            alert('Please log in as an admin to edit player details.');
+            return;
+        }
+
+        const player = getPlayers().find(item => String(item.id) === String(id));
+        if (!player) {
+            alert('Player not found. Refresh the dashboard and try again.');
+            return;
+        }
+
+        const fieldDefinitions = [
+            { name: 'name', label: 'Full Name', type: 'text', required: true, minLength: 2, maxLength: 100 },
+            { name: 'age', label: 'Age', type: 'number', required: true, min: 10, max: 100 },
+            { name: 'contact', label: 'Contact Number', type: 'tel', required: true, pattern: '[0-9]{10}', maxLength: 10 },
+            { name: 'email', label: 'Email Address', type: 'email', required: true, maxLength: 254 },
+            { name: 'placeOfPosting', label: 'Place of Posting', type: 'text', required: true, maxLength: 150 },
+            { name: 'address', label: 'Address', type: 'textarea', required: true, maxLength: 500 },
+            { name: 'jerseySize', label: 'Jersey Size', type: 'select', required: true, options: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'] },
+            { name: 'role', label: 'Playing Role', type: 'select', required: true, options: ['Batsman', 'Bowler', 'All-Rounder', 'Wicket-Keeper', 'Wicket-Keeper Batsman'] },
+            { name: 'battingStyle', label: 'Batting Style', type: 'select', required: true, options: ['Right-Hand', 'Left-Hand', 'N/A'] },
+            { name: 'bowlingStyle', label: 'Bowling Style', type: 'select', required: false, options: ['', 'Right-Arm Fast', 'Left-Arm Fast', 'Right-Arm Medium', 'Left-Arm Medium', 'Right-Arm Spin', 'Left-Arm Spin', 'N/A'] },
+            { name: 'experience', label: 'Experience Level', type: 'select', required: true, options: ['Beginner', 'Intermediate', 'Advanced', 'Professional'] }
+        ];
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 1rem; background: rgba(0, 0, 0, 0.8);';
+
+        const panel = document.createElement('div');
+        panel.className = 'card';
+        panel.style.cssText = 'width: min(720px, 100%); max-height: 90vh; overflow-y: auto; padding: 1.5rem;';
+
+        const title = document.createElement('h2');
+        title.textContent = `Edit Player: ${player.name || 'Player'}`;
+        panel.appendChild(title);
+
+        const form = document.createElement('form');
+        const grid = document.createElement('div');
+        grid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem 1rem;';
+        const controls = {};
+
+        fieldDefinitions.forEach(field => {
+            const group = document.createElement('div');
+            group.className = 'form-group';
+            const label = document.createElement('label');
+            label.textContent = field.label + (field.required ? ' *' : '');
+
+            let control;
+            if (field.type === 'select') {
+                control = document.createElement('select');
+                field.options.forEach(optionValue => {
+                    const option = document.createElement('option');
+                    option.value = optionValue;
+                    option.textContent = optionValue || 'Select style';
+                    control.appendChild(option);
+                });
+            } else if (field.type === 'textarea') {
+                control = document.createElement('textarea');
+                control.rows = 3;
+                control.style.resize = 'vertical';
+            } else {
+                control = document.createElement('input');
+                control.type = field.type;
+                if (field.min !== undefined) control.min = String(field.min);
+                if (field.max !== undefined) control.max = String(field.max);
+                if (field.minLength !== undefined) control.minLength = field.minLength;
+                if (field.maxLength !== undefined) control.maxLength = field.maxLength;
+                if (field.pattern) control.pattern = field.pattern;
+            }
+
+            control.name = field.name;
+            control.required = field.required;
+            control.value = String(player[field.name] == null ? '' : player[field.name]);
+            label.htmlFor = `edit-player-${field.name}`;
+            control.id = label.htmlFor;
+            group.append(label, control);
+            grid.appendChild(group);
+            controls[field.name] = control;
+        });
+
+        const errorMessage = document.createElement('p');
+        errorMessage.setAttribute('role', 'alert');
+        errorMessage.style.cssText = 'color: var(--danger); min-height: 1.5em;';
+
+        const actions = document.createElement('div');
+        actions.style.cssText = 'display: flex; justify-content: flex-end; gap: 0.75rem; flex-wrap: wrap;';
+        const cancelButton = document.createElement('button');
+        cancelButton.type = 'button';
+        cancelButton.className = 'btn btn-secondary';
+        cancelButton.textContent = 'Cancel';
+        const saveButton = document.createElement('button');
+        saveButton.type = 'submit';
+        saveButton.className = 'btn btn-primary';
+        saveButton.textContent = 'Save Changes';
+        actions.append(cancelButton, saveButton);
+        form.append(grid, errorMessage, actions);
+        panel.appendChild(form);
+        overlay.appendChild(panel);
+        document.body.appendChild(overlay);
+
+        const closeDialog = () => overlay.remove();
+        cancelButton.addEventListener('click', closeDialog);
+        overlay.addEventListener('click', event => {
+            if (event.target === overlay) closeDialog();
+        });
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            errorMessage.textContent = '';
+            if (localStorage.getItem('adminLoggedIn') !== 'true') {
+                closeDialog();
+                alert('Your admin session has ended. Log in again to edit player details.');
+                return;
+            }
+            if (!form.reportValidity()) return;
+
+            const updatedDetails = {};
+            fieldDefinitions.forEach(field => {
+                const value = controls[field.name].value.trim();
+                updatedDetails[field.name] = field.name === 'age' ? Number(value) : value;
+            });
+
+            const duplicateContact = getPlayers().some(item =>
+                String(item.id) !== String(player.id) &&
+                normalizeCricketPhone(item.contact) === updatedDetails.contact
+            );
+            if (duplicateContact) {
+                errorMessage.textContent = 'That mobile number is already registered to another player.';
+                controls.contact.focus();
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.textContent = 'Saving...';
+            try {
+                const sheetsConfigured = typeof isSheetsConfigured === 'function' && isSheetsConfigured();
+                if (sheetsConfigured) {
+                    if (typeof updatePlayerDetailsInSheets !== 'function') {
+                        throw new Error('Player editing is unavailable on the server. Deploy the updated Google Apps Script and try again.');
+                    }
+                    const adminKey = prompt('Enter the private admin action key configured as EMAIL_ADMIN_KEY in Google Apps Script. The site does not save it.');
+                    if (!adminKey) {
+                        saveButton.disabled = false;
+                        saveButton.textContent = 'Save Changes';
+                        return;
+                    }
+                    const result = await updatePlayerDetailsInSheets(player.id, updatedDetails, adminKey);
+                    if (!result.success) {
+                        throw new Error(result.error || 'Google Sheets did not confirm the update. No local changes were made.');
+                    }
+                }
+
+                const players = getPlayers();
+                const playerIndex = players.findIndex(item => String(item.id) === String(player.id));
+                if (playerIndex === -1) throw new Error('Player record no longer exists in this browser. Refresh and try again.');
+                players[playerIndex] = Object.assign({}, players[playerIndex], updatedDetails);
+                localStorage.setItem('cricketPlayers', JSON.stringify(players));
+                closeDialog();
+                if (searchInput.value) filterPlayers();
+                else loadPlayers();
+                alert(sheetsConfigured
+                    ? 'Player details updated successfully.'
+                    : 'Player details updated on this device only. Configure Google Sheets to share the correction across devices.');
+            } catch (error) {
+                console.error('Player update failed:', error);
+                errorMessage.textContent = error.message || 'Could not save player details.';
+                saveButton.disabled = false;
+                saveButton.textContent = 'Save Changes';
+            }
+        });
+    };
 
     // Bulk Actions
     window.toggleSelectAll = function (source) {

@@ -9,7 +9,7 @@ The admin portal sends a separate email to each selected player's registered ema
 3. The Google account that owns the deployment should be `barodaupbankspn@gmail.com` to send from that address. If that address is a verified Gmail send-as alias on the executing account, it can also be used as the sender. The script validates this; it does not spoof arbitrary From addresses.
 4. In **Project Settings → Script Properties**, set:
    - `EMAIL_SENDER_ADDRESS`: `barodaupbankspn@gmail.com`
-   - `EMAIL_ADMIN_KEY`: a unique, high-entropy private key used only to authorize email broadcasts. Do not put this key in the website or repository.
+   - `EMAIL_ADMIN_KEY`: a unique, high-entropy private key used to authorize email broadcasts and admin player-detail corrections. It is requested at the time of each action and is not stored in the website. Do not commit this key to the website or repository.
 5. In the Apps Script editor, run `authorizeEmail` once and grant the Gmail sending permission. This function only requests authorization; it does not send an email.
 6. Under **Deploy → Manage deployments**, edit the web-app deployment, choose **New version**, and deploy the updated script. The website and Apps Script endpoint must use the same deployment URL.
 
@@ -19,7 +19,7 @@ The admin page checks that the live Apps Script supports protected email broadca
 
 1. Sign in, sync the player list, and select the intended registered players.
 2. Choose **Email Selected**, enter a subject and message, then choose **Send Email to Selected**.
-3. Confirm the recipient count and enter the `EMAIL_ADMIN_KEY`. The site does not save the key.
+3. Confirm the recipient count and enter the `EMAIL_ADMIN_KEY`. The site does not save the key. Admins also enter this key when saving player-detail corrections.
 4. The status reports how many messages were sent and any failures. Each recipient gets an individual email rather than seeing other players' addresses.
 
 The Apps Script account is subject to Google's mail quotas and account policies. A message is counted as sent only when GmailApp accepts it; this does not guarantee inbox delivery. Test with one opted-in address first. Never send unsolicited bulk mail.
