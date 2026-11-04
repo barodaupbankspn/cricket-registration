@@ -23,6 +23,15 @@ function doPost(e) {
             return addPlayer(data.player);
         } else if (action === 'updateStatus') {
             return updatePlayerStatus(data.playerId, data.status);
+        } else if (action === 'updatePlayerDetails') {
+            const expectedKey = PropertiesService.getScriptProperties().getProperty('EMAIL_ADMIN_KEY');
+            if (!expectedKey || data.adminKey !== expectedKey) {
+                return ContentService.createTextOutput(JSON.stringify({
+                    success: false,
+                    error: 'Admin action key is missing or invalid'
+                })).setMimeType(ContentService.MimeType.JSON);
+            }
+            return updatePlayerDetails(data.playerId, data.player);
         } else if (action === 'deletePlayer') {
             return deletePlayer(data.playerId);
         } else if (action === 'broadcast') {
@@ -38,6 +47,95 @@ function doPost(e) {
         return ContentService.createTextOutput(JSON.stringify({
             success: false,
             error: error.toString()
+        })).setMimeType(ContentService.MimeType.JSON);
+    }
+}
+
+function normalizeRegistrationPhone(phone) {
+    const digits = String(phone || '').replace(/\D/g, '');
+    return digits.length > 10 ? digits.slice(-10) : digits;
+}
+
+function updatePlayerDetails(playerId, player) {
+    try {
+        const requiredTextFields = ['name', 'contact', 'email', 'placeOfPosting', 'address', 'role', 'battingStyle', 'experience', 'jerseySize'];
+        if (playerId == null || String(playerId).trim() === '' || !player || typeof player !== 'object') {
+            throw new Error('Player ID and details are required');
+        }
+
+        const details = {};
+        requiredTextFields.forEach(field => {
+            details[field] = String(player[field] == null ? '' : player[field]).trim();
+        });
+        details.age = Number(player.age);
+        details.bowlingStyle = String(player.bowlingStyle == null ? '' : player.bowlingStyle).trim() || 'N/A';
+
+        if (details.name.length < 2 || details.name.length > 100 ||
+            !Number.isInteger(details.age) || details.age < 10 || details.age > 100 ||
+            !/^\d{10}$/.test(details.contact) ||
+            details.email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email) ||
+            details.placeOfPosting.length > 150 || details.address.length > 500) {
+            throw new Error('One or more player details are invalid');
+        }
+
+        const allowedValues = {
+            role: ['Batsman', 'Bowler', 'All-Rounder', 'Wicket-Keeper', 'Wicket-Keeper Batsman'],
+            battingStyle: ['Right-Hand', 'Left-Hand', 'N/A'],
+            bowlingStyle: ['Right-Arm Fast', 'Left-Arm Fast', 'Right-Arm Medium', 'Left-Arm Medium', 'Right-Arm Spin', 'Left-Arm Spin', 'N/A'],
+            experience: ['Beginner', 'Intermediate', 'Advanced', 'Professional'],
+            jerseySize: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL']
+        };
+        Object.keys(allowedValues).forEach(field => {
+            if (allowedValues[field].indexOf(details[field]) === -1) {
+                throw new Error('Invalid ' + field);
+            }
+        });
+        if (requiredTextFields.some(field => !details[field])) {
+            throw new Error('Complete all required player details');
+        }
+
+        const lock = LockService.getScriptLock();
+        lock.waitLock(10000);
+        try {
+            const sheet = getSheet();
+            const data = sheet.getDataRange().getValues();
+            const normalizedPhone = normalizeRegistrationPhone(details.contact);
+            let playerRow = -1;
+
+            for (let i = 1; i < data.length; i++) {
+                if (String(data[i][0]) === String(playerId)) {
+                    playerRow = i + 1;
+                } else if (normalizeRegistrationPhone(data[i][3]) === normalizedPhone) {
+                    throw new Error('Mobile number is already registered to another player');
+                }
+            }
+            if (playerRow === -1) throw new Error('Player not found');
+
+            sheet.getRange(playerRow, 2, 1, 11).setValues([[
+                details.name,
+                details.age,
+                details.contact,
+                details.email,
+                details.placeOfPosting,
+                details.address,
+                details.role,
+                details.battingStyle,
+                details.bowlingStyle,
+                details.experience,
+                details.jerseySize
+            ]]);
+        } finally {
+            lock.releaseLock();
+        }
+
+        return ContentService.createTextOutput(JSON.stringify({
+            success: true,
+            message: 'Player details updated'
+        })).setMimeType(ContentService.MimeType.JSON);
+    } catch (error) {
+        return ContentService.createTextOutput(JSON.stringify({
+            success: false,
+            error: error.message || String(error)
         })).setMimeType(ContentService.MimeType.JSON);
     }
 }

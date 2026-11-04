@@ -10,6 +10,12 @@ function isSheetsConfigured() {
 }
 window.isSheetsConfigured = isSheetsConfigured;
 
+function normalizeCricketPhone(value) {
+    const digits = String(value || '').replace(/\D/g, '');
+    return digits.length > 10 ? digits.slice(-10) : digits;
+}
+window.normalizeCricketPhone = normalizeCricketPhone;
+
 // Save player to Google Sheets
 async function savePlayerToSheets(player) {
     if (!isSheetsConfigured()) {
@@ -87,6 +93,32 @@ async function updatePlayerStatusInSheets(playerId, status) {
         return { success: true };
     } catch (error) {
         console.error('Error updating status in Google Sheets:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+async function updatePlayerDetailsInSheets(playerId, player, adminKey) {
+    if (!isSheetsConfigured()) {
+        return { success: false, error: 'Google Sheets is not configured' };
+    }
+
+    try {
+        const response = await fetch(GOOGLE_SHEETS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                action: 'updatePlayerDetails',
+                playerId: playerId,
+                player: player,
+                adminKey: adminKey
+            })
+        });
+        if (!response.ok) throw new Error(`Google Sheets request failed (${response.status})`);
+        const result = await response.json();
+        if (!result.success) throw new Error(result.error || 'Google Sheets rejected the update');
+        return result;
+    } catch (error) {
+        console.error('Error updating player details in Google Sheets:', error);
         return { success: false, error: error.message };
     }
 }
